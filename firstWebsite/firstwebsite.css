@@ -1,0 +1,116 @@
+:root{
+    --backgroundcolor: hsl(300, 35%, 85%);
+    --color: hsl(0, 3%, 16%);
+    --backgroundcolor1: hsl(0, 0%, 96%)
+}
+body{
+    background-color: var(--backgroundcolor1)
+}
+.circleLogo{
+    width: 90px;
+    height: 90px;
+    background-color: var(--backgroundcolor);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items:center;
+    position: relative;
+    margin: 0 auto;
+    margin-top: 70px;
+}
+#topLogo{
+    border-radius: 50%;
+    width: 70%;
+    position: absolute;
+    top: 1px;   
+    left: 50%;
+    transform: translateX(-50%)
+}
+#logoContent{
+    width: 60px;
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--backgroundcolor1);
+    font-weight: bolder;
+    font-size: 4.5px;
+    text-align: center;
+    letter-spacing: 0.31px;
+}
+#brandName{
+    font-weight: bolder;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 5px;
+    color: var(--color);
+}
+#shoppingMessage{
+    font-weight: lighter;
+    text-align: center;
+    color: var(--color);  
+}
+.jcLogo{
+    width: 90%;
+    max-width:390px;
+    position: relative;
+    margin: 0 auto;
+    margin-top: 30px;
+}
+#backgroundLogo {
+    display: block;
+    width: 90%;
+    height: 200px;
+}
+#bottomLogo {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    top: 50%;  
+    left: 45%;    
+    transform: translate(-50%, -50%);
+}
+.websiteLink{
+    width: 90%;
+    max-width: 314px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--backgroundcolor);
+    color: var(--color);
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    border-radius: 5px;
+    right :20px;
+    top: -30px;
+}
+.icons{
+    border-radius: 5px;
+    width: 90%;
+    max-width: 314px;
+    right :20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--backgroundcolor);
+    margin: 20px auto;
+    padding: 20px;
+    position: relative; 
+}
+#www{
+    margin-top: 0px;
+}
+#iconStyle{
+    color: var(--color);
+    position: absolute;
+    top: 15px;
+    left: 50px;
+    line-height: 2;
+}
+a{
+    text-decoration: none;
+    color:var(--color);
+}
