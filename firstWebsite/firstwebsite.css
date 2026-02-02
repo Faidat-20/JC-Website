@@ -1,5 +1,5 @@
 :root{
-    --backgroundcolor: hsl(300, 35%, 85%);
+    --backgroundcolor: hsl(300, 28%, 83%);
     --color: hsl(0, 3%, 16%);
     --backgroundcolor1: hsl(0, 0%, 96%)
 }
@@ -52,14 +52,15 @@ body{
 }
 .jcLogo{
     width: 90%;
-    max-width:390px;
+    max-width:410px;
     position: relative;
     margin: 0 auto;
     margin-top: 30px;
+    left: 20px; 
 }
 #backgroundLogo {
     display: block;
-    width: 90%;
+    width: 80%;
     height: 200px;
 }
 #bottomLogo {
@@ -67,7 +68,7 @@ body{
     width: 50%;
     height: 100%;
     top: 50%;  
-    left: 45%;    
+    left: 40%;    
     transform: translate(-50%, -50%);
 }
 .websiteLink{
@@ -80,11 +81,11 @@ body{
     background-color: var(--backgroundcolor);
     color: var(--color);
     margin: 0 auto;
-    padding: 20px;
+    padding: 10px;
     position: relative;
     border-radius: 5px;
     right :20px;
-    top: -30px;
+    top: -20px;
 }
 .icons{
     border-radius: 5px;
@@ -96,8 +97,8 @@ body{
     align-items: center;
     justify-content: center;
     background-color: var(--backgroundcolor);
-    margin: 20px auto;
-    padding: 20px;
+    margin: 10px auto;
+    padding: 10px;
     position: relative; 
 }
 #www{
@@ -106,11 +107,21 @@ body{
 #iconStyle{
     color: var(--color);
     position: absolute;
-    top: 15px;
-    left: 50px;
+    top: 5px;
+    left: 15px;
     line-height: 2;
 }
 a{
     text-decoration: none;
     color:var(--color);
+}
+h5{
+    text-align: center;
+    margin-top: 0px;
+
+}
+.bottomIcon{
+    text-align: center;
+    text-decoration: none;
+    color: var(--color);
 }
