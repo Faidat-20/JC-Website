@@ -73,10 +73,6 @@
     cursor: pointer;
     color: hsl(0, 3%, 16%)
 }
-#cart:hover{
-    color: rgb(223, 179, 186);
-}
-
 .navbar.search-active .navLeft,
 .navbar.search-active .navRight {
     display: none;
@@ -115,4 +111,17 @@
 }
 .navbar.search-active .closeSearch {
     display: inline-flex;
+}
+
+.cartWrapper {
+    width: 25px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.25s ease;
+}
+.cartWrapper:hover {
+    background-color: rgba(255, 177, 191, 0.368);
 }
