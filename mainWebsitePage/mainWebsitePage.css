@@ -131,12 +131,33 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
     transition: background-color 0.25s ease;
 }
 .cartWrapper:hover {
     background-color: rgba(255, 177, 191, 0.368);
 }
 
+.cartTooltip {
+    position: absolute;
+    bottom: -32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f6f6f6;
+    color: black;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    font-weight: bold;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.cartWrapper:hover .cartTooltip {
+    opacity: 1;
+}
 @media (max-width: 768px) {
 
     .navbar {
