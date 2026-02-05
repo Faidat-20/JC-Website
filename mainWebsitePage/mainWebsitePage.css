@@ -1,3 +1,10 @@
+:root{
+    --color: black;
+    --primaryColor: white; 
+    --secondaryColor: #f6f6f6;
+    --tertiaryColor: #333333;
+    --pageColor: hsl(357, 45%, 69%);
+}
 * {
     margin: 0;
     padding: 0;
@@ -8,7 +15,7 @@
     display: flex;
     align-items: center;
     padding: 16px 50px;
-    background-color: white;
+    background-color: var(--primaryColor);
     margin-top: 10px;
     gap: 16px;
 }
@@ -21,17 +28,17 @@
     align-items: center;
     padding: 14px;
     border-radius: 28px;
-    background: #f6f6f6;
+    background: var(--secondaryColor);
     width: 350px;
     transition: box-shadow 0.25s;
 }
 .search:focus-within{
-    box-shadow: 0 0 2px hsl(357, 45%, 69%)
+    box-shadow: 0 0 2px var(--pageColor);
 }
 .searchInput{
     font-size: 16px;
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    color: #333333;
+    color: var(--tertiaryColor);
     margin-left: 14px;
     border: none;
     outline: none;
@@ -40,10 +47,10 @@
     min-width: 0;
 }
 .searchInput::placeholder{
-    color: black;
+    color: var(--color);
 }
 #icon{
-    color: #333333;
+    color: var(--tertiaryColor);
     flex-shrink: 0;
     width: 18px;
     height: 18px;
@@ -71,7 +78,7 @@
 }
 
 .login:hover{
-    color: #dca6ac
+    color: var(--pageColor);
 }
 
 #cart{
@@ -116,7 +123,7 @@
     margin-left: 15px;
     cursor: pointer;
     display: none;
-    color: #333333
+    color: var(--tertiaryColor);
 
 }
 .navbar.search-active .closeSearch {
@@ -142,8 +149,8 @@
     bottom: -32px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #f6f6f6;
-    color: black;
+    background-color: var(--secondaryColor);
+    color: var(--color);
     font-size: 12px;
     padding: 4px 8px;
     border-radius: 6px;
@@ -179,7 +186,7 @@
 .greetingMessage {
     position: relative;
     text-align: center;
-    color: white;
+    color: var(--primaryColor);
     opacity: 0;
     animation: fadeUp 1s ease forwards;
     animation-delay: 0.1s;
