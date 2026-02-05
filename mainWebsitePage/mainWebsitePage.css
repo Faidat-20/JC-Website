@@ -9,7 +9,6 @@
     align-items: center;
     padding: 16px 50px;
     background-color: white;
-    border: solid 1px blue;
     margin-top: 10px;
     gap: 16px;
 }
@@ -27,7 +26,7 @@
     transition: box-shadow 0.25s;
 }
 .search:focus-within{
-    box-shadow: 0 0 2px hsl(300, 69%, 80%);
+    box-shadow: 0 0 2px hsl(357, 45%, 69%)
 }
 .searchInput{
     font-size: 16px;
@@ -72,7 +71,7 @@
 }
 
 .login:hover{
-    color: rgb(223, 179, 186);
+    color: #dca6ac
 }
 
 #cart{
@@ -135,7 +134,7 @@
     transition: background-color 0.25s ease;
 }
 .cartWrapper:hover {
-    background-color: rgba(255, 177, 191, 0.368);
+    background-color:rgba(220, 166, 172, 0.25);
 }
 
 .cartTooltip {
@@ -158,6 +157,55 @@
 .cartWrapper:hover .cartTooltip {
     opacity: 1;
 }
+
+.greeting {
+    position: relative;
+    margin-top: 10px;
+    min-height: 35vh; 
+    background-image: url("../images/greetingBackgroundImage.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.greetingOverlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.greetingMessage {
+    position: relative;
+    text-align: center;
+    color: white;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards;
+    animation-delay: 0.1s;
+}
+.greetingMessage h1 {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 700;
+
+}
+.greetingMessage h2 {
+    font-size: clamp(16px, 2.5vw, 22px);
+    font-weight: 400;
+    margin-top: 10px;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @media (max-width: 768px) {
 
     .navbar {
@@ -188,7 +236,3 @@
         font-size: 13px;
     }
 }
-
-
-
-
