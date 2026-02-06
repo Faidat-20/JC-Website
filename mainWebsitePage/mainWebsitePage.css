@@ -3,7 +3,9 @@
     --primaryColor: white; 
     --secondaryColor: #f6f6f6;
     --tertiaryColor: #333333;
-    --pageColor: hsl(357, 45%, 69%);
+    --navColor: hsl(357, 45%, 69%);
+    --pageColor: rgba(220, 166, 172, 0.25);
+    --backgroundcolor: hsl(0, 0%, 96%)
 }
 * {
     margin: 0;
@@ -11,13 +13,18 @@
     box-sizing: border-box;
     font-family: Arial, sans-serif;
 }
+body{
+    background-color: var(--backgroundcolor)
+}
 .navbar{
     display: flex;
     align-items: center;
-    padding: 16px 50px;
+    padding: 30px 50px;
     background-color: var(--primaryColor);
-    margin-top: 10px;
-    gap: 16px;
+    margin-top: 0;
+    gap: 28px;
+    position: relative;
+    z-index: 1000;
 }
 .businessName{
     font-family: 'Playfair Display', serif;
@@ -26,14 +33,14 @@
 .search {
     display: flex;
     align-items: center;
-    padding: 14px;
-    border-radius: 28px;
+    padding: 16px;
+    border-radius: 32px;
     background: var(--secondaryColor);
     width: 350px;
     transition: box-shadow 0.25s;
 }
 .search:focus-within{
-    box-shadow: 0 0 2px var(--pageColor);
+    box-shadow: 0 0 2px var(--navColor);
 }
 .searchInput{
     font-size: 16px;
@@ -78,7 +85,7 @@
 }
 
 .login:hover{
-    color: var(--pageColor);
+    color: var(--navColor);
 }
 
 #cart{
@@ -141,7 +148,7 @@
     transition: background-color 0.25s ease;
 }
 .cartWrapper:hover {
-    background-color:rgba(220, 166, 172, 0.25);
+    background-color: var(--pageColor)
 }
 
 .countCart{
@@ -172,6 +179,7 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
+    z-index: 1100;
 }
 
 .cartWrapper:hover .cartTooltip {
@@ -180,7 +188,6 @@
 
 .greeting {
     position: relative;
-    margin-top: 10px;
     min-height: 35vh; 
     background-image: url("../images/greetingBackgroundImage.jpg");
     background-size: cover;
@@ -193,7 +200,7 @@
 .greetingOverlay {
     position: absolute;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
 .greetingMessage {
@@ -255,4 +262,49 @@
     .login {
         font-size: 13px;
     }
+}
+.productDisplaySection{
+    width: 900px;
+    max-width: 90vw;
+    margin: auto;
+    text-align: center;
+    padding-top: 30px;
+}
+.productList{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:20px;
+    background-color: var(--secondaryColor);
+}
+.productList .item img{
+   width: 250px ;
+
+   border-radius: 5px;
+}
+.productList .item{
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+.productList .item:hover {
+    background-color: var(--pageColor);
+}
+.productList .item h2{
+    font-weight: 500px;
+    font-size: large;
+}
+.productList .item .price{
+    letter-spacing: 1px;
+    font-weight: bolder;
+    font-size:small;
+    margin-top: 10px;
+}
+.productList .item button{
+    background-color: var(--navColor);
+    color: var(--primaryColor);
+    padding: 10px 15px;
+    border-radius: 20px;
+    margin-top: 30px;
+    border: none;
+    cursor: pointer;
 }
