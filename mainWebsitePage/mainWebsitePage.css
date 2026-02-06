@@ -144,6 +144,19 @@
     background-color:rgba(220, 166, 172, 0.25);
 }
 
+.countCart{
+    display: flex;
+    width: 20px;
+    height: 20px;
+    color: var(--primaryColor);
+    background-color: hsl(357, 91%, 86%);
+    border-radius: 50%;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    bottom: 60%;
+    right: -10px;
+}
 .cartTooltip {
     position: absolute;
     bottom: -32px;
