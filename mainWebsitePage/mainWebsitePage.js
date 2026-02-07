@@ -16,6 +16,12 @@ const cartCount = document.querySelector(".countCart");
 
 const pageContent = document.querySelector(".pageContent");
 
+const cartItemCountDisplay = document.getElementById("cartItemCount");
+const cartSubtotal = document.getElementById("cartSubtotal");
+const checkoutBtn = document.getElementById("checkoutBtn");
+const cartItemsContainer = document.getElementById("cartItems");
+const continueShopping = document.getElementById("continueShopping");
+
 // Search Input Activation
 searchInput.addEventListener("focus", () => {
   navbar.classList.add("search-active");
@@ -92,3 +98,22 @@ function resetPull() {
     pageContent.style.transition = "transform 0.06s linear";
   });
 }
+
+function showEmptyCart() {
+  cartItemCountDisplay.textContent = 0;
+  cartSubtotal.textContent = 0;
+  checkoutBtn.disabled = true;
+
+  cartItemsContainer.classList.add("empty");
+  cartItemsContainer.innerHTML = ""; // empty on purpose
+}
+
+cartWrapper.addEventListener("click", () => {
+  if (cartItemCount === 0) {
+    showEmptyCart();
+  }
+
+  cartOverlay.classList.add("active");
+  pageOverlay.classList.add("active");
+  document.body.classList.add("cart-open");
+});

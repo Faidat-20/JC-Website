@@ -34,6 +34,7 @@
         </div>
       </div>
     </header>
+
     <div class="pageContent">
       <section class="greeting">
         <div class="greetingOverlay"></div>
@@ -42,7 +43,7 @@
             <h2>Jikes Cosmectics</h2>
         </div>
       </section>
-      
+
       <section class="productDisplaySection">
         <div class="productList">
           <div class="item">
@@ -59,25 +60,31 @@
 
     <div class="pageOverlay" id="pageOverlay"></div>
     <div class="cartOverlay" id="cartOverlay">
-      <div class="cartModal">
+      <div class="cartHeader">
+        <h3>Your cart (<span id="cartItemCount">0</span> item)</h3>
+        <i class="fa-solid fa-xmark" id="closeCart"></i>
+      </div>
 
-        <div class="cartHeader">
-          <h3>Your cart (<span id="cartItemCount">0</span> items)</h3>
-          <i class="fa-solid fa-xmark" id="closeCart"></i>
+      <div class="cartItems empty" id="cartItems">
+        <!-- empty on purpose -->
+      </div>
+
+      <div class="cartFooter">
+        <div class="subtotal">
+          <span>Subtotal:</span>
+          <strong>₦<span id="cartSubtotal">0</span></strong>
         </div>
 
-        <div class="cartItems" id="cartItems"></div>
+        <button class="checkoutBtn" id="checkoutBtn" disabled>
+          Checkout
+        </button>
 
-        <div class="cartFooter">
-          <div class="subtotal">
-            <span>Subtotal:</span>
-            <strong>₦<span id="cartSubtotal">0</span></strong>
-          </div>
-          <button class="checkoutBtn">Checkout</button>
+        <div class="continueShopping" id="continueShopping">
+          Continue shopping
         </div>
-
       </div>
     </div>
+
 
 
     <script src="./mainWebsitePage/mainWebsitePage.js"></script>
