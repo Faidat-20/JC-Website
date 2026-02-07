@@ -153,16 +153,17 @@ body{
 
 .countCart{
     display: flex;
-    width: 20px;
-    height: 20px;
+    width: 15px;
+    height: 15px;
     color: var(--primaryColor);
     background-color: hsl(357, 91%, 86%);
     border-radius: 50%;
     justify-content: center;
     align-items: center;
     position: absolute;
-    bottom: 60%;
+    bottom: 70%;
     right: -10px;
+    font-size: 10px;
 }
 .cartTooltip {
     position: absolute;
@@ -177,13 +178,15 @@ body{
     white-space: nowrap;
     font-weight: bold;
     opacity: 0;
-    pointer-events: none;
+    visibility: hidden;
+    pointer-events: auto;
     transition: opacity 0.2s ease;
     z-index: 1100;
 }
 
 .cartWrapper:hover .cartTooltip {
     opacity: 1;
+    visibility: visible;
 }
 
 .greeting {
@@ -302,9 +305,107 @@ body{
 .productList .item button{
     background-color: var(--navColor);
     color: var(--primaryColor);
-    padding: 10px 15px;
-    border-radius: 20px;
+    border-radius: 15px;
     margin-top: 30px;
     border: none;
     cursor: pointer;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
 }
+.cartOverlay {
+    width: 400px;
+    height: 100vh;
+    background-color: var(--backgroundcolor);
+    color: var(--color);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: grid;
+    grid-template-rows: 70px 1fr auto;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+    display: none;
+    z-index: 2000;
+}
+
+body.cart-open {
+    overflow: hidden;
+}
+
+.cartOverlay.active {
+    display: grid;
+}
+
+.cartHeader{
+    display: flex;
+    justify-content: space-between;
+    margin: 20px;
+}
+.cartFooter {
+    padding: 16px;
+    border-top: 1px solid #ddd;
+    background-color: var(--primaryColor);
+}
+.subtotal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    margin-bottom: 16px;
+}
+
+.subtotal strong {
+    font-size: 16px;
+}
+
+.checkoutBtn {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: #1a8f2d; /* close to image green */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.checkoutBtn:hover {
+    background-color: #157a26;
+}
+.cartItems {
+    overflow-y: auto;
+}
+
+
+
+
+/* .cartTab{
+    width: 400px;
+    background-color: var(--backgroundcolor);
+    color: var(--color);
+    position: fixed;
+    inset: 0 0 0 auto;
+    display: grid;
+    grid-template-rows: 70px 1fr 70px;
+}
+.cartTab h1{
+    padding: 20px;
+    margin: 0;
+    font-weight: 300;
+}
+.cartTab .btn{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+.cartTab .btn button{
+    background-color: aqua;
+    border: none;
+    font-family: Poppins;
+    font-weight: 500;
+    cu
+} */
