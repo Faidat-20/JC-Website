@@ -309,6 +309,9 @@ body{
     font-weight: 600;
     transition: background-color 0.2s ease;
 }
+.productList .item button:hover{
+    font-size: 16.5px;
+}
 
 /* Cart Signout Styles */
 .cartOverlay {

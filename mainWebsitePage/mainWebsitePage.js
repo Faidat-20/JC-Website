@@ -49,10 +49,20 @@ closeCart.addEventListener("click", () => {
 // Count cart Display
 let cartItemCount = 0;
 
-addToCartButtons.forEach(button => {
+
+const addedProducts = new Set();
+
+// Prevent duplicate cart count for same product
+addToCartButtons.forEach((button, index) => {
   button.addEventListener("click", () => {
+    if (addedProducts.has(index)) {
+      return; //
+    }
+
+    addedProducts.add(index);
     cartItemCount++;
     cartCount.textContent = cartItemCount;
+
   });
 });
 
