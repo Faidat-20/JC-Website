@@ -117,3 +117,10 @@ cartWrapper.addEventListener("click", () => {
   pageOverlay.classList.add("active");
   document.body.classList.add("cart-open");
 });
+
+// Close cart overlay on continue shopping click
+continueShopping.addEventListener("click", () => {
+  cartOverlay.classList.remove("active");
+  pageOverlay.classList.remove("active");
+  document.body.classList.remove("cart-open");
+});
