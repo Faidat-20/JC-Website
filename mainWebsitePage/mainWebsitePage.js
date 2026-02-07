@@ -9,6 +9,7 @@ const cartIcon = document.getElementById("cart");
 const closeCart = document.getElementById("closeCart");
 const cartWrapper = document.querySelector(".cartWrapper");
 const cartOverlay = document.getElementById("cartOverlay");
+const pageOverlay = document.getElementById("pageOverlay");
 
 searchInput.addEventListener("focus", () => {
   navbar.classList.add("search-active");
@@ -22,10 +23,12 @@ closeSearch.addEventListener("click", () => {
 
 cartWrapper.addEventListener("click", () => {
     cartOverlay.classList.add("active");
+     pageOverlay.classList.add("active");
     document.body.classList.add("cart-open");
 });
 
 closeCart.addEventListener("click", () => {
     cartOverlay.classList.remove("active");
+    pageOverlay.classList.remove("active");
     document.body.classList.remove("cart-open");
 });

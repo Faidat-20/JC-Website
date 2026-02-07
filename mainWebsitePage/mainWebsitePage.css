@@ -366,7 +366,7 @@ body.cart-open {
     padding: 16px;
     font-size: 16px;
     font-weight: 600;
-    background-color: #1a8f2d; /* close to image green */
+    background-color: #1a8f2d;
     color: white;
     border: none;
     border-radius: 6px;
@@ -380,32 +380,18 @@ body.cart-open {
 .cartItems {
     overflow-y: auto;
 }
-
-
-
-
-/* .cartTab{
-    width: 400px;
-    background-color: var(--backgroundcolor);
-    color: var(--color);
+.pageOverlay {
     position: fixed;
-    inset: 0 0 0 auto;
-    display: grid;
-    grid-template-rows: 70px 1fr 70px;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease backdrop-filter 0.25s ease;;
+    z-index: 1500;
 }
-.cartTab h1{
-    padding: 20px;
-    margin: 0;
-    font-weight: 300;
+.pageOverlay.active {
+    opacity: 1;
+    visibility: visible;
 }
-.cartTab .btn{
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-}
-.cartTab .btn button{
-    background-color: aqua;
-    border: none;
-    font-family: Poppins;
-    font-weight: 500;
-    cu
-} */
