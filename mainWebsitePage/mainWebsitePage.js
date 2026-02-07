@@ -11,6 +11,9 @@ const cartWrapper = document.querySelector(".cartWrapper");
 const cartOverlay = document.getElementById("cartOverlay");
 const pageOverlay = document.getElementById("pageOverlay");
 
+const addToCartButtons = document.querySelectorAll(".addToCart");
+const cartCount = document.querySelector(".countCart");
+
 searchInput.addEventListener("focus", () => {
   navbar.classList.add("search-active");
 });
@@ -31,4 +34,13 @@ closeCart.addEventListener("click", () => {
     cartOverlay.classList.remove("active");
     pageOverlay.classList.remove("active");
     document.body.classList.remove("cart-open");
+});
+
+let cartItemCount = 0;
+
+addToCartButtons.forEach(button => {
+  button.addEventListener("click", () => {
+    cartItemCount++;
+    cartCount.textContent = cartItemCount;
+  });
 });
