@@ -189,7 +189,11 @@ body{
     opacity: 1;
     visibility: visible;
 }
-
+.pageContent {
+    position: relative;
+     will-change: transform;
+    transition: transform 0.06s linear;
+}
 .greeting {
     position: relative;
     min-height: 35vh; 
@@ -200,6 +204,8 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+    background-color: var(--secondaryColor);
 }
 .greetingOverlay {
     position: absolute;

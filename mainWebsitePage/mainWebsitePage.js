@@ -14,6 +14,9 @@ const pageOverlay = document.getElementById("pageOverlay");
 const addToCartButtons = document.querySelectorAll(".addToCart");
 const cartCount = document.querySelector(".countCart");
 
+const pageContent = document.querySelector(".pageContent");
+
+// Search Input Activation
 searchInput.addEventListener("focus", () => {
   navbar.classList.add("search-active");
 });
@@ -24,6 +27,7 @@ closeSearch.addEventListener("click", () => {
   searchInput.blur();
 });
 
+// Cart Overlay
 cartWrapper.addEventListener("click", () => {
     cartOverlay.classList.add("active");
      pageOverlay.classList.add("active");
@@ -35,7 +39,8 @@ closeCart.addEventListener("click", () => {
     pageOverlay.classList.remove("active");
     document.body.classList.remove("cart-open");
 });
-
+ 
+// Count cart Display
 let cartItemCount = 0;
 
 addToCartButtons.forEach(button => {
@@ -44,3 +49,46 @@ addToCartButtons.forEach(button => {
     cartCount.textContent = cartItemCount;
   });
 });
+
+let pullDistance = 0;
+let isPulling = false;
+let resetTimer;
+
+window.addEventListener("scroll", () => {
+  // If user scrolls normally, reset
+  if (window.scrollY > 0) {
+    resetPull();
+  }
+});
+
+window.addEventListener(
+  "wheel",
+  (e) => {
+    if (window.scrollY === 0 && e.deltaY < 0) {
+      e.preventDefault();
+
+      pullDistance += Math.abs(e.deltaY) * 0.35;
+      pullDistance = Math.min(pullDistance, 40);
+
+      pageContent.style.transform = `translateY(${pullDistance}px)`;
+
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(resetPull, 30); // ← quick snap back
+    } else {
+      resetPull();
+    }
+  },
+  { passive: false }
+);
+
+
+function resetPull() {
+  pullDistance = 0;
+
+  pageContent.style.transition = "none";
+  pageContent.style.transform = "translateY(0)";
+
+  requestAnimationFrame(() => {
+    pageContent.style.transition = "transform 0.06s linear";
+  });
+}
