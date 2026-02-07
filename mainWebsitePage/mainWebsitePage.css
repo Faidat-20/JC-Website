@@ -23,7 +23,8 @@ body{
     background-color: var(--primaryColor);
     margin-top: 0;
     gap: 28px;
-    position: relative;
+    position: sticky;
+    top: 0;
     z-index: 1000;
 }
 .businessName{
