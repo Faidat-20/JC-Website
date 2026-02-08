@@ -174,4 +174,99 @@ function showAddCartMessage() {
   }, 1200);
 }
 
+// Cart overlay rough code
+
+let cart = [];
+
+function renderCart() {
+  cartItemsContainer.innerHTML = "";
+
+  if (cart.length === 0) {
+    showEmptyCart();
+    return;
+  }
+
+  let subtotal = 0;
+
+  cart.forEach((item, index) => {
+    subtotal += item.price * item.quantity;
+
+    const cartItem = document.createElement("div");
+    cartItem.className = "cartItem";
+
+    cartItem.innerHTML = `
+      <img src="${item.image}" alt="${item.name}">
+      
+      <div class="cartItemDetails">
+        <h4>${item.name}</h4>
+        <div class="price">₦${item.price.toLocaleString()}</div>
+      </div>
+
+      <div class="cartItemActions">
+        <div class="quantityControl">
+          <button class="decrease">−</button>
+          <span>${item.quantity}</span>
+          <button class="increase">+</button>
+        </div>
+        <i class="fa-solid fa-trash removeItem"></i>
+      </div>
+    `;
+
+    // Quantity controls
+    cartItem.querySelector(".increase").onclick = () => {
+      item.quantity++;
+      renderCart();
+    };
+
+    cartItem.querySelector(".decrease").onclick = () => {
+      if (item.quantity > 1) {
+        item.quantity--;
+      }
+      renderCart();
+    };
+
+    // Remove item
+    cartItem.querySelector(".removeItem").onclick = () => {
+      cart.splice(index, 1);
+      renderCart();
+    };
+
+    cartItemsContainer.appendChild(cartItem);
+  });
+
+  cartSubtotal.textContent = subtotal.toLocaleString();
+  cartItemCountDisplay.textContent = cart.length;
+  cartCount.textContent = cart.length;
+  checkoutBtn.disabled = false;
+}
+
+addToCartButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const itemCard = button.closest(".item");
+
+    const name = itemCard.querySelector("h2").textContent;
+    const price = 10000; // later we’ll read this dynamically
+    const image = itemCard.querySelector("img").src;
+
+    const existingItem = cart.find(item => item.name === name);
+
+    if (existingItem) {
+      existingItem.quantity++;
+    } else {
+      cart.push({
+        name,
+        price,
+        image,
+        quantity: 1
+      });
+    }
+
+    renderCart();
+
+    // OPEN CART like the image
+    cartOverlay.classList.add("active");
+    pageOverlay.classList.add("active");
+    document.body.classList.add("cart-open");
+  });
+});
 
