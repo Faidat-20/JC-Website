@@ -332,14 +332,20 @@ body{
     margin-top: 30px;
     border: none;
     cursor: pointer;
-    width: 100%;
-    padding: 16px;
-    font-size: 16px;
+    width: 60%;
+    padding: 14px;
+    font-size: 12px;
     font-weight: 600;
-    transition: background-color 0.2s ease;
+    white-space: nowrap;
+    box-shadow: 0 3px 0 hsl(357, 43%, 63%);
+    transition: 
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        background-color 0.2s ease;
 }
+
 .productList .item button:hover{
-    font-size: 17px;
+    transform: translateY(-1px) scale(1.03);
 }
 
 /* Cart Signout Styles */
@@ -468,6 +474,12 @@ body.cart-open {
     }
 }
 
+@media (max-width: 900px) {
+    .productList {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 480px) {
     .productList {
         grid-template-columns: repeat(2, 1fr);
@@ -485,5 +497,15 @@ body.cart-open {
     .productList .item button {
         padding: 12px;
         font-size: 14px;
+    }
+
+    .productList .item button {
+        width: 100%;
+        font-size: 14px;
+        white-space: normal;
+    }
+
+    .productList .item button:hover {
+        transform: none;
     }
 }
