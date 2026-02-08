@@ -138,37 +138,40 @@ continueShopping.addEventListener("click", () => {
   document.body.classList.remove("cart-open");
 });
 
-// Add to cart popup message
+// Add to cart popup message for first and continuous click
 
-document.addEventListener("DOMContentLoaded", () => {
-  
-  if (!addToCartButtons.length || !cartCount || !addCartMessage) return;
+window.cartItemCount = Number(window.cartItemCount) || 0;
+window.addedProducts = window.addedProducts || new Set();
+let addCartTimer;
 
-  const addedProducts = new Set();
-  let cartItemCount = 0;
-  let addCartTimer;
+cartItemCount ??= 0;
+addedProducts ??= new Set();
 
-  addToCartButtons.forEach((button, index) => {
-    button.addEventListener("click", () => {
-      if (addedProducts.has(index)) return;
 
-      addedProducts.add(index);
-      cartItemCount++;
-      cartCount.textContent = cartItemCount;
+addToCartButtons.forEach((button, index) => {
+  button.addEventListener("click", () => {
+    if (!window.addedProducts.has(index)) {
+      // For First Click
+      window.addedProducts.add(index);
+      window.cartItemCount++;
+      cartCount.textContent = window.cartItemCount;
 
-      button.textContent = "Added";
-      button.disabled = true;
+      addCartMessage.textContent = "Added to cart";
+    } else {
+      addCartMessage.textContent = "Product quantity updated in cart!";
+    }
 
-      showAddCartMessage();
-    });
+    showAddCartMessage();
   });
-
-  function showAddCartMessage() {
-    clearTimeout(addCartTimer);
-    addCartMessage.classList.add("show");
-
-    addCartTimer = setTimeout(() => {
-      addCartMessage.classList.remove("show");
-    }, 1000);
-  }
 });
+
+function showAddCartMessage() {
+  clearTimeout(addCartTimer);
+  addCartMessage.classList.add("show");
+
+  addCartTimer = setTimeout(() => {
+    addCartMessage.classList.remove("show");
+  }, 1200);
+}
+
+
