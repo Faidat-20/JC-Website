@@ -192,12 +192,12 @@ body{
 .addCartMessage {
     position: absolute;
     bottom: -32px;
-    left: 2%;
     transform: translateX(-50%);
     background-color: var(--navColor);
     color: var(--primaryColor);
-    font-size: 12px;
-    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px;
     border-radius: 5px;
     white-space: nowrap;
     opacity: 0;
@@ -287,20 +287,23 @@ body{
 
 /* Product Display Section Styles */
 .productDisplaySection{
-    width: 900px;
-    max-width: 90vw;
-    margin: auto;
+    width: 100%;
+    max-width: 100vw;
+    margin-top: 20px;
     text-align: center;
     padding-top: 30px;
+    padding: 10px;
 }
 .productList{
+    margin: auto;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap:20px;
     background-color: var(--secondaryColor);
 }
 .productList .item img{
-   width: 250px ;
+   width: 100%;
+    max-width: 250px;
    border-radius: 5px;
 }
 .productList .item{
@@ -310,6 +313,7 @@ body{
 }
 .productList .item:hover {
     background-color: var(--pageColor);
+    transform: scale(0.9);
 }
 .productList .item h2{
     font-weight: 500px;
@@ -335,7 +339,7 @@ body{
     transition: background-color 0.2s ease;
 }
 .productList .item button:hover{
-    font-size: 16.5px;
+    font-size: 17px;
 }
 
 /* Cart Signout Styles */
@@ -461,5 +465,25 @@ body.cart-open {
 
     .login {
         font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .productList {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .productList .item {
+        padding: 12px;
+    }
+
+    .productList .item h2 {
+        font-size: 14px;
+    }
+
+    .productList .item button {
+        padding: 12px;
+        font-size: 14px;
     }
 }
