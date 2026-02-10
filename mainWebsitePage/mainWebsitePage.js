@@ -35,6 +35,9 @@ const continueShopping = document.getElementById("continueShopping");
 const addToCartButtons = document.querySelectorAll(".addToCart");
 const addCartMessage = document.querySelector(".addCartMessage");
 
+const cartOverlayMessage = document.getElementById("cartOverlayMessage");
+let cartOverlayTimer;
+
 // CART STATE
 let cart = []; // each item = { name, image, price, quantity }
 
@@ -90,6 +93,19 @@ function showAddCartMessage() {
   }, 1200);
 }
 
+function showCartOverlayMessage(message) {
+  if (!cartOverlayMessage) return;
+
+  clearTimeout(cartOverlayTimer);
+
+  cartOverlayMessage.textContent = message;
+  cartOverlayMessage.classList.add("show");
+
+  cartOverlayTimer = setTimeout(() => {
+    cartOverlayMessage.classList.remove("show");
+  }, 1200);
+}
+
 // RENDER EMPTY CART STATE
 function renderCart() {
   if (cart.length === 0) {
@@ -131,21 +147,29 @@ function renderCart() {
       </div>
     `;
 
-    // QUANTITY CONTROLS
+    // QUANTITY CONTROLS / INCREASE
     cartItem.querySelector(".increase").onclick = () => {
       item.quantity++;
       renderCart();
+      showCartOverlayMessage("Product quantity updated!");
     };
 
+    // QUANTITY CONTROLS / DECREASE
     cartItem.querySelector(".decrease").onclick = () => {
-      if (item.quantity > 1) item.quantity--;
-      renderCart();
+      if (item.quantity > 1) {
+        item.quantity--;
+        renderCart();
+        showCartOverlayMessage("Product quantity updated!");
+      }
     };
+
     // REMOVE ITEM
-  cartItem.querySelector(".removeItem").onclick = () => {
-    cart.splice(index, 1);
-    renderCart();
-  };
+    cartItem.querySelector(".removeItem").onclick = () => {
+      cart.splice(index, 1);
+      renderCart();
+      showCartOverlayMessage("Product removed from cart!");
+    };
+
 
 
     cartItemsContainer.appendChild(cartItem);

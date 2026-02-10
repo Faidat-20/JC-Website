@@ -534,7 +534,33 @@ body.cart-open {
     }
 }
 
-/* Cart overlay rough style */
+/* cart overlay message style */
+.cartOverlayMessage {
+  position: absolute;
+  top: 40px;
+  left: 70%;
+  transform: translateX(-50%);
+  background-color: var(--navColor);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 1200;
+}
+
+.cartOverlayMessage.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+
+/* Cart overlay style */
 .cartItem {
     display: grid;
     grid-template-columns: 60px 1fr auto;
