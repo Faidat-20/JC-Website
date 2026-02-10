@@ -106,6 +106,11 @@ function showCartOverlayMessage(message) {
   }, 1200);
 }
 
+function updateCartItemText() {
+  const count = cart.length;
+  cartItemCountDisplay.textContent =
+    count <= 1 ? `${count} item` : `${count} items`;
+}
 // RENDER EMPTY CART STATE
 function renderCart() {
   if (cart.length === 0) {
@@ -176,7 +181,8 @@ function renderCart() {
   });
 
   cartSubtotal.textContent = subtotal.toLocaleString();
-  cartItemCountDisplay.textContent = cart.length;
+  updateCartItemText();
+
   cartCount.textContent = cart.length;
 }
 
@@ -186,7 +192,7 @@ function showEmptyCart() {
   cartItemsContainer.classList.add("empty");
 
   
-  cartItemCountDisplay.textContent = 0;
+  updateCartItemText();
   cartSubtotal.textContent = 0;
   cartCount.textContent = 0;
 
