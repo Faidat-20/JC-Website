@@ -437,6 +437,7 @@ body.cart-open {
     text-align: center;
     cursor: pointer;
     color: var(--color);
+    text-decoration: underline;
 }
 
 .continueShopping:hover {
@@ -455,6 +456,7 @@ body.cart-open {
     margin-left: auto; 
     cursor: pointer;
     color: #777;
+    text-decoration: underline;
 }
 
 .clearCart:hover {
@@ -629,4 +631,35 @@ body.cart-open {
 
 .removeItem:hover {
     color: red;
+}
+
+@media (max-width: 600px) {
+
+  .cartOverlay {
+    width: 90vw;
+    height: 100vh;
+    max-width: 90vw;
+    max-height: 100vh;
+
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: auto;
+
+  }
+}
+
+@media (max-width: 600px) {
+
+  .cartFooter {
+    padding-bottom: calc(
+      16px + env(safe-area-inset-bottom) + constant(safe-area-inset-bottom)
+    );
+  }
+
+  .cartFooterActions {
+    padding-bottom: calc(
+      env(safe-area-inset-bottom) + constant(safe-area-inset-bottom)
+    );
+  }
 }
