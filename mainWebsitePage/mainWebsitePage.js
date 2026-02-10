@@ -1,167 +1,83 @@
-function clickme() {
-    window.location.href = "mainWebsitePage.html";
-}
 
+function clickme() {
+  window.location.href = "mainWebsitePage.html";
+}
+// NAVBAR ELEMENTS
 const navbar = document.getElementById("navBar");
 const searchInput = document.getElementById("searchInput");
 const closeSearch = document.getElementById("closeSearch");
-const cartIcon = document.getElementById("cart");
-const closeCart = document.getElementById("closeCart");
-const cartWrapper = document.querySelector(".cartWrapper");
-const cartOverlay = document.getElementById("cartOverlay");
-const pageOverlay = document.getElementById("pageOverlay");
 
-const addToCartButtons = document.querySelectorAll(".addToCart");
-const cartCount = document.querySelector(".countCart");
-const addCartMessage = document.querySelector(".addCartMessage");
-
-const pageContent = document.querySelector(".pageContent");
-
-const cartItemCountDisplay = document.getElementById("cartItemCount");
-const cartSubtotal = document.getElementById("cartSubtotal");
-const checkoutBtn = document.getElementById("checkoutBtn");
-const cartItemsContainer = document.getElementById("cartItems");
-const continueShopping = document.getElementById("continueShopping");
-
-  
-
-// Search Input Activation
+// SEARCH INPUT ACTIVATION 
 searchInput.addEventListener("focus", () => {
   navbar.classList.add("search-active");
 });
-
-
+// SEARCH INPUT DEACTIVATION 
 closeSearch.addEventListener("click", () => {
   navbar.classList.remove("search-active");
   searchInput.blur();
 });
 
-// Cart Overlay
+//  CART ELEMENTS
+const cartWrapper = document.querySelector(".cartWrapper");
+const cartOverlay = document.getElementById("cartOverlay");
+const pageOverlay = document.getElementById("pageOverlay");
+
+const cartItemsContainer = document.getElementById("cartItems");
+const cartItemCountDisplay = document.getElementById("cartItemCount");
+const cartSubtotal = document.getElementById("cartSubtotal");
+const cartCount = document.querySelector(".countCart");
+
+const checkoutBtn = document.getElementById("checkoutBtn");
+const clearCartBtn = document.getElementById("clearCart");
+const closeCart = document.getElementById("closeCart");
+const continueShopping = document.getElementById("continueShopping");
+
+const addToCartButtons = document.querySelectorAll(".addToCart");
+const addCartMessage = document.querySelector(".addCartMessage");
+
+// CART STATE
+let cart = []; // each item = { name, image, price, quantity }
+
+// CART OVERLAY OPEN
 cartWrapper.addEventListener("click", () => {
-    cartOverlay.classList.add("active");
-     pageOverlay.classList.add("active");
-    document.body.classList.add("cart-open");
-});
-
-closeCart.addEventListener("click", () => {
-    cartOverlay.classList.remove("active");
-    pageOverlay.classList.remove("active");
-    document.body.classList.remove("cart-open");
-});
- 
-// Count cart Display
-let cartItemCount = 0;
-
-
-const addedProducts = new Set();
-
-// Prevent duplicate cart count for same product
-addToCartButtons.forEach((button, index) => {
-  button.addEventListener("click", () => {
-    if (addedProducts.has(index)) {
-      return; //
-    }
-
-    addedProducts.add(index);
-    cartItemCount++;
-    cartCount.textContent = cartItemCount;
-
-  });
-});
-
-let pullDistance = 0;
-let isPulling = false;
-let resetTimer;
-
-window.addEventListener("scroll", () => {
-  // If user scrolls normally, reset
-  if (window.scrollY > 0) {
-    resetPull();
-  }
-});
-
-window.addEventListener(
-  "wheel",
-  (e) => {
-    if (window.scrollY === 0 && e.deltaY < 0) {
-      e.preventDefault();
-
-      pullDistance += Math.abs(e.deltaY) * 0.35;
-      pullDistance = Math.min(pullDistance, 40);
-
-      pageContent.style.transform = `translateY(${pullDistance}px)`;
-
-      clearTimeout(resetTimer);
-      resetTimer = setTimeout(resetPull, 30); // ← quick snap back
-    } else {
-      resetPull();
-    }
-  },
-  { passive: false }
-);
-
-
-function resetPull() {
-  pullDistance = 0;
-
-  pageContent.style.transition = "none";
-  pageContent.style.transform = "translateY(0)";
-
-  requestAnimationFrame(() => {
-    pageContent.style.transition = "transform 0.06s linear";
-  });
-}
-
-function showEmptyCart() {
-  cartItemCountDisplay.textContent = 0;
-  cartSubtotal.textContent = 0;
-  checkoutBtn.disabled = true;
-
-  cartItemsContainer.classList.add("empty");
-  cartItemsContainer.innerHTML = ""; // empty on purpose
-}
-
-cartWrapper.addEventListener("click", () => {
-  if (cartItemCount === 0) {
-    showEmptyCart();
-  }
-
   cartOverlay.classList.add("active");
   pageOverlay.classList.add("active");
   document.body.classList.add("cart-open");
 });
 
-// Close cart overlay on continue shopping click
-continueShopping.addEventListener("click", () => {
+// CART OVERLAY CLOSE / CONTINUE SHOPPING
+function closeCartOverlay() {
   cartOverlay.classList.remove("active");
   pageOverlay.classList.remove("active");
   document.body.classList.remove("cart-open");
-});
+}
+closeCart.addEventListener("click", closeCartOverlay);
+continueShopping.addEventListener("click", closeCartOverlay);
 
-// Add to cart popup message for first and continuous click
-
-window.cartItemCount = Number(window.cartItemCount) || 0;
-window.addedProducts = window.addedProducts || new Set();
+// ADD TO CART
 let addCartTimer;
 
-cartItemCount ??= 0;
-addedProducts ??= new Set();
-
-
-addToCartButtons.forEach((button, index) => {
+addToCartButtons.forEach(button => {
   button.addEventListener("click", () => {
-    if (!window.addedProducts.has(index)) {
-      // For First Click
-      window.addedProducts.add(index);
-      window.cartItemCount++;
-      cartCount.textContent = window.cartItemCount;
+    const itemCard = button.closest(".item");
+    const name = itemCard.querySelector("h2").textContent;
+    const image = itemCard.querySelector("img").src;
+    const priceAmount = itemCard.querySelector(".price").textContent;
+    const price = Number(priceAmount.replace(/[₦,]/g, ""));
 
-      addCartMessage.textContent = "Added to cart";
-    } else {
-      addCartMessage.textContent = "Product quantity updated in cart!";
-    }
-
+    const existingItem = cart.find(item => item.name === name);
+    
+// CHECK IF PRODUCT ALREADY IN CART
+    if (existingItem) {
+  existingItem.quantity++;
+  addCartMessage.textContent = "Product quantity updated in cart!";
+  } else {
+  cart.push({ name, image, price, quantity: 1 })
+  addCartMessage.textContent = "Added to cart";
+}
+// UPDATE CART UI
     showAddCartMessage();
+    renderCart(); 
   });
 });
 
@@ -174,34 +90,37 @@ function showAddCartMessage() {
   }, 1200);
 }
 
-// Cart overlay rough code
-
-let cart = [];
-
+// RENDER EMPTY CART STATE
 function renderCart() {
-  cartItemsContainer.innerHTML = "";
-
   if (cart.length === 0) {
     showEmptyCart();
     return;
   }
 
+  cartItemsContainer.innerHTML = "";
+  cartItemsContainer.classList.remove("empty");
+  document.querySelector(".cartFooter").classList.remove("empty");
+
+  checkoutBtn.disabled = false;
+  checkoutBtn.classList.remove("disabled");
+  clearCartBtn.style.display = "inline";
+
+  // UPDATE CART PRICE
   let subtotal = 0;
 
   cart.forEach((item, index) => {
     subtotal += item.price * item.quantity;
 
+    // CREATES NEW CART ELEMENT
     const cartItem = document.createElement("div");
     cartItem.className = "cartItem";
 
     cartItem.innerHTML = `
-      <img src="${item.image}" alt="${item.name}">
-      
+      <img src="${item.image}">
       <div class="cartItemDetails">
         <h4>${item.name}</h4>
         <div class="price">₦${item.price.toLocaleString()}</div>
       </div>
-
       <div class="cartItemActions">
         <div class="quantityControl">
           <button class="decrease">−</button>
@@ -212,24 +131,22 @@ function renderCart() {
       </div>
     `;
 
-    // Quantity controls
+    // QUANTITY CONTROLS
     cartItem.querySelector(".increase").onclick = () => {
       item.quantity++;
       renderCart();
     };
 
     cartItem.querySelector(".decrease").onclick = () => {
-      if (item.quantity > 1) {
-        item.quantity--;
-      }
+      if (item.quantity > 1) item.quantity--;
       renderCart();
     };
+    // REMOVE ITEM
+  cartItem.querySelector(".removeItem").onclick = () => {
+    cart.splice(index, 1);
+    renderCart();
+  };
 
-    // Remove item
-    cartItem.querySelector(".removeItem").onclick = () => {
-      cart.splice(index, 1);
-      renderCart();
-    };
 
     cartItemsContainer.appendChild(cartItem);
   });
@@ -237,36 +154,34 @@ function renderCart() {
   cartSubtotal.textContent = subtotal.toLocaleString();
   cartItemCountDisplay.textContent = cart.length;
   cartCount.textContent = cart.length;
-  checkoutBtn.disabled = false;
 }
 
-addToCartButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const itemCard = button.closest(".item");
+// EMPTY CART 
+function showEmptyCart() {
+  cartItemsContainer.innerHTML = "";
+  cartItemsContainer.classList.add("empty");
 
-    const name = itemCard.querySelector("h2").textContent;
-    const price = 10000; // later we’ll read this dynamically
-    const image = itemCard.querySelector("img").src;
+  
+  cartItemCountDisplay.textContent = 0;
+  cartSubtotal.textContent = 0;
+  cartCount.textContent = 0;
 
-    const existingItem = cart.find(item => item.name === name);
+  // CHECKOUT DISABLED
+  checkoutBtn.disabled = true;
+  checkoutBtn.classList.add("disabled");
 
-    if (existingItem) {
-      existingItem.quantity++;
-    } else {
-      cart.push({
-        name,
-        price,
-        image,
-        quantity: 1
-      });
-    }
+  // PREVENTS EMPTY CART CLEARING
+  clearCartBtn.style.display = "none";
 
-    renderCart();
+  // CENTER FOOTER CONTENT WHEN CART IS EMPTY
+  document.querySelector(".cartFooter").classList.add("empty");
+}
 
-    // OPEN CART like the image
-    cartOverlay.classList.add("active");
-    pageOverlay.classList.add("active");
-    document.body.classList.add("cart-open");
-  });
+// ENABLE CLEAR CART 
+clearCartBtn.addEventListener("click", () => {
+  cart = [];
+  showEmptyCart();
 });
 
+// ENSURE CORRECT STATE ON PAGE LOAD
+showEmptyCart();

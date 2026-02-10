@@ -443,6 +443,30 @@ body.cart-open {
     color: var(--navColor); 
 }
 
+.cartFooterActions {
+  display: flex;
+  align-items: center;  
+  gap: 12px;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.clearCart {
+    margin-left: auto; 
+    cursor: pointer;
+    color: #777;
+}
+
+.clearCart:hover {
+  color: red;
+}
+.cartFooter.empty .clearCart {
+  display: none;
+}
+.cartFooter.empty .cartFooterActions {
+  justify-content: center;
+}
+
 @media (max-width: 768px) {
 
     .navbar {
