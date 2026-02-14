@@ -738,3 +738,126 @@ body.cart-open {
   background: var(--paginationActive);
   transition: 0.2s;
 }
+
+/* Footer Styling */
+.siteFooter {
+  background-color: #111;
+  color: var(--paginationActive);
+  font-family: 'Playfair Display', serif;
+  padding: 40px 20px 20px 20px;
+  position: relative;
+}
+
+.footerContent {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.footerContact,
+.footerSubscribe {
+  flex: 1 1 45%;
+  min-width: 220px;  
+}
+
+.footerContact h3,
+.footerSubscribe h3 {
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.footerContact p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.footerSubscribe .subscribeForm {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;     
+}
+
+.footerSubscribe input {
+  flex: 1;
+  min-width: 150px; 
+  padding: 10px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+
+.footerSubscribe button {
+  padding: 10px 20px;
+  border: none;
+  background-color: var(--navColor);
+  color: #fff;
+  cursor: pointer;
+  border-radius: 3px;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0;     
+  transition: background-color 0.3s;
+}
+
+.footerSubscribe button:hover {
+  background-color: var(--navColor)
+}
+
+.footerBottom {
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #333;
+  padding-top: 15px;
+  font-size: 14px;
+}
+
+.whatsappBtn {
+  display: inline-block;
+  background-color: #25D366;
+  color: #fff;
+  font-size: 20px;
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  line-height: 40px;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.whatsappBtn:hover {
+  transform: scale(1.1);
+}
+
+@media (max-width: 480px) {
+  .footerSubscribe .subscribeForm {
+    gap: 8px;
+  }
+
+  .footerSubscribe input {
+    min-width: 120px;
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .footerSubscribe button {
+    padding: 8px 15px;
+    font-size: 13px;
+  }
+
+  .footerBottom {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .whatsappBtn {
+    width: 45px;
+    height: 45px;
+    line-height: 45px;
+    font-size: 22px;
+  }
+}
