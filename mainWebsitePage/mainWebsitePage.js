@@ -38,8 +38,8 @@ const addCartMessage = document.querySelector(".addCartMessage");
 const cartOverlayMessage = document.getElementById("cartOverlayMessage");
 let cartOverlayTimer;
 
-// CART STATE
-let cart = []; // each item = { name, image, price, quantity }
+// CART STATE (LOAD FROM STORAGE)
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 // CART OVERLAY OPEN
 cartWrapper.addEventListener("click", () => {
@@ -184,6 +184,7 @@ function renderCart() {
   updateCartItemText();
 
   cartCount.textContent = cart.length;
+  localStorage.setItem("cart", JSON.stringify(cart));
 }
 
 // EMPTY CART 
@@ -214,7 +215,11 @@ clearCartBtn.addEventListener("click", () => {
 });
 
 // ENSURE CORRECT STATE ON PAGE LOAD
-showEmptyCart();
+if (cart.length > 0) {
+  renderCart();
+} else {
+  showEmptyCart();
+}
 
 // PAGINATION BUTTONS
 const prevBtn = document.querySelector(".backwardBtn");
