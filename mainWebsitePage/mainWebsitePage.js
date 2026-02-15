@@ -215,3 +215,37 @@ clearCartBtn.addEventListener("click", () => {
 
 // ENSURE CORRECT STATE ON PAGE LOAD
 showEmptyCart();
+
+// PAGINATION BUTTONS
+const prevBtn = document.querySelector(".backwardBtn");
+const nextBtn = document.querySelector(".fowardBtn");
+const pageLinks = document.querySelectorAll(".pages a");
+
+function getCurrentPageIndex() {
+  return Array.from(pageLinks).findIndex(link => link.classList.contains("active"));
+}
+
+// PREVIOUS PAGE
+prevBtn.addEventListener("click", (e) => {
+  e.preventDefault(); 
+  const currentIndex = getCurrentPageIndex();
+  
+  if (currentIndex > 0) {
+    window.location.href = pageLinks[currentIndex - 1].href; // go back
+  } else {
+    window.scrollTo(0, 0);
+    window.location.reload(); // refresh if on first page
+  }
+});
+
+// NEXT PAGE
+nextBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  const currentIndex = getCurrentPageIndex();
+  
+  if (currentIndex < pageLinks.length - 1) {
+    window.location.href = pageLinks[currentIndex + 1].href; // next page
+  } else {
+    window.location.href = pageLinks[0].href; // loop back to first page
+  }
+});
