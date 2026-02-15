@@ -616,7 +616,8 @@ a {
   text-decoration: none;
 }
 a,
-.navBtn {
+.backwardBtn, 
+.fowardBtn {
   flex-shrink: 0;
 }
 
@@ -630,7 +631,8 @@ a:hover {
   background: var(--paginationActive);
 }
 
-.navBtn {
+.backwardBtn, 
+.fowardBtn {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -642,7 +644,12 @@ a:hover {
   transition: 0.2s;
 }
 
-.navBtn:hover {
+.backwardBtn:hover {
+  color: var(--navColor);
+  background: var(--paginationActive);
+  transition: 0.2s;
+}
+.fowardBtn:hover {
   color: var(--navColor);
   background: var(--paginationActive);
   transition: 0.2s;
@@ -841,10 +848,17 @@ a:hover {
     gap: 8px;
   }
 
-  .page,
-  .navBtn {
+   .pages a {
     width: 28px;
     height: 28px;
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+  .backwardBtn, 
+  .fowardBtn {
+    width: 28px;
+    height: 28px;
+
     font-size: 14px;
   }
 }
