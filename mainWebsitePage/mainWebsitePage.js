@@ -41,11 +41,29 @@ let cartOverlayTimer;
 // CART STATE (LOAD FROM STORAGE)
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
+let overlayOpenCount = 0;
+
+function disableScroll() {
+  if (overlayOpenCount === 0) {
+    document.body.style.overflow = "hidden";
+  }
+  overlayOpenCount++;
+}
+
+function enableScroll() {
+  overlayOpenCount--;
+  if (overlayOpenCount <= 0) {
+    document.body.style.overflow = "auto";
+    overlayOpenCount = 0;
+  }
+}
+
 // CART OVERLAY OPEN
 cartWrapper.addEventListener("click", () => {
   cartOverlay.classList.add("active");
   pageOverlay.classList.add("active");
   document.body.classList.add("cart-open");
+  disableScroll();
 });
 
 // CART OVERLAY CLOSE / CONTINUE SHOPPING
@@ -53,6 +71,7 @@ function closeCartOverlay() {
   cartOverlay.classList.remove("active");
   pageOverlay.classList.remove("active");
   document.body.classList.remove("cart-open");
+  enableScroll();
 }
 closeCart.addEventListener("click", closeCartOverlay);
 continueShopping.addEventListener("click", closeCartOverlay);
@@ -254,3 +273,20 @@ nextBtn.addEventListener("click", (e) => {
     window.location.href = pageLinks[0].href; // loop back to first page
   }
 });
+const overlay = document.getElementById("newsletterOverlay");
+const closeBtn = document.getElementById("closeNewsletter");
+
+/* Show popup when page loads */
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    overlay.classList.add("show");
+     disableScroll();
+  }, 1000);
+});
+
+/* Close popup */
+closeBtn.addEventListener("click", () => {
+  overlay.classList.remove("show");
+  enableScroll();
+});
+
