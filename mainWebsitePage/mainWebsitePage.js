@@ -192,6 +192,7 @@ function renderCart() {
       cart.splice(index, 1);
       renderCart();
       showCartOverlayMessage("Product removed from cart!");
+      localStorage.setItem("cart", JSON.stringify(cart));
     };
 
 
@@ -230,6 +231,7 @@ function showEmptyCart() {
 // ENABLE CLEAR CART 
 clearCartBtn.addEventListener("click", () => {
   cart = [];
+  localStorage.setItem("cart", JSON.stringify(cart));
   showEmptyCart();
 });
 
@@ -239,6 +241,19 @@ if (cart.length > 0) {
 } else {
   showEmptyCart();
 }
+
+// Sync cart across all open pages
+window.addEventListener("storage", (event) => {
+  if (event.key === "cart") {
+    cart = JSON.parse(event.newValue) || []
+
+    if (cart.length > 0) {
+      renderCart();
+    } else {
+      showEmptyCart();
+    }
+  }
+})
 
 // PAGINATION BUTTONS
 const prevBtn = document.querySelector(".backwardBtn");

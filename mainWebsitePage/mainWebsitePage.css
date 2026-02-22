@@ -444,6 +444,8 @@ body.cart-open {
     background-color: #ccc;
     cursor: not-allowed;
     opacity: 0.6;
+    box-shadow: none;
+    transform: none;
 }
 
 .continueShopping {
