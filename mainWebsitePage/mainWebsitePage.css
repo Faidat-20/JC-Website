@@ -416,14 +416,18 @@ body.cart-open {
     background-color: var(--navColor);
     color: var(--primaryColor);
     border: none;
-    border-radius: 6px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    box-shadow: 0 3px 0 hsl(357, 43%, 63%);
+    transition: 
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        background-color 0.2s ease;
 }
 
 .checkoutBtn:hover {
-    font-size: 17px;
     font-weight: 550;
+    background-color: hsl(357, 45%, 66%);
 }
 .cartItems {
     overflow-y: auto;
@@ -829,13 +833,19 @@ a:hover {
   background:var(--navColor);
   color:var(--primaryColor);
   border:none;
-  border-radius:8px;
-  font-size:18px;
+  border-radius:10px;
+  font-size:16px;
   cursor:pointer;
+  box-shadow: 0 3px 0 hsl(357, 43%, 63%);
+    transition: 
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        background-color 0.2s ease;
 }
 
 .newsletterForm button:hover{
-  background:var(--navColor);
+  background:hsl(357, 45%, 66%);
+  font-weight: 550;
 }
 
 @media (max-width: 768px) {

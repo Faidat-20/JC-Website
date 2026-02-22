@@ -255,10 +255,10 @@ prevBtn.addEventListener("click", (e) => {
   const currentIndex = getCurrentPageIndex();
   
   if (currentIndex > 0) {
-    window.location.href = pageLinks[currentIndex - 1].href; // go back
+    window.location.href = pageLinks[currentIndex - 1].href;
   } else {
     window.scrollTo(0, 0);
-    window.location.reload(); // refresh if on first page
+    window.location.reload();
   }
 });
 
@@ -268,9 +268,9 @@ nextBtn.addEventListener("click", (e) => {
   const currentIndex = getCurrentPageIndex();
   
   if (currentIndex < pageLinks.length - 1) {
-    window.location.href = pageLinks[currentIndex + 1].href; // next page
+    window.location.href = pageLinks[currentIndex + 1].href;
   } else {
-    window.location.href = pageLinks[0].href; // loop back to first page
+    window.location.href = pageLinks[0].href;
   }
 });
 const overlay = document.getElementById("newsletterOverlay");
