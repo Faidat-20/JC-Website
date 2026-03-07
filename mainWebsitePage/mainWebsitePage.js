@@ -301,20 +301,41 @@ nextBtn.addEventListener("click", (e) => {
     window.location.href = pageLinks[0].href;
   }
 });
+
+// Newsletter elements
 const overlay = document.getElementById("newsletterOverlay");
+const footerSubscribeBtn = document.getElementById("footerSubscribeBtn");
 const closeBtn = document.getElementById("closeNewsletter");
 
-/* Show popup when page loads */
-window.addEventListener("load", () => {
-  setTimeout(() => {
+// Auto-show newsletter only on the home page with 24hr limit
+if (currentPage === "mainWebsitePage.html" && overlay) {
+  window.addEventListener("load", () => {
+    const lastShown = localStorage.getItem("newsletterLastShown");
+    const now = Date.now();
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+
+    if (!lastShown || now - lastShown > twentyFourHours) {
+      setTimeout(() => {
+        overlay.classList.add("show");
+        disableScroll();
+        localStorage.setItem("newsletterLastShown", now);
+      }, 1000); // delay 1s
+    }
+  });
+}
+
+// Show newsletter when footer subscribe button is clicked
+if (footerSubscribeBtn) {
+  footerSubscribeBtn.addEventListener("click", () => {
     overlay.classList.add("show");
-     disableScroll();
-  }, 1000);
-});
+    disableScroll();
+  });
+}
 
-/* Close popup */
-closeBtn.addEventListener("click", () => {
-  overlay.classList.remove("show");
-  enableScroll();
-});
-
+// Close newsletter overlay
+if (closeBtn) {
+  closeBtn.addEventListener("click", () => {
+    overlay.classList.remove("show");
+    enableScroll();
+  });
+}

@@ -180,12 +180,9 @@
           <p><i class="fa-solid fa-phone"></i> 07057181591</p>
         </div>
 
-        <div class="footerSubscribe">
+        <div class="footerSubscribe" id="footerSubscribeBtn">
           <h3>Sign Up for Sales & Updates</h3>
-          <form class="subscribeForm">
-            <input type="text" placeholder="Enter your phone number or email address" required>
-            <button type="submit">Subscribe</button>
-          </form>
+          <button type="submit">Subscribe</button>
         </div>
       </div>
 
@@ -195,6 +192,24 @@
         </a>
       </div>
     </footer>
+
+    <!-- Newsletter Popup -->
+    <div class="newsletterOverlay" id="newsletterOverlay">
+      <div class="newsletterModal">
+
+        <span class="closeNewsletter" id="closeNewsletter">&times;</span>
+
+        <h2>GET EXCLUSIVE OFFERS</h2>
+        <p>Subscribe to receive updates, exclusive deals, and be the first to know about our latest offers.!</p>
+
+        <form id="newsletterForm" class="newsletterForm">
+          <input type="text" name="username" placeholder="Enter your full name" required>
+          <input type="email" name="user_email" placeholder="Enter your email address" required>
+          <button type="submit">Sign up</button>
+        </form>
+
+      </div>
+    </div>
 
     <script src="./mainWebsitePage/mainWebsitePage.js"></script>
   </body>
