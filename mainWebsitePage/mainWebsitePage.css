@@ -272,6 +272,23 @@ body{
     }
 }
 
+.greetingMessage::before {
+    content: "Jikes Cosmetics";
+    position: absolute;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(50px, 10vw, 60px);
+    color: var(--pageColor);
+    letter-spacing: 6px;
+    z-index: 1;
+    pointer-events: none;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
 .pageOverlay {
     position: fixed;
     inset: 0;
@@ -731,28 +748,49 @@ a:hover {
 .footerBottom {
   margin-top: 30px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   border-top: 1px solid #333;
-  padding-top: 15px;
+  padding-top: 10px;
   font-size: 14px;
+  position: relative;
 }
 
 .whatsappBtn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   background-color: #25D366;
   color: #fff;
-  font-size: 20px;
-  width: 40px;
-  height: 40px;
-  text-align: center;
-  line-height: 40px;
+  font-size: 24px;     /* bigger icon */
+  width: 50px;         /* bigger circle */
+  height: 50px;
   border-radius: 50%;
   transition: transform 0.2s;
+
+  animation: pulse 1.5s infinite ease-in-out;
 }
 
 .whatsappBtn:hover {
-  transform: scale(1.1);
+  transform: scale(1.15);
+  background-color: #25D366;
+  color: #fff;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); 
+  }
+  50% {
+    transform: scale(1.2); /* grow */
+    box-shadow: 0 0 10px 5px rgba(37, 211, 102, 0.35);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4);
+  }
 }
 
 /* News letter overlay */
@@ -966,4 +1004,42 @@ a:hover {
 
     font-size: 14px;
   }
+}
+
+/* Greeting container for shop page like home page */
+.greeting.shopPage {
+    position: relative;
+    min-height: 35vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+@keyframes shopFadeUp {
+    0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.8);
+    }
+    60% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* Shop heading overlay */
+.greeting.shopPage h1 {
+    position: relative;
+    z-index: 2;
+    font-size: clamp(32px, 6vw, 64px);
+    font-weight: 700;
+    color: white;
+    letter-spacing: 1px;
+    text-align: center;
+    animation: shopFadeUp 1s ease-out forwards;
 }

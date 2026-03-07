@@ -17,6 +17,19 @@ closeSearch.addEventListener("click", () => {
   searchInput.blur();
 });
 
+// Select the greeting container
+const greeting = document.querySelector(".greeting");
+const greetingMessage = document.querySelector(".greetingMessage");
+
+// Get current page filename
+const currentPage = window.location.pathname.split("/").pop();
+
+// If not home page, show only "Shop"
+if (currentPage !== "mainWebsitePage.html") {
+  greeting.classList.add("shopPage");
+  greetingMessage.innerHTML = `<h1>Shop</h1>`;
+}
+
 //  CART ELEMENTS
 const cartWrapper = document.querySelector(".cartWrapper");
 const cartOverlay = document.getElementById("cartOverlay");
