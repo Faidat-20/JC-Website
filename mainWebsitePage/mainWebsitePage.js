@@ -21,6 +21,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  const businessName = document.querySelector(".businessName");
+
+  if (businessName) {
+    businessName.addEventListener("click", () => {
+      window.location.href = "mainWebsitePage.html";
+    });
+  }
+});
+
 // NAVBAR ELEMENTS
 const navbar = document.getElementById("navBar");
 const searchInput = document.getElementById("searchInput");
