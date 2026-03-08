@@ -2,6 +2,25 @@
 function clickme() {
   window.location.href = "mainWebsitePage.html";
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const loginBtn = document.querySelector(".login");
+
+  if (loginBtn) {
+    const currentPage = window.location.pathname.split("/").pop();
+    if (currentPage === "login.html") {
+      loginBtn.classList.add("active");
+    }
+    loginBtn.addEventListener("click", (e) => {
+      if (currentPage === "login.html") {
+        e.preventDefault();
+        return;
+      }
+      window.location.href = "login.html";
+    });
+  }
+});
+
 // NAVBAR ELEMENTS
 const navbar = document.getElementById("navBar");
 const searchInput = document.getElementById("searchInput");
@@ -21,13 +40,16 @@ closeSearch.addEventListener("click", () => {
 const greeting = document.querySelector(".greeting");
 const greetingMessage = document.querySelector(".greetingMessage");
 
-// Get current page filename
 const currentPage = window.location.pathname.split("/").pop();
-
-// If not home page, show only "Shop"
-if (currentPage !== "mainWebsitePage.html") {
-  greeting.classList.add("shopPage");
-  greetingMessage.innerHTML = `<h1>Shop</h1>`;
+if (greeting && greetingMessage) {
+  if (currentPage === "login.html") {
+    greeting.classList.add("shopPage");
+    greetingMessage.innerHTML = `<h1>Login</h1>`;
+  }
+  else if (currentPage !== "mainWebsitePage.html") {
+    greeting.classList.add("shopPage");
+    greetingMessage.innerHTML = `<h1>Shop</h1>`;
+  }
 }
 
 //  CART ELEMENTS
@@ -319,7 +341,7 @@ if (currentPage === "mainWebsitePage.html" && overlay) {
         overlay.classList.add("show");
         disableScroll();
         localStorage.setItem("newsletterLastShown", now);
-      }, 1000); // delay 1s
+      }, 1000);
     }
   });
 }
