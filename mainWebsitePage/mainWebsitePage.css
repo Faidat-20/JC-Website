@@ -23,7 +23,7 @@ body{
 .navbar{
     display: flex;
     align-items: center;
-    padding: 30px 50px;
+    padding: 20px 40px;
     background-color: var(--primaryColor);
     margin-top: 0;
     gap: 28px;
@@ -917,6 +917,13 @@ a:hover {
     .login {
         font-size: 13px;
     }
+    .greeting{
+        min-height: 25vh !important;
+    }
+    .greetingMessage::before {
+        font-size: clamp(30px, 8vw, 50px);
+        letter-spacing: 4px;
+    }
 }
 
 @media (max-width: 900px) {
@@ -956,7 +963,14 @@ a:hover {
     .continueShopping, .clearCart{
     margin-top: 0px;
     margin-bottom: 40px;
-}
+    }
+    .greeting{
+        min-height: 20vh !important;
+    }
+    .greetingMessage::before {
+        font-size: clamp(40px, 8vw, 60px);
+        letter-spacing: 4px;
+    }
 }
 
 
