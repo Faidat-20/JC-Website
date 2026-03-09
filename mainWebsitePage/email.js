@@ -18,6 +18,16 @@ window.addEventListener("load", function () {
     ).then(
       function () {
         alert("Subscription successful! Check your email.");
+        const emailInput = form.querySelector("input[name='user_email']");
+        const email = emailInput.value;
+
+        let subscribers = JSON.parse(localStorage.getItem("subscribers")) || [];
+
+        if (!subscribers.includes(email)) {
+          subscribers.push(email);
+        }
+
+        localStorage.setItem("subscribers", JSON.stringify(subscribers));
         form.reset();
       },
       function (error) {
