@@ -126,3 +126,52 @@ router.get("/userdata/:userId", async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
+// ----------------------
+// CLEAR CART
+// ----------------------
+router.post("/clear-cart", async (req, res) => {
+
+  const { userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({
+      success: false,
+      message: "User ID required"
+    });
+  }
+
+  try {
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Clear cart
+    user.cart = [];
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Cart cleared successfully",
+      cart: user.cart
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+
+  }
+
+});

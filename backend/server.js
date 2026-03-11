@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 require("dotenv").config();
-
+console.log("MONGO_URI:", process.env.MONGO_URI);
 const app = express();
 
 // MIDDLEWARE
@@ -16,10 +16,8 @@ app.get("/", (req, res) => {
 });
 
 // DATABASE CONNECTION
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGO_URI)
+
 .then(() => console.log("MongoDB connected ✅"))
 .catch(err => console.log("MongoDB connection error:", err));
 
