@@ -373,3 +373,51 @@ if (closeBtn) {
     enableScroll();
   });
 }
+
+// -----------------------------
+// NEWSLETTER SUBSCRIPTION (Prevent duplicate emails)
+// -----------------------------
+const newsletterForm = document.getElementById("newsletterForm");
+
+if (newsletterForm) {
+
+  const messageBox = document.createElement("p");
+  messageBox.style.position = "absolute";
+  messageBox.style.bottom = "-58px";
+  messageBox.style.left = "0";
+  messageBox.style.width = "100%";
+  messageBox.style.textAlign = "center";
+  messageBox.style.fontSize = "14px";
+  messageBox.style.color = "#c26b72";
+
+  newsletterForm.style.position = "relative";
+  newsletterForm.appendChild(messageBox);
+
+  newsletterForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const email = newsletterForm.user_email.value.trim().toLowerCase();
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email || !emailPattern.test(email)) {
+      messageBox.textContent = "Please enter a valid email.";
+      return;
+    }
+
+    let subscribers = JSON.parse(localStorage.getItem("subscribers")) || [];
+
+    if (subscribers.includes(email)) {
+      messageBox.textContent = "You have already subscribed! Login.";
+      return;
+    }
+
+    subscribers.push(email);
+    localStorage.setItem("subscribers", JSON.stringify(subscribers));
+
+    messageBox.textContent = "";
+    newsletterForm.reset();
+    overlay.classList.remove("show");
+    enableScroll();
+  });
+}
