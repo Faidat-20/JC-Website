@@ -3,14 +3,49 @@ function clickme() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-
   // -----------------------------
   // NAVIGATION / GREETING
   // -----------------------------
   const loginBtn = document.querySelector(".login");
+  const logoutBtn = document.getElementById("logoutBtn");
   const businessName = document.querySelector(".businessName");
   const currentPage = window.location.pathname.split("/").pop();
 
+  // Get userId once
+  const userId = sessionStorage.getItem("userId");
+
+  // Show/hide login & logout buttons
+  if (userId) {
+    if (logoutBtn) logoutBtn.style.display = "inline-block";
+    if (loginBtn) loginBtn.style.display = "none";
+  } else {
+    if (logoutBtn) logoutBtn.style.display = "none";
+    if (loginBtn) loginBtn.style.display = "inline-block";
+  }
+
+  // Logout click handler
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await fetch("http://localhost:5000/api/auth/logout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        // Clear session & cart
+        sessionStorage.removeItem("userId");
+        localStorage.removeItem("cart");
+
+        // Redirect to login page
+        window.location.href = "login.html";
+      } catch (err) {
+        console.error("Logout error:", err);
+        alert("Failed to log out. Check console.");
+      }
+    });
+  }
+
+  // Login button navigation
   if (loginBtn) {
     if (currentPage === "login.html") loginBtn.classList.add("active");
     loginBtn.addEventListener("click", (e) => {
@@ -22,24 +57,85 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // -----------------------------
+  // SWITCH USER
+  // -----------------------------
+  function handleSwitchUser() {
+    if (!logoutBtn) return;
+
+    logoutBtn.addEventListener("click", async () => {
+      const confirmSwitch = confirm("Do you want to log out and switch users?");
+      if (!confirmSwitch) return;
+
+      try {
+        // Backend logout
+        await fetch("http://localhost:5000/api/auth/logout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        // Clear session & user-specific data
+        sessionStorage.removeItem("userId");
+        localStorage.removeItem("cart");
+
+        const cartItemsContainer = document.getElementById("cartItems");
+        if (cartItemsContainer) cartItemsContainer.innerHTML = "";
+        const cartSubtotal = document.getElementById("cartSubtotal");
+        if (cartSubtotal) cartSubtotal.textContent = "0";
+        const cartCount = document.querySelector(".countCart");
+        if (cartCount) cartCount.textContent = "0";
+
+        // Reset newsletter
+        const newsletterInput = document.querySelector("#newsletterForm input[name='user_email']");
+        if (newsletterInput) {
+          newsletterInput.disabled = false;
+          newsletterInput.value = "";
+          const msg = document.querySelector(".alreadySubscribedMsg");
+          if (msg) msg.remove();
+        }
+
+        // Toggle buttons
+        if (loginBtn) loginBtn.style.display = "inline-block";
+        if (logoutBtn) logoutBtn.style.display = "none";
+
+        // Redirect
+        window.location.href = "login.html";
+      } catch (err) {
+        console.error("Switch user error:", err);
+        alert("Failed to switch users. Check console.");
+      }
+    });
+  }
+
+  // Call switch user handler
+  handleSwitchUser();
+
+  // Business name navigation
   if (businessName) {
     businessName.addEventListener("click", () => {
       window.location.href = "mainWebsitePage.html";
     });
   }
 
+  // -----------------------------
+  // SEARCH BAR
+  // -----------------------------
   const navbar = document.getElementById("navBar");
   const searchInput = document.getElementById("searchInput");
   const closeSearch = document.getElementById("closeSearch");
 
-  searchInput.addEventListener("focus", () => navbar.classList.add("search-active"));
-  closeSearch.addEventListener("click", () => {
+  if (searchInput) searchInput.addEventListener("focus", () => navbar.classList.add("search-active"));
+  if (closeSearch) closeSearch.addEventListener("click", () => {
     navbar.classList.remove("search-active");
     searchInput.blur();
   });
 
+  // -----------------------------
+  // GREETING MESSAGE
+  // -----------------------------
   const greeting = document.querySelector(".greeting");
   const greetingMessage = document.querySelector(".greetingMessage");
+
   if (greeting && greetingMessage) {
     if (currentPage === "login.html") {
       greeting.classList.add("shopPage");
@@ -59,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const cartItemsContainer = document.getElementById("cartItems");
   const cartItemCountDisplay = document.getElementById("cartItemCount");
-  const cartSubtotal = document.getElementById("cartSubtotal");
+  const cartSubtotalDisplay = document.getElementById("cartSubtotal");
   const cartCount = document.querySelector(".countCart");
 
   const checkoutBtn = document.getElementById("checkoutBtn");
@@ -69,10 +165,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const addToCartButtons = document.querySelectorAll(".addToCart");
   const addCartMessage = document.querySelector(".addCartMessage");
-
   const cartOverlayMessage = document.getElementById("cartOverlayMessage");
-  let cartOverlayTimer, addCartTimer;
 
+  let cartOverlayTimer, addCartTimer;
   let overlayOpenCount = 0;
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -90,25 +185,30 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // CART OVERLAY
-  cartWrapper.addEventListener("click", () => {
-    cartOverlay.classList.add("active");
-    pageOverlay.classList.add("active");
+  if (cartWrapper) cartWrapper.addEventListener("click", () => {
+    if (cartOverlay) cartOverlay.classList.add("active");
+    if (pageOverlay) pageOverlay.classList.add("active");
     document.body.classList.add("cart-open");
     disableScroll();
   });
 
-  function closeCartOverlay() {
-    cartOverlay.classList.remove("active");
-    pageOverlay.classList.remove("active");
+  if (closeCart) closeCart.addEventListener("click", () => {
+    if (cartOverlay) cartOverlay.classList.remove("active");
+    if (pageOverlay) pageOverlay.classList.remove("active");
     document.body.classList.remove("cart-open");
     enableScroll();
-  }
-  closeCart.addEventListener("click", closeCartOverlay);
-  continueShopping.addEventListener("click", closeCartOverlay);
+  });
+
+  if (continueShopping) continueShopping.addEventListener("click", () => {
+    if (cartOverlay) cartOverlay.classList.remove("active");
+    if (pageOverlay) pageOverlay.classList.remove("active");
+    document.body.classList.remove("cart-open");
+    enableScroll();
+  });
 
   function showAddCartMessage() {
     clearTimeout(addCartTimer);
-    addCartMessage.classList.add("show");
+    if (addCartMessage) addCartMessage.classList.add("show");
     addCartTimer = setTimeout(() => addCartMessage.classList.remove("show"), 1200);
   }
 
@@ -122,11 +222,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateCartItemText() {
     const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-    cartItemCountDisplay.textContent = count <= 1 ? `${count} item` : `${count} items`;
+    if (cartItemCountDisplay) cartItemCountDisplay.textContent = count <= 1 ? `${count} item` : `${count} items`;
   }
 
   // -----------------------------
-  // STEP 5 HELPER: BACKEND CART UPDATE
+  // HELPER: BACKEND CART UPDATE
   // -----------------------------
   async function updateCartBackend(userId, name, action) {
     try {
@@ -149,11 +249,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -----------------------------
-  // STEP 5.1: ADD TO CART → OPTIMISTIC UI + BACKEND
+  // ADD TO CART
   // -----------------------------
   addToCartButtons.forEach(button => {
     button.addEventListener("click", async () => {
-      const userId = sessionStorage.getItem("userId");
       if (!userId) return alert("Please log in to add items to cart.");
 
       const itemCard = button.closest(".item");
@@ -162,16 +261,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const priceAmount = itemCard.querySelector(".price").textContent;
       const price = Number(priceAmount.replace(/[₦,]/g, ""));
 
-      // --------- OPTIMISTIC UI
+      // Optimistic UI
       const existingItem = cart.find(item => item.name === name);
       if (existingItem) existingItem.quantity++;
       else cart.push({ name, image, price, quantity: 1 });
 
       renderCart();
-      addCartMessage.textContent = "Item added to cart!";
+      if (addCartMessage) addCartMessage.textContent = "Item added to cart!";
       showAddCartMessage();
 
-      // --------- CONFIRM BACKEND
+      // Backend confirmation
       try {
         const res = await fetch(`http://localhost:5000/api/auth/update-cart`, {
           method: "POST",
@@ -179,29 +278,16 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify({ userId, name, image, price, action: "add", quantity: 1 })
         });
         const data = await res.json();
-
         if (!data.success) {
-          // Rollback
-          if (existingItem) {
-            existingItem.quantity--;
-            if (existingItem.quantity === 0) cart = cart.filter(i => i.name !== name);
-          } else {
-            cart = cart.filter(i => i.name !== name);
-          }
+          if (existingItem) { existingItem.quantity--; if (existingItem.quantity === 0) cart = cart.filter(i => i.name !== name); }
+          else cart = cart.filter(i => i.name !== name);
           renderCart();
           alert(data.message || "Failed to add item.");
-        } else {
-          cart = data.cart; // final source of truth
-          renderCart();
-        }
+        } else { cart = data.cart; renderCart(); }
       } catch (err) {
         console.error("Cart Error:", err);
-        if (existingItem) {
-          existingItem.quantity--;
-          if (existingItem.quantity === 0) cart = cart.filter(i => i.name !== name);
-        } else {
-          cart = cart.filter(i => i.name !== name);
-        }
+        if (existingItem) { existingItem.quantity--; if (existingItem.quantity === 0) cart = cart.filter(i => i.name !== name); }
+        else cart = cart.filter(i => i.name !== name);
         renderCart();
         alert("Server error. Check console.");
       }
@@ -209,22 +295,23 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // -----------------------------
-  // STEP 5.2: RENDER CART + UPDATE/REMOVE → BACKEND
+  // RENDER CART
   // -----------------------------
   function renderCart() {
+    if (!cartItemsContainer) return;
+
     if (cart.length === 0) return showEmptyCart();
 
     cartItemsContainer.innerHTML = "";
     cartItemsContainer.classList.remove("empty");
-    document.querySelector(".cartFooter").classList.remove("empty");
+    document.querySelector(".cartFooter")?.classList.remove("empty");
 
-    checkoutBtn.disabled = false;
-    checkoutBtn.classList.remove("disabled");
-    clearCartBtn.style.display = "inline";
+    if (checkoutBtn) { checkoutBtn.disabled = false; checkoutBtn.classList.remove("disabled"); }
+    if (clearCartBtn) clearCartBtn.style.display = "inline";
 
     let subtotal = 0;
 
-    cart.forEach((item, index) => {
+    cart.forEach((item) => {
       subtotal += item.price * item.quantity;
 
       const cartItem = document.createElement("div");
@@ -245,116 +332,71 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `;
 
-      // INCREASE QUANTITY → OPTIMISTIC
+      // Increase/Decrease/Remove
       cartItem.querySelector(".increase").onclick = async () => {
-        const userId = sessionStorage.getItem("userId");
-        if (!userId) return alert("Please log in.");
         item.quantity++; renderCart(); showCartOverlayMessage("Product quantity updated!");
-
         const success = await updateCartBackend(userId, item.name, "increase");
-        if (!success) {
-          item.quantity--; renderCart(); alert("Failed to update quantity.");
-        }
+        if (!success) { item.quantity--; renderCart(); alert("Failed to update quantity."); }
       };
-
-      // DECREASE QUANTITY → OPTIMISTIC
       cartItem.querySelector(".decrease").onclick = async () => {
-        const userId = sessionStorage.getItem("userId");
-        if (!userId) return alert("Please log in.");
-        if (item.quantity > 1) {
-          item.quantity--; renderCart(); showCartOverlayMessage("Product quantity updated!");
+        if (item.quantity > 1) { item.quantity--; renderCart(); showCartOverlayMessage("Product quantity updated!"); 
           const success = await updateCartBackend(userId, item.name, "decrease");
-          if (!success) {
-            item.quantity++; renderCart(); alert("Failed to update quantity.");
-          }
+          if (!success) { item.quantity++; renderCart(); alert("Failed to update quantity."); }
         }
       };
-
-      // REMOVE ITEM → OPTIMISTIC
       cartItem.querySelector(".removeItem").onclick = async () => {
-        const userId = sessionStorage.getItem("userId");
-        if (!userId) return alert("Please log in.");
-
         const backupCart = [...cart];
-        cart = cart.filter(i => i.name !== item.name);
-        renderCart(); showCartOverlayMessage("Product removed from cart!");
-
+        cart = cart.filter(i => i.name !== item.name); renderCart(); showCartOverlayMessage("Product removed!");
         const success = await updateCartBackend(userId, item.name, "remove");
-        if (!success) {
-          cart = backupCart; renderCart(); alert("Failed to remove item.");
-        }
+        if (!success) { cart = backupCart; renderCart(); alert("Failed to remove item."); }
       };
 
       cartItemsContainer.appendChild(cartItem);
     });
 
-    cartSubtotal.textContent = subtotal.toLocaleString();
+    if (cartSubtotalDisplay) cartSubtotalDisplay.textContent = subtotal.toLocaleString();
     updateCartItemText();
-    cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+    if (cartCount) cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
     localStorage.setItem("cart", JSON.stringify(cart));
   }
 
   function showEmptyCart() {
-    cartItemsContainer.innerHTML = "";
-    cartItemsContainer.classList.add("empty");
+    if (cartItemsContainer) cartItemsContainer.innerHTML = "";
+    cartItemsContainer?.classList.add("empty");
     updateCartItemText();
-    cartSubtotal.textContent = 0;
-    cartCount.textContent = 0;
-    checkoutBtn.disabled = true;
-    checkoutBtn.classList.add("disabled");
-    clearCartBtn.style.display = "none";
-    document.querySelector(".cartFooter").classList.add("empty");
+    if (cartSubtotalDisplay) cartSubtotalDisplay.textContent = 0;
+    if (cartCount) cartCount.textContent = 0;
+    if (checkoutBtn) { checkoutBtn.disabled = true; checkoutBtn.classList.add("disabled"); }
+    if (clearCartBtn) clearCartBtn.style.display = "none";
+    document.querySelector(".cartFooter")?.classList.add("empty");
   }
 
-    // CLEAR CART → OPTIMISTIC UI + BACKEND
-  clearCartBtn.addEventListener("click", async () => {
-
-    const userId = sessionStorage.getItem("userId");
-
-    // Backup cart in case rollback is needed
+  // -----------------------------
+  // CLEAR CART
+  // -----------------------------
+  if (clearCartBtn) clearCartBtn.addEventListener("click", async () => {
     const backupCart = [...cart];
-
-    // -------- OPTIMISTIC UI --------
-    cart = [];
-    showEmptyCart();
-
+    cart = []; showEmptyCart();
     if (!userId) return;
 
     try {
-
       const res = await fetch(`http://localhost:5000/api/auth/clear-cart`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId })
       });
-
       const data = await res.json();
-
-      if (!data.success) {
-        // Rollback if backend fails
-        cart = backupCart;
-        renderCart();
-        alert("Failed to clear cart.");
-      }
-
+      if (!data.success) { cart = backupCart; renderCart(); alert("Failed to clear cart."); }
     } catch (err) {
-
       console.error("Clear Cart Error:", err);
-
-      // Rollback if server error
-      cart = backupCart;
-      renderCart();
+      cart = backupCart; renderCart();
       alert("Server error. Cart restored.");
     }
-
   });
 
   // -----------------------------
-  // STEP 4b: LOAD USER DATA
+  // LOAD USER DATA
   // -----------------------------
-  const userId = sessionStorage.getItem("userId");
   if (userId) {
     (async () => {
       try {
@@ -362,26 +404,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
         if (data.success) {
           if (Array.isArray(data.cart) && data.cart.length > 0) { cart = data.cart; renderCart(); }
-
-          if (data.subscribed) {
-            const newsletterInput = document.querySelector("#newsletterForm input[name='user_email']");
-            if (newsletterInput && !document.querySelector(".alreadySubscribedMsg")) {
-              newsletterInput.disabled = true;
-              newsletterInput.value = data.email;
-              const msg = document.createElement("p");
-              msg.className = "alreadySubscribedMsg";
-              msg.style.color = "#28a745";
-              msg.style.textAlign = "center";
-              msg.textContent = "You are already subscribed!";
-              newsletterForm.appendChild(msg);
-            }
-          }
         }
       } catch (err) { console.error("Error loading user data:", err); }
     })();
   }
 
-  // INITIAL RENDER
+  // INITIAL CART RENDER
   if (cart.length > 0) renderCart();
   else showEmptyCart();
 });

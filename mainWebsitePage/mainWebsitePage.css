@@ -93,6 +93,13 @@ body{
 .login:hover{
     color: var(--navColor);
 }
+#logoutBtn {
+  cursor: pointer;
+  font-size: 15px;
+}
+#logoutBtn:hover {
+  color: var(--navColor);
+}
 
 #cart{
     cursor: pointer;
