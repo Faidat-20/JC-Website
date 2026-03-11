@@ -1,4 +1,3 @@
-
 function clickme() {
   window.location.href = "mainWebsitePage.html";
 }
@@ -136,12 +135,12 @@ addToCartButtons.forEach(button => {
     
 // CHECK IF PRODUCT ALREADY IN CART
     if (existingItem) {
-  existingItem.quantity++;
-  addCartMessage.textContent = "Product quantity updated in cart!";
-  } else {
-  cart.push({ name, image, price, quantity: 1 })
-  addCartMessage.textContent = "Added to cart";
-}
+      existingItem.quantity++;
+      addCartMessage.textContent = "Product quantity updated in cart!";
+    } else {
+      cart.push({ name, image, price, quantity: 1 });
+      addCartMessage.textContent = "Added to cart";
+    }
 // UPDATE CART UI
     showAddCartMessage();
     renderCart(); 
@@ -175,6 +174,44 @@ function updateCartItemText() {
   cartItemCountDisplay.textContent =
     count <= 1 ? `${count} item` : `${count} items`;
 }
+
+// -----------------------------
+// STEP 4b: LOAD USER DATA ON PAGE LOAD
+// -----------------------------
+document.addEventListener("DOMContentLoaded", async () => {
+  const userId = sessionStorage.getItem("userId");
+  if (!userId) return; // No logged-in user, skip
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/auth/userdata/${userId}`);
+    const data = await res.json();
+
+    if (data.success) {
+      // Update cart from backend if exists
+      if (Array.isArray(data.cart) && data.cart.length > 0) {
+        cart = data.cart;
+        renderCart();
+      }
+
+      // Optionally, handle newsletter subscription status
+      if (data.subscribed) {
+        const newsletterInput = document.querySelector("#newsletterForm input[name='user_email']");
+        if (newsletterInput) {
+          newsletterInput.disabled = true;
+          newsletterInput.value = data.email;
+          const msg = document.createElement("p");
+          msg.style.color = "#28a745";
+          msg.style.textAlign = "center";
+          msg.textContent = "You are already subscribed!";
+          newsletterForm.appendChild(msg);
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Error loading user data:", err);
+  }
+});
+
 // RENDER EMPTY CART STATE
 function renderCart() {
   if (cart.length === 0) {
@@ -190,13 +227,11 @@ function renderCart() {
   checkoutBtn.classList.remove("disabled");
   clearCartBtn.style.display = "inline";
 
-  // UPDATE CART PRICE
   let subtotal = 0;
 
   cart.forEach((item, index) => {
     subtotal += item.price * item.quantity;
 
-    // CREATES NEW CART ELEMENT
     const cartItem = document.createElement("div");
     cartItem.className = "cartItem";
 
@@ -216,14 +251,12 @@ function renderCart() {
       </div>
     `;
 
-    // QUANTITY CONTROLS / INCREASE
     cartItem.querySelector(".increase").onclick = () => {
       item.quantity++;
       renderCart();
       showCartOverlayMessage("Product quantity updated!");
     };
 
-    // QUANTITY CONTROLS / DECREASE
     cartItem.querySelector(".decrease").onclick = () => {
       if (item.quantity > 1) {
         item.quantity--;
@@ -232,15 +265,12 @@ function renderCart() {
       }
     };
 
-    // REMOVE ITEM
     cartItem.querySelector(".removeItem").onclick = () => {
       cart.splice(index, 1);
       renderCart();
       showCartOverlayMessage("Product removed from cart!");
       localStorage.setItem("cart", JSON.stringify(cart));
     };
-
-
 
     cartItemsContainer.appendChild(cartItem);
   });
@@ -256,20 +286,15 @@ function renderCart() {
 function showEmptyCart() {
   cartItemsContainer.innerHTML = "";
   cartItemsContainer.classList.add("empty");
-
   
   updateCartItemText();
   cartSubtotal.textContent = 0;
   cartCount.textContent = 0;
 
-  // CHECKOUT DISABLED
   checkoutBtn.disabled = true;
   checkoutBtn.classList.add("disabled");
 
-  // PREVENTS EMPTY CART CLEARING
   clearCartBtn.style.display = "none";
-
-  // CENTER FOOTER CONTENT WHEN CART IS EMPTY
   document.querySelector(".cartFooter").classList.add("empty");
 }
 
@@ -290,7 +315,7 @@ if (cart.length > 0) {
 // Sync cart across all open pages
 window.addEventListener("storage", (event) => {
   if (event.key === "cart") {
-    cart = JSON.parse(event.newValue) || []
+    cart = JSON.parse(event.newValue) || [];
 
     if (cart.length > 0) {
       renderCart();
@@ -298,7 +323,7 @@ window.addEventListener("storage", (event) => {
       showEmptyCart();
     }
   }
-})
+});
 
 // PAGINATION BUTTONS
 const prevBtn = document.querySelector(".backwardBtn");
@@ -374,13 +399,12 @@ if (closeBtn) {
   });
 }
 
-// -----------------------------
-// NEWSLETTER SUBSCRIPTION (Prevent duplicate emails)
+/// -----------------------------
+// NEWSLETTER SUBSCRIPTION (Backend-driven)
 // -----------------------------
 const newsletterForm = document.getElementById("newsletterForm");
 
 if (newsletterForm) {
-
   const messageBox = document.createElement("p");
   messageBox.style.position = "absolute";
   messageBox.style.bottom = "-58px";
@@ -393,31 +417,44 @@ if (newsletterForm) {
   newsletterForm.style.position = "relative";
   newsletterForm.appendChild(messageBox);
 
-  newsletterForm.addEventListener("submit", (e) => {
+  newsletterForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const email = newsletterForm.user_email.value.trim().toLowerCase();
+    const userId = sessionStorage.getItem("userId"); // Step 3b
+
+    if (!userId) {
+      messageBox.textContent = "Please log in first to subscribe.";
+      return;
+    }
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
     if (!email || !emailPattern.test(email)) {
       messageBox.textContent = "Please enter a valid email.";
       return;
     }
 
-    let subscribers = JSON.parse(localStorage.getItem("subscribers")) || [];
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/subscribe-newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, email })
+      });
 
-    if (subscribers.includes(email)) {
-      messageBox.textContent = "You have already subscribed! Login.";
-      return;
+      const data = await res.json();
+
+      if (data.success) {
+        messageBox.textContent = "Subscription successful!";
+        newsletterForm.reset();
+        overlay.classList.remove("show");
+        enableScroll();
+      } else {
+        messageBox.textContent = data.message || "Failed to subscribe.";
+      }
+
+    } catch (err) {
+      console.error("Newsletter Error:", err);
+      messageBox.textContent = "Server error. Check console.";
     }
-
-    subscribers.push(email);
-    localStorage.setItem("subscribers", JSON.stringify(subscribers));
-
-    messageBox.textContent = "";
-    newsletterForm.reset();
-    overlay.classList.remove("show");
-    enableScroll();
   });
 }
