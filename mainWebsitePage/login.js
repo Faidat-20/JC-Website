@@ -52,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const dataOtp = await resOtp.json();
         if (dataOtp.success) {
           alert(`OTP sent successfully to ${email}`);
+          getOtpBtn.style.display = "none";
           showOtpInput();
         } else {
           alert(dataOtp.message || "Failed to send OTP.");
@@ -67,30 +68,66 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------------
   // SHOW OTP INPUT
   // -----------------------------
+
   function showOtpInput() {
     if (document.getElementById("otpInput")) return;
 
-    loginContainer.innerHTML = "";
+    getOtpBtn.style.display = "none";
+    userEmail.style.display = "none";
 
-    const title = document.createElement("h2");
-    title.textContent = "Enter OTP";
+    const loginParagraph = loginContainer.querySelector("p");
+    if (loginParagraph) {
+      loginParagraph.textContent = "Enter the OTP code sent to your email.";
+    }
 
-    const instruction = document.createElement("p");
-    instruction.textContent = "Check your email and enter the OTP.";
+    const backArrow = document.createElement("button");
+    backArrow.id = "backArrowBtn";
+    backArrow.textContent = "←Back";
+    backArrow.style.all = "unset";
+    backArrow.style.position = "absolute";
+    backArrow.style.top = "0.4cm";
+    backArrow.style.left = "0.4cm";
+    backArrow.style.cursor = "pointer";
+    backArrow.style.fontSize = "1rem";
+    backArrow.style.padding = "0";
+    backArrow.style.margin = "0";
+    backArrow.style.color = "inherit";
+    backArrow.style.font = "inherit";
+
+    backArrow.addEventListener("mouseover", () => {
+      backArrow.style.color = "hsl(357, 45%, 69%)";
+    });
+    backArrow.addEventListener("mouseout", () => {
+      backArrow.style.backgroundColor = "transparent";
+      backArrow.style.color = "inherit";
+    });
+        loginContainer.style.position = "relative";
 
     const otpInput = document.createElement("input");
-    otpInput.placeholder = "Enter OTP";
     otpInput.id = "otpInput";
+    otpInput.placeholder = "Enter OTP";
     otpInput.style.marginBottom = "1rem";
 
     const verifyBtn = document.createElement("button");
-    verifyBtn.textContent = "Verify OTP";
     verifyBtn.id = "verifyOtpBtn";
+    verifyBtn.textContent = "Verify OTP";
 
-    loginContainer.appendChild(title);
-    loginContainer.appendChild(instruction);
+    loginContainer.appendChild(backArrow);
     loginContainer.appendChild(otpInput);
     loginContainer.appendChild(verifyBtn);
+
+    backArrow.addEventListener("click", () => {
+      otpInput.remove();
+      verifyBtn.remove();
+      backArrow.remove();
+
+      getOtpBtn.style.display = "block";
+      userEmail.style.display = "block";
+
+      if (loginParagraph) {
+        loginParagraph.textContent = "Enter your email below to receive an OTP.";
+      }
+    });
 
     // -----------------------------
     // VERIFY OTP
