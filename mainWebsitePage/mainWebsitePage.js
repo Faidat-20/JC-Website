@@ -476,13 +476,12 @@ document.addEventListener("DOMContentLoaded", () => {
     newsletterForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      if (newsletterInput.disabled) return alert("You are already subscribed.");
+      alert("Make sure the email you input is correct.");
 
       const email = newsletterInput.value.trim();
       if (!email) return alert("Enter your email.");
 
       const userId = sessionStorage.getItem("userId"); // ✅ get userId from session
-      if (!userId) return alert("Make sure the email you input is correct.");
 
       try {
         const res = await fetch("http://localhost:5000/api/auth/subscribe-newsletter", {
@@ -492,10 +491,18 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const data = await res.json();
         if (data.success) {
-          alert("Subscription successful!");
-          newsletterInput.disabled = true;
-        }
-        else {
+          if (data.message === "Subscription successful!") {
+            // New subscription
+            alert(data.message);
+            newsletterInput.disabled = true;
+          } else if (data.message === "You are already subscribed! Login.") {
+            // Already subscribed
+            alert(data.message); // only this alert
+          } else {
+            // fallback for any other message
+            alert(data.message);
+      }
+        }else {
           alert(data.message || "Subscription failed.");
         }
       } catch (err) {

@@ -225,7 +225,7 @@ router.post("/subscribe-newsletter", async (req, res) => {
 
     // Already subscribed?
     if (user.isSubscribed) {
-      return res.json({ success: true, message: "Already subscribed." });
+      return res.json({ success: true, message: "You are already subscribed! Login." });
     }
 
     if (user && !user.isSubscribed) {

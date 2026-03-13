@@ -193,8 +193,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const data = await res.json();
         if (data.success) {
-          alert(data.message || "Subscription successful!");
-          newsletterInput.disabled = true;
+          if (data.message === "Subscription successful!") {
+              alert(data.message);
+              newsletterInput.disabled = true;
+          } 
         } else {
           alert(data.message || "Subscription failed.");
         }
