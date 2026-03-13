@@ -14,11 +14,11 @@ router.post("/check-or-create", async (req, res) => {
     let user = await User.findOne({ email });
 
     if (!user) {
-      user = new User({ email, subscribed: false, cart: [] });
+      user = new User({ email, isSubscribed: false, cart: [] });
       await user.save();
     }
 
-    res.json({ success: true, userId: user._id, subscribed: user.subscribed });
+    res.json({ success: true, userId: user._id, subscribed: user.isSubscribed });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Server error" });
@@ -39,6 +39,10 @@ router.post("/request-otp", async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found. Subscribe first." });
+    
+    if (!user.isSubscribed) {
+      return res.status(403).json({ message: "You must subscribe first before getting an OTP." });
+    }
 
     const otp = generateOTP();
     const otpExpiry = Date.now() + 5 * 60 * 1000; // 5 minutes
@@ -47,10 +51,18 @@ router.post("/request-otp", async (req, res) => {
     await user.save();
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+      host: "smtp.gmail.com",
+    port: 587,
+    secure: false, 
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    },
+    tls: {
+        rejectUnauthorized: false
+    }
     });
-
+    
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
@@ -76,7 +88,7 @@ router.post("/verify-otp", async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (user.otp !== Number(otp)) return res.status(400).json({ message: "Incorrect OTP" });
+    if (String(user.otp) !== String(otp)) return res.status(400).json({ message: "Incorrect OTP" });
     if (Date.now() > user.otpExpiry) return res.status(400).json({ message: "OTP expired" });
 
     user.otp = null;
@@ -102,7 +114,7 @@ router.get("/userdata/:userId", async (req, res) => {
     res.json({
       success: true,
       email: user.email,
-      subscribed: user.subscribed,
+      subscribed: user.isSubscribed,
       cart: user.cart || []
     });
   } catch (err) {
@@ -138,6 +150,52 @@ router.post("/clear-cart", async (req, res) => {
 router.post("/logout", (req, res) => {
   // On JWT, the token cannot be destroyed, but frontend should remove it
   res.status(200).json({ message: "Logged out successfully" });
+});
+
+// ----------------------
+// SUBSCRIBE NEWSLETTER (STEP 7.2) — CORRECTED
+// ----------------------
+router.post("/subscribe-newsletter", async (req, res) => {
+  try {
+    const { userId, email } = req.body;
+
+    if (!email && !userId) {
+      return res.status(400).json({ success: false, message: "Email or User ID is required." });
+    }
+
+    let user;
+
+    if (userId) {
+      user = await User.findById(userId);
+    }
+
+    if (!user ) {
+      user = await User.findOne({ email });
+    }
+
+    if (!user) {
+      user = new User({ email, isSubscribed: true, cart: [] });
+      await user.save();
+      return res.json({ success: true, message: "Subscription successful!" });
+    }
+
+    // Already subscribed?
+    if (user.isSubscribed) {
+      return res.json({ success: true, message: "Already subscribed." });
+    }
+
+    if (user && !user.isSubscribed) {
+      user.isSubscribed = true;
+      await user.save();
+      return res.json({ success: true, message: "Subscription successful!" });
+    }
+
+    return res.json({ success: true, message: "Subscription successful!" });
+
+  } catch (err) {
+    console.error("Newsletter subscription error:", err);
+    return res.status(500).json({ success: false, message: "Server error." });
+  }
 });
 
 module.exports = router;
