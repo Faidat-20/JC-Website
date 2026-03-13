@@ -128,11 +128,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const cartOverlayMessage = document.getElementById("cartOverlayMessage");
 
   let cartOverlayTimer;
-  let addCartTimer;
-
-  let overlayOpenCount = 0;
 
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  let overlayOpenCount = 0;
 
   function disableScroll() {
     if (overlayOpenCount === 0) document.body.style.overflow = "hidden";
@@ -149,69 +148,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (cartWrapper) {
     cartWrapper.addEventListener("click", () => {
-
       cartOverlay.classList.add("active");
       pageOverlay.classList.add("active");
-
       document.body.classList.add("cart-open");
-
       disableScroll();
     });
   }
-
   function closeCartOverlay() {
-
     cartOverlay.classList.remove("active");
     pageOverlay.classList.remove("active");
-
     document.body.classList.remove("cart-open");
-
     enableScroll();
   }
 
-  if (closeCart) closeCart.addEventListener("click", closeCartOverlay);
-
-  if (continueShopping) continueShopping.addEventListener("click", closeCartOverlay);
+  closeCart.addEventListener("click", closeCartOverlay);
+  continueShopping.addEventListener("click", closeCartOverlay);
 
   function showAddCartMessage() {
-
     clearTimeout(addCartTimer);
-
     addCartMessage.classList.add("show");
-
     addCartTimer = setTimeout(() => {
-
       addCartMessage.classList.remove("show");
-
     }, 1200);
   }
 
   function showCartOverlayMessage(message) {
-
     if (!cartOverlayMessage) return;
-
     clearTimeout(cartOverlayTimer);
 
     cartOverlayMessage.textContent = message;
-
     cartOverlayMessage.classList.add("show");
-
     cartOverlayTimer = setTimeout(() => {
-
       cartOverlayMessage.classList.remove("show");
-
     }, 1200);
   }
-
   function updateCartItemText() {
-
-    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-
+    const count = cart.length;
     if (cartItemCountDisplay) {
-
       cartItemCountDisplay.textContent =
-
         count <= 1 ? `${count} item` : `${count} items`;
+    }
+    if (cartCount) {
+      cartCount.textContent = count; // only unique items
     }
   }
 
@@ -219,36 +197,22 @@ document.addEventListener("DOMContentLoaded", () => {
   // BACKEND CART UPDATE
   // -----------------------------
   async function updateCartBackend(userId, name, action) {
-
     try {
-
       const res = await fetch(`http://localhost:5000/api/auth/update-cart`, {
-
         method: "POST",
-
         headers: { "Content-Type": "application/json" },
-
         body: JSON.stringify({ userId, name, action })
 
       });
-
       const data = await res.json();
-
       if (data.success) {
-
         cart = data.cart;
-
         renderCart();
-
         return true;
       }
-
       return false;
-
     } catch (err) {
-
       console.error("Cart Error:", err);
-
       return false;
     }
   }
@@ -256,153 +220,234 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------------
   // ADD TO CART
   // -----------------------------
+
+  let addCartTimer;
+
   addToCartButtons.forEach(button => {
-
     button.addEventListener("click", async () => {
-
       if (!userId) return alert("Please log in to add items to cart.");
-
       const itemCard = button.closest(".item");
-
       const name = itemCard.querySelector("h2").textContent;
-
       const image = itemCard.querySelector("img").src;
-
       const priceAmount = itemCard.querySelector(".price").textContent;
-
       const price = Number(priceAmount.replace(/[₦,]/g, ""));
-
       const existingItem = cart.find(item => item.name === name);
 
-      if (existingItem) existingItem.quantity++;
-
-      else cart.push({ name, image, price, quantity: 1 });
-
+      if (existingItem) {
+        existingItem.quantity++; 
+        addCartMessage.textContent = "Product quantity updated in cart!"
+      } else {
+        cart.push({ name, image, price, quantity: 1 })
+        addCartMessage.textContent = "Added to cart";
+      }
+      showAddCartMessage();
       renderCart();
 
-      addCartMessage.textContent = "Item added to cart!";
-
-      showAddCartMessage();
-
-      try {
-
-        const res = await fetch(`http://localhost:5000/api/auth/update-cart`, {
-
-          method: "POST",
-
-          headers: { "Content-Type": "application/json" },
-
-          body: JSON.stringify({ userId, name, image, price, action: "add", quantity: 1 })
-
-        });
-
-        const data = await res.json();
-
-        if (!data.success) {
-
-          alert("Failed to add item");
-
+      const success = await updateCartBackend(userId, name, image, price, "add", 1);
+      if (!success) {
+        // rollback frontend cart if backend fails
+        if (existingItem) {
+          existingItem.quantity--;
+        } else {
+          cart.pop();
         }
-
-      } catch (err) {
-
-        console.error("Cart Error:", err);
+        renderCart();
       }
     });
   });
 
+    // BACKEND CART UPDATE FUNCTION
+  // -----------------------------
+  async function updateCartBackend(userId, name, image, price, action, quantity = 1) {
+    try {
+      const res = await fetch(`http://localhost:5000/api/auth/update-cart`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, name, image, price, action, quantity })
+      });
+      const data = await res.json();
+      if (data.success) {
+        cart = data.cart; // update frontend cart from backend
+        renderCart();
+        return true;
+      } else {
+        alert("Failed to update cart on server.");
+        return false;
+      }
+    } catch (err) {
+      console.error("Cart Error:", err);
+      alert("Server error while updating cart.");
+      return false;
+    }
+  }
+
   // -----------------------------
   // RENDER CART
-  // -----------------------------
+   // -----------------------------
   function renderCart() {
-
-    if (!cartItemsContainer) return;
-
-    if (cart.length === 0) return showEmptyCart();
+    if (cart.length === 0) {
+      showEmptyCart();
+      return;
+    }
+    if (!cartItemsContainer) {return;}
 
     cartItemsContainer.innerHTML = "";
+    cartItemsContainer.classList.remove("empty");
+    document.querySelector(".cartFooter").classList.remove("empty");
 
+    checkoutBtn.disabled = false;
+    checkoutBtn.classList.remove("disabled");
+    clearCartBtn.style.display = "inline";
+
+    // UPDATE CART PRICE
     let subtotal = 0;
-    cart.forEach((item) => {
+
+    cart.forEach((item, index) => {
       subtotal += item.price * item.quantity;
 
+      // CREATES NEW CART ELEMENT
       const cartItem = document.createElement("div");
-
       cartItem.className = "cartItem";
 
       cartItem.innerHTML = `
-
         <img src="${item.image}">
-
         <div class="cartItemDetails">
-
           <h4>${item.name}</h4>
-
           <div class="price">₦${item.price.toLocaleString()}</div>
-
         </div>
-
         <div class="cartItemActions">
-
-          <span>${item.quantity}</span>
-
+          <div class="quantityControl">
+            <button class="decrease">−</button>
+            <span>${item.quantity}</span>
+            <button class="increase">+</button>
+          </div>
+          <i class="fa-solid fa-trash removeItem"></i>
         </div>
       `;
 
+      const increaseBtn = cartItem.querySelector(".increase");
+      const decreaseBtn = cartItem.querySelector(".decrease");
+      const removeBtn = cartItem.querySelector(".removeItem");
+
+      // QUANTITY CONTROLS / INCREASE
+      increaseBtn.addEventListener("click", async () => {
+        item.quantity++;
+        renderCart();
+        showCartOverlayMessage("Product quantity updated!");
+
+        const success = await updateCartBackend(userId, item.name, item.image, item.price, "update", item.quantity);
+        if (!success) {
+          // rollback if backend fails
+          item.quantity--;
+          renderCart();
+        }
+      });
+
+      // QUANTITY CONTROLS / DECREASE
+      decreaseBtn.addEventListener("click", async () => {
+        if (item.quantity > 1) {
+          item.quantity--;
+          renderCart();
+          showCartOverlayMessage("Product quantity updated!");
+
+          const success = await updateCartBackend(userId, item.name, item.image, item.price, "update", item.quantity);
+          if (!success) {
+            // rollback if backend fails
+            item.quantity++;
+            renderCart();
+          }
+        }
+      });
+
+      // REMOVE ITEM
+      removeBtn.addEventListener("click", async () => {
+        const removedItem = { ...item }; // backup for rollback
+        cart.splice(index, 1);
+        renderCart();
+        showCartOverlayMessage("Product removed from cart!");
+
+        const success = await updateCartBackend(userId, removedItem.name, removedItem.image, removedItem.price, "remove", 0);
+        if (!success) {
+          cart.splice(index, 0, removedItem); // rollback
+          renderCart();
+          showCartOverlayMessage("Failed to remove product, rollback applied.");
+        }else {
+          localStorage.setItem("cart", JSON.stringify(cart)); // sync storage
+        }
+      });
       cartItemsContainer.appendChild(cartItem);
     });
 
     cartSubtotalDisplay.textContent = subtotal.toLocaleString();
-
     updateCartItemText();
 
-    cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
-
+    cartCount.textContent = cart.length;
     localStorage.setItem("cart", JSON.stringify(cart));
   }
 
   function showEmptyCart() {
+    cartItemsContainer.innerHTML = "";
+    cartItemsContainer.classList.add("empty");
 
-    if (cartItemsContainer) cartItemsContainer.innerHTML = "";
 
     updateCartItemText();
+    cartSubtotalDisplay.textContent = 0;
+    cartCount.textContent = 0;
 
-    if (cartSubtotalDisplay) cartSubtotalDisplay.textContent = 0;
+    // CHECKOUT DISABLED
+    checkoutBtn.disabled = true;
+    checkoutBtn.classList.add("disabled");
 
-    if (cartCount) cartCount.textContent = 0;
+    // PREVENTS EMPTY CART CLEARING
+    clearCartBtn.style.display = "none";
+
+    // CENTER FOOTER CONTENT WHEN CART IS EMPTY
+    document.querySelector(".cartFooter").classList.add("empty");
   }
+
+  // ENABLE CLEAR CART 
+  clearCartBtn.addEventListener("click", async () => {
+    if (!userId) return alert("Please log in to clear your cart.");
+  
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/clear-cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        cart = [];
+        showEmptyCart();
+        localStorage.setItem("cart", JSON.stringify(cart)); // sync local storage
+        showCartOverlayMessage("Cart cleared successfully!");
+      } else {
+        alert(data.message || "Failed to clear cart.");
+      }
+    } catch (err) {
+      console.error("Clear cart error:", err);
+      alert("Server error while clearing cart.");
+    }
+  });
 
   // -----------------------------
   // LOAD USER DATA
   // -----------------------------
   if (userId) {
-
     (async () => {
-
       try {
-
         const res = await fetch(`http://localhost:5000/api/auth/userdata/${userId}`);
-
         const data = await res.json();
-
         if (data.success) {
-
           if (Array.isArray(data.cart) && data.cart.length > 0) {
-
             cart = data.cart;
-
             renderCart();
           }
-
           checkNewsletterStatus(data);
-
         }
-
       } catch (err) {
-
         console.error("Error loading user data:", err);
       }
-
     })();
   }
 
@@ -416,19 +461,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!newsletterInput) return;
     if (userData.isSubscribed) {
       newsletterInput.disabled = true;
-
       newsletterInput.value = userData.email;
-
       if (!document.querySelector(".alreadySubscribedMsg")) {
-
         const msg = document.createElement("p");
-
         msg.className = "alreadySubscribedMsg";
-
         msg.style.color = "green";
-
         msg.textContent = "You are already subscribed!";
-
         newsletterForm.appendChild(msg);
       }
     }
@@ -447,7 +485,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!userId) return alert("Make sure the email you input is correct.");
 
       try {
-
         const res = await fetch("http://localhost:5000/api/auth/subscribe-newsletter", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -469,10 +506,56 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // INITIAL CART RENDER
-  if (cart.length > 0) renderCart();
+  if (cart.length > 0) {
+    renderCart();
+  } else {
+    showEmptyCart();
+  }
 
-  else showEmptyCart();
-  
+  window.addEventListener("storage", (event) => {
+    if (event.key === "cart") {
+      cart = JSON.parse(event.newValue) || []
+
+      if (cart.length > 0) {
+        renderCart();
+      } else {
+        showEmptyCart();
+      }
+    }
+  })
+
+  const prevBtn = document.querySelector(".backwardBtn");
+  const nextBtn = document.querySelector(".fowardBtn");
+  const pageLinks = document.querySelectorAll(".pages a");
+
+  function getCurrentPageIndex() {
+    return Array.from(pageLinks).findIndex(link => link.classList.contains("active"));
+  }
+  // PREVIOUS PAGE
+  prevBtn.addEventListener("click", (e) => {
+    e.preventDefault(); 
+    const currentIndex = getCurrentPageIndex();
+
+    if (currentIndex > 0) {
+      window.location.href = pageLinks[currentIndex - 1].href;
+    } else {
+      window.scrollTo(0, 0);
+      window.location.reload();
+    }
+  });
+
+  // NEXT PAGE
+  nextBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    const currentIndex = getCurrentPageIndex();
+
+    if (currentIndex < pageLinks.length - 1) {
+      window.location.href = pageLinks[currentIndex + 1].href;
+    } else {
+      window.location.href = pageLinks[0].href;
+    }
+  });
+
     // -----------------------------
   // FOOTER SUBSCRIBE BUTTON & AUTO POPUP
   // -----------------------------

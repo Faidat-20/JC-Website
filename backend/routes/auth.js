@@ -124,6 +124,50 @@ router.get("/userdata/:userId", async (req, res) => {
 });
 
 // ----------------------
+// UPDATE CART
+// ----------------------
+router.post("/update-cart", async (req, res) => {
+  const { userId, name, image, price, action, quantity } = req.body;
+  if (!userId || !name || !action) {
+    return res.status(400).json({ success: false, message: "Missing required fields" });
+  }
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    let cart = user.cart || [];
+    let existingItem = cart.find(item => item.name === name);
+
+    if (action === "add") {
+      if (existingItem) {
+        existingItem.quantity += quantity || 1;
+      } else {
+        cart.push({ name, image, price, quantity: quantity || 1 });
+      }
+    } else if (action === "remove") {
+      cart = cart.filter(item => item.name !== name);
+    }
+    else if (action === "update") {
+      if (existingItem) {
+        existingItem.quantity = quantity; // set exact quantity
+        // Remove item if quantity is 0
+        if (existingItem.quantity <= 0) {
+          cart = cart.filter(item => item.name !== name);
+        }
+      }
+    }
+
+    user.cart = cart;
+    await user.save();
+
+    res.json({ success: true, cart: user.cart });
+  } catch (err) {
+    console.error("Update cart error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
 // CLEAR CART
 // ----------------------
 router.post("/clear-cart", async (req, res) => {
