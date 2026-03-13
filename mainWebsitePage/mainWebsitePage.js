@@ -539,29 +539,33 @@ document.addEventListener("DOMContentLoaded", () => {
     return Array.from(pageLinks).findIndex(link => link.classList.contains("active"));
   }
   // PREVIOUS PAGE
-  prevBtn.addEventListener("click", (e) => {
-    e.preventDefault(); 
-    const currentIndex = getCurrentPageIndex();
+  if (prevBtn) {
+    prevBtn.addEventListener("click", (e) => {
+      e.preventDefault(); 
+      const currentIndex = getCurrentPageIndex();
 
-    if (currentIndex > 0) {
-      window.location.href = pageLinks[currentIndex - 1].href;
-    } else {
-      window.scrollTo(0, 0);
-      window.location.reload();
-    }
-  });
+      if (currentIndex > 0) {
+        window.location.href = pageLinks[currentIndex - 1].href;
+      } else {
+        window.scrollTo(0, 0);
+        window.location.reload();
+      }
+    });
+  }
 
   // NEXT PAGE
-  nextBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    const currentIndex = getCurrentPageIndex();
+  if (nextBtn) {
+    nextBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const currentIndex = getCurrentPageIndex();
 
-    if (currentIndex < pageLinks.length - 1) {
-      window.location.href = pageLinks[currentIndex + 1].href;
-    } else {
-      window.location.href = pageLinks[0].href;
-    }
-  });
+      if (currentIndex < pageLinks.length - 1) {
+        window.location.href = pageLinks[currentIndex + 1].href;
+      } else {
+        window.location.href = pageLinks[0].href;
+      }
+    });
+  }
 
     // -----------------------------
   // FOOTER SUBSCRIBE BUTTON & AUTO POPUP
