@@ -1,3 +1,17 @@
+// ✅ Persistent login check
+const storedUser = JSON.parse(localStorage.getItem("currentUser"));
+
+if (storedUser) {
+    // Sync with sessionStorage if not already set
+    if (!sessionStorage.getItem("userId")) {
+        sessionStorage.setItem("userId", storedUser.userId);
+    }
+} else {
+    // No user logged in, redirect to login page
+    if (!window.location.pathname.endsWith("login.html")) {
+        window.location.href = "login.html";
+    }
+}
 function clickme() {
   window.location.href = "mainWebsitePage.html";
 }
@@ -37,6 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         sessionStorage.removeItem("userId");
         localStorage.removeItem("cart");
+
+        localStorage.removeItem("currentUser");
 
         window.location.href = "login.html";
 

@@ -141,8 +141,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (dataVerify.success) {
           sessionStorage.setItem("userId", dataVerify.userId);
-          alert("Login successful!");
-          window.location.href = "mainWebsitePage.html";
+          localStorage.setItem("currentUser", JSON.stringify({
+            userId: dataVerify.userId,
+            username: dataVerify.username || "User",
+            email: currentEmail
+        }));
+
+        alert("Login successful!");
+        window.location.href = "mainWebsitePage.html";
         } else {
           alert(dataVerify.message || "Incorrect OTP");
         }
