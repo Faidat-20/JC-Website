@@ -88,51 +88,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("searchInput");
   const closeSearch = document.getElementById("closeSearch");
   const searchIcon = document.getElementById("icon");
-  const products = document.querySelectorAll(".item");
-  const productContainer = document.querySelector(".productList");
-
-
-  function performSearch() {
-    const searchTerm = searchInput.value.toLowerCase().trim();
-    let hasMatch = false;
-
-    products.forEach(product => {
-      const productName = product.querySelector("h2").textContent.toLowerCase();
-
-      if (productName.includes(searchTerm)) {
-        product.style.display = "block";
-        hasMatch = true;
-      } else {
-        product.style.display = "none";
-      }
-    });
-
-    if (!productContainer) return;
-
-    // "No products found" message inside product area
-    let noProductsMsg = document.getElementById("noProductsMsg");
-    if (!noProductsMsg) {
-      noProductsMsg = document.createElement("p");
-      noProductsMsg.id = "noProductsMsg";
-      noProductsMsg.style.color = "#333";
-      noProductsMsg.style.textAlign = "center";
-      noProductsMsg.style.marginTop = "20px";
-      noProductsMsg.textContent = "No products found";
-      productContainer.appendChild(noProductsMsg);
-    }
-
-    noProductsMsg.style.display = hasMatch ? "none" : "block";
+    function redirectToSearchResults() {
+    const searchTerm = searchInput.value.trim();
+    if (!searchTerm) return; // do nothing if empty
+    window.location.href = `searchResults.html?search=${encodeURIComponent(searchTerm)}`;
   }
 
-  // EVENT LISTENERS
+  // Event listeners
   if (searchInput) {
-    searchInput.addEventListener("input", performSearch);
+    // Enter key triggers search
     searchInput.addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        performSearch();
+        redirectToSearchResults();
       }
     });
+  }
+
+  // Optional: search icon click triggers search
+  if (searchIcon) {
+    searchIcon.addEventListener("click", redirectToSearchResults);
   }
 
   if (searchInput) {
@@ -159,7 +134,10 @@ document.addEventListener("DOMContentLoaded", () => {
       greeting.classList.add("shopPage");
       greetingMessage.innerHTML = `<h1>Login</h1>`;
     }
-
+      else if (currentPage === "searchResults.html") {
+      greeting.classList.add("shopPage");
+      greetingMessage.innerHTML = `<h1>Search Results</h1>`;
+    }
     else if (currentPage !== "mainWebsitePage.html") {
       greeting.classList.add("shopPage");
       greetingMessage.innerHTML = `<h1>Shop</h1>`;
