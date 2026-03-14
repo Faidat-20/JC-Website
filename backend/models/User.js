@@ -7,9 +7,17 @@ const UserSchema = new mongoose.Schema({
     required: true, 
     unique: true 
   },
+  username: {
+    type: String,        // <-- add this
+    required: false,      // we can add it later during newsletter signup
+  },
 
   otp: { 
     type: String 
+  },
+
+  otpExpiry: {
+    type: Number
   },
 
   isSubscribed: { 

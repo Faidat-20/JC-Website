@@ -18,7 +18,7 @@ router.post("/check-or-create", async (req, res) => {
       await user.save();
     }
 
-    res.json({ success: true, userId: user._id, subscribed: user.isSubscribed });
+    res.json({ success: true, userId: user._id, subscribed: user.isSubscribed, username: user.username || null  });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Server error" });
@@ -113,6 +113,7 @@ router.get("/userdata/:userId", async (req, res) => {
 
     res.json({
       success: true,
+      username: user.username || "User",
       email: user.email,
       subscribed: user.isSubscribed,
       cart: user.cart || []
@@ -201,7 +202,7 @@ router.post("/logout", (req, res) => {
 // ----------------------
 router.post("/subscribe-newsletter", async (req, res) => {
   try {
-    const { userId, email } = req.body;
+    const { userId, email, username  } = req.body;
 
     if (!email && !userId) {
       return res.status(400).json({ success: false, message: "Email or User ID is required." });
@@ -218,18 +219,27 @@ router.post("/subscribe-newsletter", async (req, res) => {
     }
 
     if (!user) {
-      user = new User({ email, isSubscribed: true, cart: [] });
+      user = new User({ email, username, isSubscribed: true, cart: [] });
       await user.save();
       return res.json({ success: true, message: "Subscription successful!" });
     }
 
     // Already subscribed?
     if (user.isSubscribed) {
+      // Update username if missing
+      if (!user.username && username) {
+        user.username = username;
+        await user.save();
+      }
       return res.json({ success: true, message: "You are already subscribed! Login." });
     }
-
+    if (!user.username && email && req.body.username) {
+      user.username = req.body.username;
+      await user.save();
+    }
     if (user && !user.isSubscribed) {
       user.isSubscribed = true;
+      if (username) user.username = username; // ← save username
       await user.save();
       return res.json({ success: true, message: "Subscription successful!" });
     }
