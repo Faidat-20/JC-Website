@@ -87,6 +87,53 @@ document.addEventListener("DOMContentLoaded", () => {
   const navbar = document.getElementById("navBar");
   const searchInput = document.getElementById("searchInput");
   const closeSearch = document.getElementById("closeSearch");
+  const searchIcon = document.getElementById("icon");
+  const products = document.querySelectorAll(".item");
+  const productContainer = document.querySelector(".productList");
+
+
+  function performSearch() {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    let hasMatch = false;
+
+    products.forEach(product => {
+      const productName = product.querySelector("h2").textContent.toLowerCase();
+
+      if (productName.includes(searchTerm)) {
+        product.style.display = "block";
+        hasMatch = true;
+      } else {
+        product.style.display = "none";
+      }
+    });
+
+    if (!productContainer) return;
+
+    // "No products found" message inside product area
+    let noProductsMsg = document.getElementById("noProductsMsg");
+    if (!noProductsMsg) {
+      noProductsMsg = document.createElement("p");
+      noProductsMsg.id = "noProductsMsg";
+      noProductsMsg.style.color = "#333";
+      noProductsMsg.style.textAlign = "center";
+      noProductsMsg.style.marginTop = "20px";
+      noProductsMsg.textContent = "No products found";
+      productContainer.appendChild(noProductsMsg);
+    }
+
+    noProductsMsg.style.display = hasMatch ? "none" : "block";
+  }
+
+  // EVENT LISTENERS
+  if (searchInput) {
+    searchInput.addEventListener("input", performSearch);
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        performSearch();
+      }
+    });
+  }
 
   if (searchInput) {
     searchInput.addEventListener("focus", () => {
@@ -100,7 +147,6 @@ document.addEventListener("DOMContentLoaded", () => {
       searchInput.blur();
     });
   }
-
   // -----------------------------
   // GREETING MESSAGE
   // -----------------------------
