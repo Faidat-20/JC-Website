@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
         addCartMessage.textContent = "Product quantity updated in cart!"
       } else {
         cart.push({ name, image, price, quantity: 1 })
-        addCartMessage.textContent = "Added to cart";
+        addCartMessage.textContent = "Added to cart!";
       }
       showAddCartMessage();
       renderCart();
