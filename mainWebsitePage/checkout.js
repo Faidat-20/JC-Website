@@ -251,4 +251,28 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize
   // -------------------------
   loadCountries();
+  const shippingOptions = document.querySelectorAll("input[name='shipping']");
+const totalEl = document.getElementById("total");
+
+function updateTotal() {
+  let subtotal = Number(subtotalEl.textContent) || 0;
+
+  let shipping = 0;
+  shippingOptions.forEach(option => {
+    if (option.checked) {
+      shipping = Number(option.value);
+    }
+  });
+
+  const total = subtotal + shipping;
+  totalEl.textContent = total.toLocaleString();
+}
+
+// listen for change
+shippingOptions.forEach(option => {
+  option.addEventListener("change", updateTotal);
+});
+
+// run initially
+updateTotal();
 });

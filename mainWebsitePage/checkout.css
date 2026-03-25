@@ -1,8 +1,10 @@
+body{
+  background-color: hsl(0, 0%, 96%);
+}
 .checkoutPage {
   padding: 40px 20px;
   display: flex;
   justify-content: center;
-  background-color: #f9f9f9;
 }
 
 .checkoutContainer {
@@ -13,8 +15,16 @@
   width: 100%;
 }
 
+/* New: Left column wrapper */
+.checkoutLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 30px; /* spacing between delivery and shipping sections */
+  flex: 1 1 500px; /* left column width */
+}
+
 .checkout-cart {
-  flex: 1;
+  flex: 1 1 50%;
   min-width: 300px;
   background: #fff;
   border-radius: 12px;
@@ -70,9 +80,11 @@
 .checkout-form {
   flex: 1;
   min-width: 300px;
-  background: #fff;
-  border-radius: 12px;
-  padding: 30px;
+  background: #eceef0;
+  border: solid 1px #666;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
@@ -130,20 +142,46 @@
 }
 
 .addDeliveryBtn {
-  padding: 14px 24px;
-  background-color: #f06;
-  color: #fff;
-  border: none;
+  padding: 10px 20px;
+  background-color: #f8f9fa;
+  color: black;
+  border: solid 1.5px black;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  font-size: 1rem;
+  margin: 10px 0;
+}
+
+.shippingFee-form{
+  flex: 1;
+  min-width: 300px;
+  background: #eceef0;
+  border: solid 1px #666;
   border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.deliveryTitle,
+.shippingTitle {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.shippingSectionBtn{
+  padding: 10px 20px;
+  background-color: #f8f9fa;
+  color: black;
+  border: solid 1.5px black;
   font-weight: bold;
   cursor: pointer;
   font-size: 1rem;
-  margin-bottom: 20px;
+  margin: 10px 0;
 }
 
-.addDeliveryBtn:hover {
-  background-color: #d9446d;
-}
 
 .deliveryPanel {
   position: fixed;
@@ -204,7 +242,6 @@
   font-weight: 600;
 }
 
-
 .deliveryPanelContent form {
   padding-right: 15px;
   max-height: calc(90vh - 80px);
@@ -226,7 +263,6 @@
   border-radius: 3px;
 }
 
-
 .closeDelivery {
   position: absolute;
   top: 15px;
@@ -234,7 +270,6 @@
   font-size: 28px;
   cursor: pointer;
 }
-
 
 .deliveryPanelContent input,
 .deliveryPanelContent textarea,
@@ -318,5 +353,8 @@
     padding: 30px 20px;
     max-width: 90vw;
     max-height: 90vh;
+  }
+  .checkoutContainer{
+    max-width: 500px
   }
 }
