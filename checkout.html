@@ -147,6 +147,26 @@
               <button type="button" id="shippingSectionBtn" class="shippingSectionBtn">
                 Select a shipping price
               </button>
+
+              <!-- Shipping Panel -->
+              <div class="shippingPanel" id="shippingPanel">
+                <div class="shippingPanelContent">
+                  <div class="shippingHeader">
+                    <h3>Select Shipping</h3>
+                    <span class="closeShipping" id="closeShipping">&times;</span>
+                  </div>
+
+                  <form id="shippingForm">
+                    <!-- Shipping options will be inserted here dynamically -->
+                    <div class="shippingOptions">
+                      <!-- Each option: radio + description + price -->
+                      <!-- Example will be filled dynamically with JS -->
+                    </div>
+
+                    <button type="submit" class="shippingSubmitBtn">Save Shipping</button>
+                  </form>
+                </div>
+              </div>
             </div>
           </section>
         </div>
@@ -159,6 +179,7 @@
             <span>Subtotal:</span>
             <strong>₦<span id="subtotal">0</span></strong>
           </div>
+          <p>Total: ₦<span id="total">0</span></p> <!-- ADD THIS -->
         </section>
       </div>
     </main>

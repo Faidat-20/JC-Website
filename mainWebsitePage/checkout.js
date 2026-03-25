@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cartItemsContainer = document.getElementById("checkoutCartItems");
 
   const subtotalEl = document.getElementById("subtotal");
+  const totalEl = document.getElementById("total");
   const checkoutForm = document.getElementById("checkoutForm");
 
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -252,27 +253,113 @@ document.addEventListener("DOMContentLoaded", () => {
   // -------------------------
   loadCountries();
   const shippingOptions = document.querySelectorAll("input[name='shipping']");
-const totalEl = document.getElementById("total");
 
-function updateTotal() {
-  let subtotal = Number(subtotalEl.textContent) || 0;
 
-  let shipping = 0;
+
+  function updateTotal() {
+    let subtotal = Number(subtotalEl.textContent) || 0;
+
+    let shipping = 0;
+    shippingOptions.forEach(option => {
+      if (option.checked) {
+        shipping = Number(option.value);
+      }
+    });
+
+    const total = subtotal + shipping;
+    totalEl.textContent = total.toLocaleString();
+  }
+
+  // listen for change
   shippingOptions.forEach(option => {
-    if (option.checked) {
-      shipping = Number(option.value);
-    }
+    option.addEventListener("change", updateTotal);
   });
 
-  const total = subtotal + shipping;
-  totalEl.textContent = total.toLocaleString();
-}
+  // run initially
+  updateTotal();
+  // -------------------------
+  // SHIPPING PANEL
+  // -------------------------
+  const shippingSectionBtn = document.getElementById("shippingSectionBtn");
+  const shippingPanel = document.getElementById("shippingPanel");
+  const closeShipping = document.getElementById("closeShipping");
+  const shippingForm = document.getElementById("shippingForm");
+  let shippingOptionsContainer = null;
 
-// listen for change
-shippingOptions.forEach(option => {
-  option.addEventListener("change", updateTotal);
-});
+  if (shippingForm) {
+    shippingOptionsContainer = shippingForm.querySelector(".shippingOptions");
+  }
 
-// run initially
-updateTotal();
+  const shippingData = [
+    { name: "GUO for Interstate Delivery", desc: "UGBOWO, Aba, Abakaliki, Asaba, Awka, Bauchi, Enugu, Utako, Gwarinpa, Mararaba, Kubwa, Wuse2, Zuba, Zaria, Yola, Imo, Umuahia, Sokoto, Nnewi, Jos", price: 4500 },
+    { name: "Lagos mainland", desc: "Our delivery days are Tuesday, Thursday, and Saturday. Delivery within Lagos takes 1-2 business days...", price: 3500 },
+    { name: "Ikorodu", desc: "Delivery within Lagos takes 1-2 business days...", price: 5000 },
+    { name: "Pick Up", desc: "Beside Idimu Central Mosque, Idimu Bus Stop, Ikotun Road, Lagos. Kindly confirm if your item has been packed before sending a rider.", price: 0 },
+    { name: "Northern States", desc: "GIG DELIVERY (delivery fee charged based on weight...)", price: 7000 },
+    { name: "PARK DELIVERY Ibadan, Ogun & Ondo", desc: "PAY THE DRIVER", price: 0 },
+    { name: "Far Distanced Lagos Mainland And Out Skirt", desc: "Delivery within Lagos takes 1-2 business days...", price: 4000 },
+    { name: "Lagos Island", desc: "Delivery within Lagos takes 1-2 business days...", price: 4500 },
+    { name: "Ajah, Ibeju Lekki, Outskirts Island", desc: "Delivery within Lagos takes 1-2 business days...", price: 6500 },
+    { name: "GIG for Interstate Delivery", desc: "GIG charge based on weight, if price >5000 you'll be contacted...", price: 5000 },
+    { name: "Ajegunle, Ojo, Ago Palace, etc.", desc: "Delivery within Lagos takes 1-2 business days...", price: 4000 },
+    { name: "PARK DELIVERY FOR SMALL ITEMS", desc: "Small items 0-3kg...", price: 4000 },
+    { name: "PARK DELIVERY FOR BIG ITEMS", desc: "If price is more, you'll be contacted...", price: 7000 },
+    { name: "Waybill", desc: "", price: 8500 }
+  ];
+
+  // Function to render shipping options
+  function renderShippingOptions() {
+    shippingOptionsContainer.innerHTML = "";
+    shippingData.forEach((option, index) => {
+      const div = document.createElement("div");
+      div.classList.add("shippingOption");
+      div.innerHTML = `
+        <label>
+          <input type="radio" name="shipping" value="${option.price}" data-name="${option.name}">
+          <strong>${option.name}</strong> - ${option.desc}
+        </label>
+        <span class="shippingPrice">₦${option.price.toLocaleString()}</span>
+      `;
+      shippingOptionsContainer.appendChild(div);
+    });
+  }
+
+  // Show shipping panel
+if (shippingSectionBtn && shippingPanel && closeShipping && shippingOptionsContainer) {
+  shippingSectionBtn.addEventListener("click", () => {
+    shippingPanel.classList.add("active");
+    disableScroll();
+    renderShippingOptions();
+  });
+
+    closeShipping.addEventListener("click", () => {
+      shippingPanel.classList.remove("active");
+      enableScroll();
+    });
+  }
+
+  // Save selected shipping
+  if (shippingForm) {
+    shippingForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const selected = shippingForm.querySelector("input[name='shipping']:checked");
+      if (!selected) return alert("Please select a shipping option!");
+
+      // Save to localStorage
+      const shippingChoice = {
+        name: selected.dataset.name,
+        price: Number(selected.value)
+      };
+      localStorage.setItem("selectedShipping", JSON.stringify(shippingChoice));
+
+      // Update the button text to show selected option
+      shippingSectionBtn.textContent = `${shippingChoice.name} - ₦${shippingChoice.price.toLocaleString()}`;
+
+      shippingPanel.classList.remove("active");
+      enableScroll();
+
+      // Update total
+      updateTotal();
+    });
+  }
 });
