@@ -9,33 +9,78 @@ document.addEventListener("DOMContentLoaded", () => {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
   // Render cart items
+  // Render cart items with images and quantity controls
   function renderCart() {
+    if (!cartItemsContainer) return;
+
     cartItemsContainer.innerHTML = "";
+    let subtotal = 0;
 
     if (cart.length === 0) {
       cartItemsContainer.innerHTML = "<p>Your cart is empty.</p>";
       subtotalEl.textContent = "0";
+      totalEl.textContent = "0";
       return;
     }
 
-    let subtotal = 0;
+    cart.forEach((item, index) => {
+      subtotal += item.price * item.quantity;
 
-    cart.forEach(item => {
-      const itemTotal = item.price * item.quantity;
-      subtotal += itemTotal;
+      const cartItem = document.createElement("div");
+      cartItem.className = "checkoutCartItem";
 
-      const itemDiv = document.createElement("div");
-      itemDiv.classList.add("cart-item");
+      cartItem.innerHTML = `
+        <img src="${item.image}" alt="${item.name}" class="checkoutCartImage">
+        <div class="checkoutCartDetails">
+          <h4>${item.name}</h4>
 
-      itemDiv.innerHTML = `
-        <p><strong>${item.name}</strong> x ${item.quantity}</p>
-        <p>₦${itemTotal.toFixed(2)}</p>
+          <div class="checkoutQuantityControl">
+            <button class="decrease">−</button>
+            <span class="quantity">${item.quantity}</span>
+            <button class="increase">+</button>
+          </div>
+        </div>
+
+        <p class="checkoutCartPrice">
+          ₦${(item.price * item.quantity).toLocaleString()}
+        </p>
       `;
 
-      cartItemsContainer.appendChild(itemDiv);
+      const increaseBtn = cartItem.querySelector(".increase");
+      const decreaseBtn = cartItem.querySelector(".decrease");
+      const quantityEl = cartItem.querySelector(".quantity");
+
+      increaseBtn.addEventListener("click", () => {
+        item.quantity++;
+        quantityEl.textContent = item.quantity;
+        updateTotals();
+        localStorage.setItem("cart", JSON.stringify(cart));
+      });
+
+      decreaseBtn.addEventListener("click", () => {
+        if (item.quantity > 1) {
+          item.quantity--;
+          quantityEl.textContent = item.quantity;
+          updateTotals();
+          localStorage.setItem("cart", JSON.stringify(cart));
+        }
+      });
+
+      cartItemsContainer.appendChild(cartItem);
     });
 
-    subtotalEl.textContent = subtotal.toFixed(2);
+    updateTotals();
+  }
+
+  // Updates subtotal and total
+  function updateTotals() {
+    let subtotal = 0;
+    cart.forEach(item => subtotal += item.price * item.quantity);
+
+    subtotalEl.textContent = subtotal.toLocaleString();
+    // add shipping if selected
+    const shipping = JSON.parse(localStorage.getItem("selectedShipping"))?.price || 0;
+    totalEl.textContent = (subtotal + shipping).toLocaleString();
   }
 
   renderCart();
@@ -232,13 +277,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const shippingOptions = document.querySelectorAll("input[name='shipping']");
   function updateTotal() {
-    let subtotal = Number(subtotalEl.textContent) || 0;
-    let shipping = 0;
-    shippingOptions.forEach(option => {
-      if (option.checked) {
-        shipping = Number(option.value);
-      }
-    });
+    let subtotal = Number(subtotalEl.textContent.replace(/,/g, "")) || 0;
+
+    // Get shipping from localStorage (more reliable)
+    const savedShipping = JSON.parse(localStorage.getItem("selectedShipping"));
+    const shipping = savedShipping ? savedShipping.price : 0;
+
+    // Update shipping display
+    const shippingEl = document.getElementById("shippingAmount");
+    if (shippingEl) {
+      shippingEl.textContent = shipping.toLocaleString();
+    }
+
     const total = subtotal + shipping;
     totalEl.textContent = total.toLocaleString();
   }

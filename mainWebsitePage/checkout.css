@@ -15,14 +15,16 @@ body{
   width: 100%;
 }
 
-/* New: Left column wrapper */
 .checkoutLeft {
   display: flex;
   flex-direction: column;
-  gap: 30px; /* spacing between delivery and shipping sections */
-  flex: 1 1 500px; /* left column width */
+  gap: 30px;
+  flex: 1 1 500px;
 }
-
+.checkoutLeft > .checkout-form,
+.checkoutLeft > .shippingFee-form {
+  flex: 0 0 auto;
+}
 .checkout-cart {
   flex: 1 1 50%;
   min-width: 300px;
@@ -68,13 +70,6 @@ body{
 .cartItemsSummary h4 {
   margin: 0;
   font-size: 1rem;
-}
-
-.checkoutSubtotal {
-  display: flex;
-  justify-content: space-between;
-  font-size: 1.2rem;
-  font-weight: bold;
 }
 
 .checkout-form {
@@ -505,7 +500,7 @@ body{
 .shippingDisplayWrapper {
   display: flex;
   flex-direction: column;
-  gap: 6px; /* space between name & desc */
+  gap: 6px;
 }
 
 .shippingDisplayName {
@@ -534,4 +529,89 @@ body{
   .checkoutContainer{
     max-width: 500px
   }
+}
+.orderSummary {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.summaryTotal {
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+}
+.checkoutCartImage {
+  width: 60px;
+  height: 60px;
+  object-fit: cover; 
+  border-radius: 8px;
+}
+
+.checkoutCartItem {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 12px;
+}
+
+.checkoutCartDetails {
+  flex: 1; 
+}
+.checkoutCartPrice {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  
+}
+
+.checkoutQuantityControl {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  width: fit-content;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.checkoutQuantityControl button {
+  width: 25px;
+  height: 25px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.checkoutQuantityControl span {
+  width: 25px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.checkoutQuantityControl button:first-child {
+  border-right: 1px solid #ccc;
+}
+
+.checkoutQuantityControl button:last-child {
+  border-left: 1px solid #ccc;
 }

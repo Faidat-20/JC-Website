@@ -179,11 +179,24 @@
         <section class="checkout-cart">
           <h2>Your Order</h2>
           <div id="checkoutCartItems" class="cartItemsSummary"></div>
-          <div class="checkoutSubtotal">
-            <span>Subtotal:</span>
-            <strong>₦<span id="subtotal">0</span></strong>
+          <div class="orderSummary">
+
+            <div class="summaryRow">
+              <span>Subtotal</span>
+              <span>₦<span id="subtotal">0</span></span>
+            </div>
+
+            <div class="summaryRow">
+              <span>Shipping</span>
+              <span>₦<span id="shippingAmount">0</span></span>
+            </div>
+
+            <div class="summaryTotal">
+              <span>Total</span>
+              <strong>₦<span id="total">0</span></strong>
+            </div>
+
           </div>
-          <p>Total: ₦<span id="total">0</span></p> <!-- ADD THIS -->
         </section>
       </div>
     </main>
