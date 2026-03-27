@@ -4,8 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const subtotalEl = document.getElementById("subtotal");
   const totalEl = document.getElementById("total");
-  const checkoutForm = document.getElementById("checkoutForm");
-
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
   localStorage.removeItem("selectedShipping");
 
@@ -150,32 +148,19 @@ document.addEventListener("DOMContentLoaded", () => {
     cart.forEach(item => subtotal += item.price * item.quantity);
 
     subtotalEl.textContent = subtotal.toLocaleString();
-    // add shipping if selected
-    const shipping = JSON.parse(localStorage.getItem("selectedShipping"))?.price || 0;
+
+    const savedShipping = JSON.parse(localStorage.getItem("selectedShipping"));
+    const shipping = savedShipping ? savedShipping.price : 0;
+
+    const shippingEl = document.getElementById("shippingAmount");
+    if (shippingEl) {
+      shippingEl.textContent = shipping.toLocaleString();
+    }
+
     totalEl.textContent = (subtotal + shipping).toLocaleString();
   }
 
   renderCart();
-
-  if (checkoutForm) {
-    checkoutForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-
-      const formData = new FormData(checkoutForm);
-      const orderData = {
-        name: formData.get("name"),
-        phone: formData.get("phone"),
-        address: formData.get("address"),
-        email: formData.get("email") || null,
-        cart: cart,
-        subtotal: cart.reduce((acc, item) => acc + item.price * item.quantity, 0),
-      };
-
-      console.log("Order Data:", orderData);
-
-      alert("Checkout data collected. Next step: Payment!");
-    });
-  }
 
   // DELIVERY PANEL
   const addDeliveryBtn = document.getElementById("addDeliveryBtn");
@@ -347,28 +332,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize
   loadCountries();
 
-  const shippingOptions = document.querySelectorAll("input[name='shipping']");
-  function updateTotal() {
-    let subtotal = Number(subtotalEl.textContent.replace(/,/g, "")) || 0;
-
-    // Get shipping from localStorage (more reliable)
-    const savedShipping = JSON.parse(localStorage.getItem("selectedShipping"));
-    const shipping = savedShipping ? savedShipping.price : 0;
-
-    // Update shipping display
-    const shippingEl = document.getElementById("shippingAmount");
-    if (shippingEl) {
-      shippingEl.textContent = shipping.toLocaleString();
-    }
-
-    const total = subtotal + shipping;
-    totalEl.textContent = total.toLocaleString();
-  }
-
-  shippingOptions.forEach(option => {
-    option.addEventListener("change", updateTotal);
-  });
-  updateTotal();
 
   // SHIPPING PANEL
   const shippingSectionBtn = document.getElementById("shippingSectionBtn");
@@ -452,7 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         localStorage.setItem("selectedShipping", JSON.stringify(shippingChoice));
 
-        updateTotal();
+        updateTotals();
       });
     });
   }
@@ -475,7 +438,7 @@ document.addEventListener("DOMContentLoaded", () => {
         price: Number(selectedOption.price)
       }));
 
-      updateTotal();
+      updateTotals();
       shippingSelected = true;
     }
     function attachShippingListeners() {
@@ -540,7 +503,7 @@ document.addEventListener("DOMContentLoaded", () => {
       enableScroll();
 
       // Update total
-      updateTotal();
+      updateTotals();
     });
   }
   // Sync checkout cart when main page updates localStorage

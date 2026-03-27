@@ -208,6 +208,7 @@ document.addEventListener("DOMContentLoaded", () => {
   closeCart.addEventListener("click", closeCartOverlay);
   continueShopping.addEventListener("click", closeCartOverlay);
 
+  let addCartTimer;
   function showAddCartMessage() {
     clearTimeout(addCartTimer);
     addCartMessage.classList.add("show");
@@ -240,8 +241,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------------
   // ADD TO CART
   // -----------------------------
-
-  let addCartTimer;
 
   addToCartButtons.forEach(button => {
     button.addEventListener("click", async () => {
@@ -500,6 +499,37 @@ document.addEventListener("DOMContentLoaded", () => {
             renderCart();
           }
           checkNewsletterStatus(data);
+          const navRight = document.getElementById("navRight");
+          const logoutBtn = document.getElementById("logoutBtn");
+
+          if (navRight && logoutBtn) {
+            const username = data.username && data.username.trim() ? data.username : "User";
+            const email = data.email;
+
+            const userDiv = document.createElement("div");
+            userDiv.id = "loggedInUser";
+            userDiv.style.display = "flex";
+            userDiv.style.flexDirection = "column";
+            userDiv.style.alignItems = "flex-end";
+            userDiv.style.marginRight = "10px";
+            userDiv.style.fontSize = "0.7rem";
+            userDiv.style.color = "#333";
+
+            const nameEl = document.createElement("span");
+            nameEl.textContent = `Hello, ${username}`;
+            nameEl.style.fontWeight = "bold";
+
+            const emailEl = document.createElement("span");
+            emailEl.textContent = email;
+            emailEl.style.fontSize = "0.5rem";
+            emailEl.style.color = "#666";
+
+            userDiv.appendChild(nameEl);
+            userDiv.appendChild(emailEl);
+
+            navRight.insertBefore(userDiv, logoutBtn);
+            logoutBtn.style.display = "block";
+          }
         }
       } catch (err) {
         console.error("Error loading user data:", err);
@@ -666,57 +696,6 @@ document.addEventListener("DOMContentLoaded", () => {
         disableScroll();
         localStorage.setItem("newsletterLastShown", now);
       }, 1000); // 1-second delay after page load
-    }
-  }
-});
-document.addEventListener("DOMContentLoaded", async () => {
-  const userId = sessionStorage.getItem("userId");
-  const navRight = document.getElementById("navRight");
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  if (userId && navRight && logoutBtn) {
-    try {
-      const res = await fetch(`http://localhost:5000/api/auth/userdata/${userId}`);
-      const data = await res.json();
-
-      if (data.success) {
-        const username = data.username && data.username.trim() ? data.username : "User";
-        const email = data.email;
-
-        // Create a container div
-        const userDiv = document.createElement("div");
-        userDiv.id = "loggedInUser";
-        userDiv.style.display = "flex";
-        userDiv.style.flexDirection = "column";
-        userDiv.style.alignItems = "flex-end";
-        userDiv.style.marginRight = "10px";
-        userDiv.style.fontSize = "0.7rem";
-        userDiv.style.color = "#333";
-
-        // Add username and email
-        const nameEl = document.createElement("span");
-        nameEl.textContent = `Hello, ${username}`;
-        nameEl.style.fontWeight = "bold";
-
-        const emailEl = document.createElement("span");
-        emailEl.textContent = email;
-        emailEl.style.fontSize = "0.5rem";
-        emailEl.style.color = "#666";
-
-        userDiv.appendChild(nameEl);
-        userDiv.appendChild(emailEl);
-
-        // Insert before logout button
-        navRight.insertBefore(userDiv, logoutBtn);
-
-        // Show logout button
-        logoutBtn.style.display = "block";
-
-      } else {
-        console.log("Failed to fetch user data:", data.message);
-      }
-    } catch (err) {
-      console.error("Error fetching user data:", err);
     }
   }
 });
