@@ -238,30 +238,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -----------------------------
-  // BACKEND CART UPDATE
-  // -----------------------------
-  async function updateCartBackend(userId, name, action) {
-    try {
-      const res = await fetch(`http://localhost:5000/api/auth/update-cart`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, name, action })
-
-      });
-      const data = await res.json();
-      if (data.success) {
-        cart = data.cart;
-        renderCart();
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.error("Cart Error:", err);
-      return false;
-    }
-  }
-
-  // -----------------------------
   // ADD TO CART
   // -----------------------------
 
