@@ -378,6 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
         item.quantity++;
         renderCart();
         showCartOverlayMessage("Product quantity updated!");
+        window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
 
         const success = await updateCartBackend(userId, item.name, item.image, item.price, "update", item.quantity);
         if (!success) {
@@ -393,12 +394,29 @@ document.addEventListener("DOMContentLoaded", () => {
           item.quantity--;
           renderCart();
           showCartOverlayMessage("Product quantity updated!");
+          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
 
           const success = await updateCartBackend(userId, item.name, item.image, item.price, "update", item.quantity);
           if (!success) {
             // rollback if backend fails
             item.quantity++;
             renderCart();
+          }
+        } else {
+          const removedItem = { ...item };
+          cart.splice(index, 1);
+          renderCart();
+          showCartOverlayMessage("Product removed from cart!");
+          localStorage.setItem("cart", JSON.stringify(cart));
+          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+
+          const success = await updateCartBackend(userId, removedItem.name, removedItem.image, removedItem.price, "remove", 0);
+          if (!success) {
+            cart.splice(index, 0, removedItem);
+            renderCart();
+            localStorage.setItem("cart", JSON.stringify(cart));
+            window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+            showCartOverlayMessage("Failed to remove product, rollback applied.");
           }
         }
       });
@@ -409,11 +427,15 @@ document.addEventListener("DOMContentLoaded", () => {
         cart.splice(index, 1);
         renderCart();
         showCartOverlayMessage("Product removed from cart!");
+        localStorage.setItem("cart", JSON.stringify(cart));
+        window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
 
         const success = await updateCartBackend(userId, removedItem.name, removedItem.image, removedItem.price, "remove", 0);
         if (!success) {
           cart.splice(index, 0, removedItem); // rollback
           renderCart();
+          localStorage.setItem("cart", JSON.stringify(cart));
+          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
           showCartOverlayMessage("Failed to remove product, rollback applied.");
         }else {
           localStorage.setItem("cart", JSON.stringify(cart)); // sync storage

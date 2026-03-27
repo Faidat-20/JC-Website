@@ -7,9 +7,43 @@ document.addEventListener("DOMContentLoaded", () => {
   const checkoutForm = document.getElementById("checkoutForm");
 
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  localStorage.removeItem("selectedShipping");
 
+  // CHECKOUT CART MESSAGE
+  let checkoutMessageTimer;
+  function showCheckoutMessage(message) {
+    const addCartMessage = document.querySelector(".addCartMessage");
+    if (!addCartMessage) return;
+    clearTimeout(checkoutMessageTimer);
+    addCartMessage.textContent = message;
+    addCartMessage.classList.add("show");
+    checkoutMessageTimer = setTimeout(() => {
+      addCartMessage.classList.remove("show");
+    }, 1200);
+  }
+  // BACKEND CART SYNC
+  const userId = sessionStorage.getItem("userId");
+
+  async function updateCartBackend(name, image, price, action, quantity = 1) {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/update-cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, name, image, price, action, quantity })
+      });
+      const data = await res.json();
+      if (data.success) {
+        return true;
+      } else {
+        console.error("Backend cart update failed:", data.message);
+        return false;
+      }
+    } catch (err) {
+      console.error("Cart backend error:", err);
+      return false;
+    }
+  }
   // Render cart items
-  // Render cart items with images and quantity controls
   function renderCart() {
     if (!cartItemsContainer) return;
 
@@ -50,19 +84,57 @@ document.addEventListener("DOMContentLoaded", () => {
       const decreaseBtn = cartItem.querySelector(".decrease");
       const quantityEl = cartItem.querySelector(".quantity");
 
-      increaseBtn.addEventListener("click", () => {
+      increaseBtn.addEventListener("click", async () => {
         item.quantity++;
         quantityEl.textContent = item.quantity;
+        const priceEl = cartItem.querySelector(".checkoutCartPrice");
+        priceEl.textContent = `₦${(item.price * item.quantity).toLocaleString()}`;
+
         updateTotals();
         localStorage.setItem("cart", JSON.stringify(cart));
+        window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+        showCheckoutMessage("Product quantity updated!");
+
+        const success = await updateCartBackend(item.name, item.image, item.price, "update", item.quantity);
+        if (!success) {
+          item.quantity--;
+          renderCart();
+        }
       });
 
-      decreaseBtn.addEventListener("click", () => {
+      decreaseBtn.addEventListener("click", async () => {
+        const removedItem = { ...item };
         if (item.quantity > 1) {
           item.quantity--;
           quantityEl.textContent = item.quantity;
+          const priceEl = cartItem.querySelector(".checkoutCartPrice");
+          priceEl.textContent = `₦${(item.price * item.quantity).toLocaleString()}`;
+          
           updateTotals();
           localStorage.setItem("cart", JSON.stringify(cart));
+          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+          showCheckoutMessage("Product quantity updated!");
+
+          const success = await updateCartBackend(item.name, item.image, item.price, "update", item.quantity);
+          if (!success) {
+            item.quantity++;
+            renderCart();
+          }
+        } else {
+          cart.splice(index, 1);
+          renderCart();
+          localStorage.setItem("cart", JSON.stringify(cart));
+          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+          showCheckoutMessage("Product removed from cart!");
+
+          const success = await updateCartBackend(removedItem.name, removedItem.image, removedItem.price, "remove", 0);
+          if (!success) {
+            cart.splice(index, 0, removedItem);
+            renderCart();
+            localStorage.setItem("cart", JSON.stringify(cart));
+            window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+            showCheckoutMessage("Failed to remove product, rollback applied.");
+          }
         }
       });
 
@@ -471,4 +543,13 @@ document.addEventListener("DOMContentLoaded", () => {
       updateTotal();
     });
   }
+  // Sync checkout cart when main page updates localStorage
+  window.addEventListener("storage", (event) => {
+    if (event.key === "cart") {
+      const updatedCart = JSON.parse(event.newValue) || [];
+      cart.length = 0;
+      updatedCart.forEach(item => cart.push(item));
+      renderCart();
+    }
+  });
 });
