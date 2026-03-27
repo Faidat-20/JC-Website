@@ -117,7 +117,7 @@ function renderSearchResults(products) {
 
   addToCartButtons.forEach(button => {
 
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
 
       const userId = sessionStorage.getItem("userId");
       if (!userId) return alert("Please log in to add items to cart.");
@@ -139,9 +139,23 @@ function renderSearchResults(products) {
       }
 
       localStorage.setItem("cart", JSON.stringify(cart));
+      window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
 
       renderCart();
       showCartOverlayMessage("Product added to cart!");
+
+      // SYNC WITH BACKEND
+      if (userId) {
+        try {
+          await fetch("http://localhost:5000/api/auth/update-cart", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, name, image, price, action: "add", quantity: 1 })
+          });
+        } catch (err) {
+          console.error("Cart backend sync error:", err);
+        }
+      }
 
     });
 
