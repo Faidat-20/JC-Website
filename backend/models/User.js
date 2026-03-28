@@ -33,16 +33,19 @@ const UserSchema = new mongoose.Schema({
       quantity: Number,
       image: String
     }
-  ]
+  ],
+
+  deliveryDetails: {
+    firstName: String,
+    lastName: String,
+    phone: String,
+    email: String,
+    address: String,
+    country: String,
+    state: String,
+    city: String
+  }
 
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", UserSchema);
-
-// Product display file (if separate)
-
-// Backend
-// 4. Product model
-// 5. Product routes
-// 6. Controller (if you use one)
-// 7. Server.js / app.j

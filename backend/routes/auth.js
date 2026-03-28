@@ -198,7 +198,7 @@ router.post("/logout", (req, res) => {
 });
 
 // ----------------------
-// SUBSCRIBE NEWSLETTER (STEP 7.2) — CORRECTED
+// SUBSCRIBE NEWSLETTER
 // ----------------------
 router.post("/subscribe-newsletter", async (req, res) => {
   try {
@@ -252,4 +252,40 @@ router.post("/subscribe-newsletter", async (req, res) => {
   }
 });
 
+// ----------------------
+// SAVE DELIVERY DETAILS
+// ----------------------
+router.post("/save-delivery", async (req, res) => {
+  const { userId, deliveryDetails } = req.body;
+  if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    user.deliveryDetails = deliveryDetails;
+    await user.save();
+
+    res.json({ success: true, message: "Delivery details saved!", deliveryDetails: user.deliveryDetails });
+  } catch (err) {
+    console.error("Save delivery error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// GET DELIVERY DETAILS
+// ----------------------
+router.get("/delivery-details/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    res.json({ success: true, deliveryDetails: user.deliveryDetails || null });
+  } catch (err) {
+    console.error("Get delivery error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 module.exports = router;

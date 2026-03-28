@@ -189,17 +189,61 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (deliveryForm) {
-    deliveryForm.addEventListener("submit", (e) => {
+    deliveryForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const formData = Object.fromEntries(new FormData(deliveryForm).entries());
       localStorage.setItem("deliveryDetails", JSON.stringify(formData));
 
-      deliveryPanel.classList.remove("active");
-      enableScroll();
-
-      alert("Delivery details saved!");
+      // SAVE TO BACKEND
+      if (userId) {
+        try {
+          const res = await fetch("http://localhost:5000/api/auth/save-delivery", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, deliveryDetails: formData })
+          });
+          const data = await res.json();
+          if (data.success) {
+            deliveryPanel.classList.remove("active");
+            enableScroll();
+            alert("Delivery details saved!");
+          } else {
+            alert("Failed to save delivery details.");
+          }
+        } catch (err) {
+          console.error("Save delivery error:", err);
+          alert("Server error while saving delivery details.");
+        }
+      } else {
+        deliveryPanel.classList.remove("active");
+        enableScroll();
+        alert("Delivery details saved!");
+      }
     });
+  }
+
+  // LOAD SAVED DELIVERY DETAILS
+  if (userId) {
+    (async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/auth/delivery-details/${userId}`);
+        const data = await res.json();
+        if (data.success && data.deliveryDetails) {
+          const details = data.deliveryDetails;
+          if (details.firstName) document.getElementById("firstName").value = details.firstName;
+          if (details.lastName) document.getElementById("lastName").value = details.lastName;
+          if (details.phone) document.getElementById("phone").value = details.phone;
+          if (details.email) document.getElementById("email").value = details.email;
+          if (details.address) document.getElementById("address").value = details.address;
+          if (details.city) document.getElementById("city").value = details.city;
+          
+          console.log("Delivery details from DB:", details);
+        }
+      } catch (err) {
+        console.error("Load delivery error:", err);
+      }
+    })();
   }
 
   // COUNTRY & STATE DROPDOWN
