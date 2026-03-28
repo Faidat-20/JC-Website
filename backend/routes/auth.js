@@ -288,4 +288,26 @@ router.get("/delivery-details/:userId", async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
+// ----------------------
+// CHECK IF USER IS ADMIN
+// ----------------------
+router.post("/check-admin", async (req, res) => {
+  const { userId } = req.body;
+  if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    if (!user.isAdmin) {
+      return res.status(403).json({ success: false, message: "Access denied. Not an admin." });
+    }
+
+    res.json({ success: true, message: "Welcome Admin" });
+  } catch (err) {
+    console.error("Admin check error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 module.exports = router;

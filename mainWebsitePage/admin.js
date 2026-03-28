@@ -1,3 +1,30 @@
+// ADMIN PROTECTION
+(async () => {
+  const userId = sessionStorage.getItem("userId");
+
+  if (!userId) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/check-admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId })
+    });
+    const data = await res.json();
+
+    if (!data.success) {
+      alert("Access denied. You are not an admin.");
+      window.location.href = "mainWebsitePage.html";
+    }
+  } catch (err) {
+    console.error("Admin check error:", err);
+    window.location.href = "mainWebsitePage.html";
+  }
+})();
+
 document.addEventListener("DOMContentLoaded", async () => {
 
   const ordersContainer = document.getElementById("ordersContainer");
