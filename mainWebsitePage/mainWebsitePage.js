@@ -142,6 +142,10 @@ document.addEventListener("DOMContentLoaded", () => {
       greeting.classList.add("shopPage");
       greetingMessage.innerHTML = `<h1>Checkout</h1>`;
     }
+    else if (currentPage === "admin.html") {
+      greeting.classList.add("shopPage");
+      greetingMessage.innerHTML = `<h1>Admin Dashboard</h1>`;
+    }
     else if (currentPage !== "mainWebsitePage.html") {
       greeting.classList.add("shopPage");
       greetingMessage.innerHTML = `<h1>Shop</h1>`;
