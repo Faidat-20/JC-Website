@@ -5,9 +5,11 @@ const Order = require("../models/Order");
 // ----------------------
 // CREATE ORDER
 // ----------------------
+// CREATE ORDER (pre-payment)
 router.post("/create", async (req, res) => {
   const { userId, items, deliveryDetails, shippingOption, subtotal, shippingFee, total } = req.body;
 
+  // Basic validation
   if (!userId || !items || !deliveryDetails || !total) {
     return res.status(400).json({ success: false, message: "Missing required fields" });
   }
@@ -25,12 +27,14 @@ router.post("/create", async (req, res) => {
       shippingFee,
       total,
       trackingId,
-      status: "pending"
+      status: "pending",        // order created but not processed
+      paymentStatus: "pending"  // awaiting payment
     });
 
     await order.save();
 
-    res.json({ success: true, message: "Order created successfully!", order });
+    // Return the order info to frontend (you will send this to the payment gateway)
+    res.json({ success: true, message: "Order created successfully!", orderId: order._id, trackingId: order.trackingId });
 
   } catch (err) {
     console.error("Create order error:", err);

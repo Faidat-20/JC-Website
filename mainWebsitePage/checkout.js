@@ -559,4 +559,103 @@ document.addEventListener("DOMContentLoaded", () => {
       renderCart();
     }
   });
+  
+  // At the bottom of your DOMContentLoaded listener in checkout.js
+  const placeOrderBtn = document.getElementById("placeOrderBtn");
+
+  if (placeOrderBtn) {
+    placeOrderBtn.addEventListener("click", async () => {
+      if (!userId) return alert("Please log in to place your order.");
+
+      // Get delivery and shipping info
+      const deliveryDetails = JSON.parse(localStorage.getItem("deliveryDetails")) || {};
+      const shipping = JSON.parse(localStorage.getItem("selectedShipping")) || { price: 0 };
+
+      // Prepare payload
+      const payload = {
+        userId,
+        cart,
+        deliveryDetails,
+        shipping: shipping.price,
+        total: Number(totalEl.textContent.replace(/,/g, "")) // make sure total is number
+      };
+
+      try {
+        const res = await fetch("http://localhost:5000/api/payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (data.success && data.paymentLink) {
+          // Redirect to payment gateway
+          window.location.href = data.paymentLink;
+        } else {
+          alert(data.message || "Failed to place order.");
+        }
+      } catch (err) {
+        console.error("Place order error:", err);
+        alert("Error placing order. Check console.");
+      }
+    });
+  }
+
+  // -----------------------------
+  // TRIGGER PAYMENT / CREATE ORDER
+  // -----------------------------
+  const payBtn = document.getElementById("payBtn");
+
+  if (payBtn) {
+    payBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      // 1️⃣ Collect cart and delivery data
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const deliveryDetails = JSON.parse(localStorage.getItem("deliveryDetails")) || {};
+      const shippingSelected = JSON.parse(localStorage.getItem("selectedShipping")) || { price: 0, name: "" };
+
+      if (cart.length === 0) return alert("Your cart is empty.");
+      if (!deliveryDetails.firstName) return alert("Please fill in delivery details.");
+
+      const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const total = subtotal + shippingSelected.price;
+
+      // 2️⃣ Send data to backend to create order (status: pending)
+      try {
+        const res = await fetch("http://localhost:5000/api/orders/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            items: cart,
+            deliveryDetails,
+            shippingOption: shippingSelected,
+            subtotal,
+            shippingFee: shippingSelected.price,
+            total,
+          })
+        });
+        const data = await res.json();
+        if (!data.success) return alert("Failed to create order. Try again.");
+
+        const orderId = data.order._id; // backend returns created order with _id
+
+        // 3️⃣ Trigger payment gateway here with orderId and amount
+        startPaymentGateway(orderId, total); // you implement this function
+      } catch (err) {
+        console.error("Create order error:", err);
+        alert("Server error while creating order.");
+      }
+    });
+  }
+
+  // Example payment trigger function
+  function startPaymentGateway(orderId, amount) {
+    // Example: Flutterwave / Paystack / Stripe payment integration
+    console.log("Trigger payment for order:", orderId, "Amount:", amount);
+
+    // After payment success, your backend webhook should update order.paymentStatus = 'paid'
+  }
 });
