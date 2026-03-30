@@ -4,6 +4,29 @@ const User = require("../models/User");
 const nodemailer = require("nodemailer");
 
 // ----------------------
+// GENERATE UNIQUE USERNAME
+// ----------------------
+async function generateUniqueUsername(baseUsername) {
+  if (!baseUsername) return null;
+
+  const cleanBase = baseUsername.trim().toLowerCase().replace(/\s+/g, "");
+
+  // Check if base username already exists
+  let existing = await User.findOne({ username: cleanBase });
+  if (!existing) return cleanBase;
+
+  // Find all users with similar username
+  let counter = 1;
+  let newUsername = `${cleanBase}${String(counter).padStart(3, "0")}`;
+
+  while (await User.findOne({ username: newUsername })) {
+    counter++;
+    newUsername = `${cleanBase}${String(counter).padStart(3, "0")}`;
+  }
+
+  return newUsername;
+}
+// ----------------------
 // SIGNUP / CHECK USER
 // ----------------------
 router.post("/check-or-create", async (req, res) => {
@@ -202,7 +225,7 @@ router.post("/logout", (req, res) => {
 // ----------------------
 router.post("/subscribe-newsletter", async (req, res) => {
   try {
-    const { userId, email, username  } = req.body;
+    const { userId, email, username } = req.body;
 
     if (!email && !userId) {
       return res.status(400).json({ success: false, message: "Email or User ID is required." });
@@ -210,40 +233,44 @@ router.post("/subscribe-newsletter", async (req, res) => {
 
     let user;
 
+    // Find user by userId first
     if (userId) {
       user = await User.findById(userId);
+      console.log("Found by userId:", user ? user.email : "not found");
     }
 
-    if (!user ) {
+    // Then try by email
+    if (!user && email) {
       user = await User.findOne({ email });
+      console.log("Found by email:", user ? user.email : "not found");
     }
 
-    if (!user) {
-      user = new User({ email, username, isSubscribed: true, cart: [] });
-      await user.save();
-      return res.json({ success: true, message: "Subscription successful!" });
-    }
+    console.log("Final user:", user ? user.email : "null");
 
-    // Already subscribed?
-    if (user.isSubscribed) {
-      // Update username if missing
+    // User exists and already subscribed
+    if (user && user.isSubscribed) {
       if (!user.username && username) {
-        user.username = username;
+        user.username = await generateUniqueUsername(username);
         await user.save();
       }
       return res.json({ success: true, message: "You are already subscribed! Login." });
     }
-    if (!user.username && email && req.body.username) {
-      user.username = req.body.username;
-      await user.save();
-    }
+
+    // User exists but not subscribed yet — update them
     if (user && !user.isSubscribed) {
       user.isSubscribed = true;
-      if (username) user.username = username; // ← save username
+      console.log("Username received:", username);
+      const generatedUsername = await generateUniqueUsername(username);
+      console.log("Generated username:", generatedUsername);
+      if (username) user.username = generatedUsername;
       await user.save();
       return res.json({ success: true, message: "Subscription successful!" });
     }
 
+    // User doesn't exist at all — create them
+    const uniqueUsername = await generateUniqueUsername(username);
+    user = new User({ email, username: uniqueUsername, isSubscribed: true, cart: [] });
+    await user.save();
     return res.json({ success: true, message: "Subscription successful!" });
 
   } catch (err) {

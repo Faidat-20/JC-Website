@@ -191,17 +191,21 @@ document.addEventListener("DOMContentLoaded", () => {
       const email = newsletterInput.value.trim();
       const userId = sessionStorage.getItem("userId");
 
+      const usernameInput = newsletterForm.querySelector("input[name='username']");
+      const username = usernameInput ? usernameInput.value.trim() : "";
+
       try {
         const res = await fetch("http://localhost:5000/api/auth/subscribe-newsletter", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, email })
+          body: JSON.stringify({ userId, email, username })
         });
+        
         const data = await res.json();
         if (data.success) {
           if (data.message === "Subscription successful!") {
-              alert(data.message);
-              newsletterInput.disabled = true;
+            alert(data.message);
+            newsletterInput.disabled = true;
           } 
         } else {
           alert(data.message || "Subscription failed.");
