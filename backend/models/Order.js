@@ -49,7 +49,8 @@ const OrderSchema = new mongoose.Schema({
   },
   trackingId: {
     type: String,
-    unique: true
+    unique: true,
+    default: () => "TRK-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase()
   },
 
   order_created_at: {

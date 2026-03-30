@@ -569,15 +569,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Get delivery and shipping info
       const deliveryDetails = JSON.parse(localStorage.getItem("deliveryDetails")) || {};
-      const shipping = JSON.parse(localStorage.getItem("selectedShipping")) || { price: 0 };
+      const shipping = JSON.parse(localStorage.getItem("selectedShipping")) || null;
 
-      // Prepare payload
+      // ✅ Validation
+      if (!deliveryDetails.firstName || !deliveryDetails.lastName || !deliveryDetails.address || !deliveryDetails.phone) {
+        return alert("Please fill in all delivery details before placing your order.");
+      }
+
+      if (!shipping || !shipping.name) {
+        return alert("Please select a shipping option before placing your order.");
+      }
+
+      const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const total = subtotal + shipping.price;
+
       const payload = {
         userId,
         cart,
         deliveryDetails,
         shipping: shipping.price,
-        total: Number(totalEl.textContent.replace(/,/g, "")) // make sure total is number
+        total
       };
 
       try {
@@ -590,7 +601,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
 
         if (data.success && data.paymentLink) {
-          // Redirect to payment gateway
           window.location.href = data.paymentLink;
         } else {
           alert(data.message || "Failed to place order.");
