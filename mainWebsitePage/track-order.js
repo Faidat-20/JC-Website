@@ -88,6 +88,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Tracking ID and status badge
     document.getElementById("resultTrackingId").textContent = order.trackingId;
+    document.getElementById("resultOrderId").textContent = order._id;
     const statusBadge = document.getElementById("resultStatus");
     statusBadge.textContent = order.status;
     statusBadge.className = `statusBadge ${order.status}`;

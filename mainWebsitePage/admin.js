@@ -40,9 +40,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   // -----------------------------
   // ALLOWED STATUS OPTIONS
   // -----------------------------
-  function getAllowedOptions(currentStatus) {
+  function getAllowedOptions(currentStatus, paymentStatus) {
     switch (currentStatus) {
       case "pending":
+        if (paymentStatus !== "paid") {
+          // not paid yet — can only cancel
+          return [
+            { value: "pending", label: "Pending" },
+            { value: "cancelled", label: "Cancelled" }
+          ];
+        }
+        // paid — can ship or cancel
         return [
           { value: "pending", label: "Pending" },
           { value: "shipped", label: "Shipped" },
@@ -107,11 +115,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       const isLocked = order.status === "delivered" || order.status === "cancelled";
-      const allowedOptions = getAllowedOptions(order.status);
+      const allowedOptions = getAllowedOptions(order.status, order.paymentStatus);
 
       card.innerHTML = `
         <div class="orderCardLeft">
           <h3>Tracking ID: ${order.trackingId}</h3>
+          <p><strong>Order ID:</strong> ${order._id}</p>
           <p><strong>Customer:</strong> ${order.deliveryDetails?.firstName || ""} ${order.deliveryDetails?.lastName || ""}</p>
           <p><strong>Phone:</strong> ${order.deliveryDetails?.phone || "N/A"}</p>
           <p><strong>Total:</strong> ₦${order.total?.toLocaleString()}</p>
@@ -197,6 +206,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       <div class="modalSection">
         <h3>Order Info</h3>
         <p><strong>Tracking ID:</strong> ${order.trackingId}</p>
+        <p><strong>Order ID:</strong> ${order._id}</p>
         <p><strong>Status:</strong> ${order.status}</p>
         <p><strong>Payment:</strong> ${order.paymentStatus}</p>
         <p><strong>Date:</strong> ${date}</p>
