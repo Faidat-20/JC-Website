@@ -273,3 +273,32 @@ body {
     font-size: 1rem;
   }
 }
+.statusBadge.paid {
+  background: #e6f4ea;
+  color: #2d7a3a;
+}
+
+.statusBadge.pending {
+  background: #fff8e1;
+  color: #b8860b;
+}
+
+.statusBadge.shipped {
+  background: #e8f0fe;
+  color: #1a56db;
+}
+
+.statusBadge.delivered {
+  background: #e6f4ea;
+  color: #2d7a3a;
+}
+
+.statusBadge.cancelled {
+  background: #fce8e8;
+  color: #c0392b;
+}
+
+.statusBadge.failed {
+  background: #fce8e8;
+  color: #c0392b;
+}

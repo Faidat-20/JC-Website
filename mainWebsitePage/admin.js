@@ -94,6 +94,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         <div class="orderCardRight">
           <span class="statusBadge ${order.status}">${order.status}</span>
+          <span class="statusBadge ${order.paymentStatus}">${order.paymentStatus}</span>
 
           <div class="orderCardActions">
             <select class="statusSelect" data-id="${order._id}">

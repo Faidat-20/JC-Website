@@ -86,6 +86,8 @@ router.get("/user/:userId", async (req, res) => {
 // ----------------------
 // UPDATE ORDER STATUS (OWNER)
 // ----------------------
+const { sendShippedNotificationEmail } = require("../utils/mailer");
+
 router.put("/:orderId/status", async (req, res) => {
   const { status } = req.body;
 
@@ -104,6 +106,11 @@ router.put("/:orderId/status", async (req, res) => {
     if (status === "delivered") order.order_delivered_at = Date.now();
 
     await order.save();
+
+    // Send shipped email to customer
+    if (status === "shipped") {
+      await sendShippedNotificationEmail(order);
+    }
 
     res.json({ success: true, message: `Order marked as ${status}!`, order });
   } catch (err) {
