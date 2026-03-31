@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Order — Jikes Cosmetics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./mainWebsitePage/mainWebsitePage.css">
+  <link rel="stylesheet" href="mainWebsitePage/track-order.css">
+  <script src="https://kit.fontawesome.com/1fe1b7d9e4.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="navbar" id="navBar">
+    <div class="navLeft" id="navLeft">
+      <div class="businessName">Jikes Cosmetics</div>
+    </div>
+    <div class="navCenter">
+      <form>
+        <div class="search" id="searchBox">
+          <input class="searchInput" id="searchInput" type="search" placeholder="Search">
+          <i id="icon" class="fa-solid fa-magnifying-glass"></i>
+        </div>
+      </form>
+      <i class="fa-solid fa-xmark closeSearch" id="closeSearch"></i>
+    </div>
+    <div class="navRight" id="navRight">
+      <div class="login">Login</div>
+      <div class="logout" id="logoutBtn" style="display: none;">Logout</div>
+      <div class="cartWrapper">
+        <i id="cart" class="fa-solid fa-cart-arrow-down"></i>
+        <span class="countCart">0</span>
+        <span class="cartTooltip">Cart</span>
+        <span class="addCartMessage">Added to cart</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="pageContent">
+    <section class="greeting">
+      <div class="greetingOverlay"></div>
+      <div class="greetingMessage">
+        <h1>Track Order</h1>
+      </div>
+    </section>
+  </div>
+
+  <main class="trackMain">
+
+    <!-- SEARCH BOX -->
+    <div class="trackSearchBox">
+      <p class="trackSearchLabel">Enter your tracking ID to check your order status</p>
+      <div class="trackSearchRow">
+        <input type="text" id="trackingInput" placeholder="e.g. TRK-1774933930755-3W6T7">
+        <button id="trackBtn">Track</button>
+      </div>
+    </div>
+
+    <!-- MY ORDERS (logged in users) -->
+    <div class="myOrdersSection" id="myOrdersSection" style="display: none;">
+      <h3>My orders</h3>
+      <div id="myOrdersList"></div>
+    </div>
+
+    <!-- TRACKING RESULT -->
+    <div class="trackResult" id="trackResult" style="display: none;">
+
+      <div class="trackResultHeader">
+        <h2>Order <span id="resultTrackingId"></span></h2>
+        <span class="statusBadge" id="resultStatus"></span>
+      </div>
+
+      <!-- PROGRESS BAR -->
+      <div class="trackProgress">
+        <div class="trackStep" id="step-pending">
+          <div class="trackStepDot"></div>
+          <p>Order placed</p>
+        </div>
+        <div class="trackLine" id="line-1"></div>
+        <div class="trackStep" id="step-paid">
+          <div class="trackStepDot"></div>
+          <p>Payment confirmed</p>
+        </div>
+        <div class="trackLine" id="line-2"></div>
+        <div class="trackStep" id="step-shipped">
+          <div class="trackStepDot"></div>
+          <p>Shipped</p>
+        </div>
+        <div class="trackLine" id="line-3"></div>
+        <div class="trackStep" id="step-delivered">
+          <div class="trackStepDot"></div>
+          <p>Delivered</p>
+        </div>
+      </div>
+
+      <!-- ORDER DETAILS -->
+      <div class="trackDetails">
+
+        <div class="trackSection">
+          <h3>Delivery details</h3>
+          <p id="trackName"></p>
+          <p id="trackPhone"></p>
+          <p id="trackAddress"></p>
+        </div>
+
+        <div class="trackSection">
+          <h3>Shipping option</h3>
+          <p id="trackShipping"></p>
+        </div>
+
+        <div class="trackSection">
+          <h3>Items ordered</h3>
+          <div id="trackItems"></div>
+        </div>
+
+        <div class="trackSection">
+          <h3>Order summary</h3>
+          <div class="trackSummaryRow">
+            <span>Subtotal</span>
+            <span id="trackSubtotal"></span>
+          </div>
+          <div class="trackSummaryRow">
+            <span>Shipping</span>
+            <span id="trackShippingFee"></span>
+          </div>
+          <div class="trackSummaryRow total">
+            <span>Total</span>
+            <span id="trackTotal"></span>
+          </div>
+        </div>
+
+        <!-- MARK AS RECEIVED -->
+        <div class="markReceivedSection" id="markReceivedSection" style="display: none;">
+          <p>Have you received your order?</p>
+          <button id="markReceivedBtn">Mark as received</button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ERROR MESSAGE -->
+    <div class="trackError" id="trackError" style="display: none;">
+      <p>Order not found. Please check your tracking ID and try again.</p>
+    </div>
+
+  </main>
+
+  <div class="pageOverlay" id="pageOverlay"></div>
+  <div class="cartOverlay" id="cartOverlay">
+    <div class="cartHeader">
+      <h3>Your cart (<span id="cartItemCount">0 item</span>)</h3>
+      <i class="fa-solid fa-xmark" id="closeCart"></i>
+      <span class="cartOverlayMessage" id="cartOverlayMessage"></span>
+    </div>
+    <div class="cartItems empty" id="cartItems"></div>
+    <div class="cartFooter">
+      <div class="subtotal">
+        <span>Subtotal:</span>
+        <strong>₦<span id="cartSubtotal">0</span></strong>
+      </div>
+      <button class="checkoutBtn" id="checkoutBtn" disabled>Checkout</button>
+      <div class="cartFooterActions">
+        <span class="continueShopping" id="continueShopping">Continue shopping</span>
+        <span class="clearCart" id="clearCart">× Clear cart</span>
+      </div>
+    </div>
+  </div>
+
+  <footer class="siteFooter">
+    <div class="footerContent">
+      <div class="footerContact">
+        <h3>Contact Us</h3>
+        <p><i class="fa-solid fa-phone"></i> 09040472851</p>
+        <p><i class="fa-solid fa-phone"></i> 07057181591</p>
+      </div>
+      <div class="footerSubscribe" id="footerSubscribeBtn">
+        <h3>Sign Up for Sales & Updates</h3>
+        <button type="submit">Subscribe</button>
+      </div>
+    </div>
+    <div class="footerBottom">
+      <a href="https://wa.me/2349040472851" target="_blank" class="whatsappBtn">
+        <i class="fa-brands fa-whatsapp"></i>
+      </a>
+    </div>
+  </footer>
+
+  <script src="mainWebsitePage/products.js"></script>
+  <script src="./mainWebsitePage/mainWebsitePage.js"></script>
+  <script src="mainWebsitePage/track-order.js"></script>
+</body>
+</html>

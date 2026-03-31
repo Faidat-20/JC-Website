@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order");
+const { sendShippedNotificationEmail } = require("../utils/mailer");
 
 // ----------------------
 // CREATE ORDER
@@ -56,6 +57,20 @@ router.get("/all", async (req, res) => {
 });
 
 // ----------------------
+// TRACK ORDER BY TRACKING ID
+// ----------------------
+router.get("/track/:trackingId", async (req, res) => {
+  try {
+    const order = await Order.findOne({ trackingId: req.params.trackingId });
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    res.json({ success: true, order });
+  } catch (err) {
+    console.error("Track order error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
 // GET SINGLE ORDER
 // ----------------------
 router.get("/:orderId", async (req, res) => {
@@ -86,7 +101,6 @@ router.get("/user/:userId", async (req, res) => {
 // ----------------------
 // UPDATE ORDER STATUS (OWNER)
 // ----------------------
-const { sendShippedNotificationEmail } = require("../utils/mailer");
 
 router.put("/:orderId/status", async (req, res) => {
   const { status } = req.body;

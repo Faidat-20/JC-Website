@@ -1,0 +1,324 @@
+.trackMain {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 0 16px 60px;
+}
+
+.trackSearchBox {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.trackSearchLabel {
+  font-size: 14px;
+  color: #777;
+  margin-bottom: 16px;
+}
+
+.trackSearchRow {
+  display: flex;
+  gap: 10px;
+}
+
+.trackSearchRow input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+
+.trackSearchRow input:focus {
+  border-color: #e08c3a;
+}
+
+.trackSearchRow button {
+  padding: 10px 20px;
+  background: #e08c3a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.trackSearchRow button:hover {
+  background: #c97a2e;
+}
+
+/* MY ORDERS SECTION */
+.myOrdersSection {
+  margin-bottom: 32px;
+}
+
+.myOrdersSection h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.myOrderItem {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.myOrderItem:hover {
+  border-color: #e08c3a;
+}
+
+.myOrderItem p {
+  margin: 0;
+  font-size: 13px;
+  color: #555;
+}
+
+.myOrderItem h4 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: #222;
+}
+
+/* TRACKING RESULT */
+.trackResult {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.trackResultHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.trackResultHeader h2 {
+  font-size: 18px;
+  color: #222;
+  margin: 0;
+}
+
+/* PROGRESS BAR */
+.trackProgress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.trackStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 70px;
+}
+
+.trackStep p {
+  font-size: 11px;
+  color: #aaa;
+  text-align: center;
+  margin: 0;
+}
+
+.trackStepDot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ddd;
+  border: 2px solid #ddd;
+  transition: all 0.3s;
+}
+
+.trackStep.active .trackStepDot {
+  background: #e08c3a;
+  border-color: #e08c3a;
+}
+
+.trackStep.active p {
+  color: #e08c3a;
+  font-weight: bold;
+}
+
+.trackStep.done .trackStepDot {
+  background: #4CAF50;
+  border-color: #4CAF50;
+}
+
+.trackStep.done p {
+  color: #4CAF50;
+}
+
+.trackLine {
+  flex: 1;
+  height: 2px;
+  background: #ddd;
+  min-width: 20px;
+  transition: background 0.3s;
+}
+
+.trackLine.done {
+  background: #4CAF50;
+}
+
+/* TRACK DETAILS */
+.trackDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.trackSection {
+  padding: 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.trackSection:last-child {
+  border-bottom: none;
+}
+
+.trackSection h3 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.trackSection p {
+  font-size: 14px;
+  color: #444;
+  margin: 2px 0;
+  line-height: 1.6;
+}
+
+.trackItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.trackItem img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+.trackItem p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.trackItem .itemPrice {
+  font-weight: bold;
+  color: #222;
+}
+
+.trackSummaryRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.trackSummaryRow.total {
+  font-size: 15px;
+  font-weight: bold;
+  color: #222;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+  margin-top: 4px;
+}
+
+/* MARK AS RECEIVED */
+.markReceivedSection {
+  text-align: center;
+  padding: 20px 0 0;
+}
+
+.markReceivedSection p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.markReceivedSection button {
+  padding: 12px 28px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.markReceivedSection button:hover {
+  background: #43a047;
+}
+
+/* ERROR */
+.trackError {
+  text-align: center;
+  padding: 32px;
+  color: #e74c3c;
+  font-size: 14px;
+}
+
+/* STATUS BADGES */
+.statusBadge {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.statusBadge.pending {
+  background: #fff8e1;
+  color: #b8860b;
+}
+
+.statusBadge.shipped {
+  background: #e8f0fe;
+  color: #1a56db;
+}
+
+.statusBadge.delivered {
+  background: #e6f4ea;
+  color: #2d7a3a;
+}
+
+.statusBadge.cancelled {
+  background: #fce8e8;
+  color: #c0392b;
+}
+
+/* MY ORDERS */
+.myOrdersSection {
+  margin-bottom: 32px;
+}
