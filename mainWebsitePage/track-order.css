@@ -1,3 +1,14 @@
+:root{
+    --secondaryColor: #eee;
+    --primaryColor: white;
+    --tertiaryColor: #222; 
+    --trackColor: hsl(357, 45%, 69%);
+    
+    /* --pageColor: rgba(220, 166, 172, 0.25);
+    --backgroundcolor: hsl(0, 0%, 96%);
+    --paginationActive: #f7f7f7;
+    --grey: #ddd; */
+}
 .trackMain {
   max-width: 700px;
   margin: 40px auto;
@@ -5,8 +16,8 @@
 }
 
 .trackSearchBox {
-  background: white;
-  border: 1px solid #eee;
+  background: var(--primaryColor);
+  border: 1px solid var(--secondaryColor);
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 32px;
@@ -34,12 +45,12 @@
 }
 
 .trackSearchRow input:focus {
-  border-color: #e08c3a;
+  border-color: var(--trackColor);
 }
 
 .trackSearchRow button {
   padding: 10px 20px;
-  background: #e08c3a;
+  background: var(--trackColor);
   color: white;
   border: none;
   border-radius: 8px;
@@ -49,7 +60,7 @@
 }
 
 .trackSearchRow button:hover {
-  background: #c97a2e;
+  background: hsl(357, 45%, 66%);
 }
 
 /* MY ORDERS SECTION */
@@ -65,7 +76,7 @@
 
 .myOrderItem {
   background: white;
-  border: 1px solid #eee;
+  border: 1px solid var(--secondaryColor);
   border-radius: 10px;
   padding: 14px 16px;
   margin-bottom: 10px;
@@ -77,7 +88,7 @@
 }
 
 .myOrderItem:hover {
-  border-color: #e08c3a;
+  border-color: var(--trackColor);
 }
 
 .myOrderItem p {
@@ -89,13 +100,13 @@
 .myOrderItem h4 {
   margin: 0 0 4px;
   font-size: 14px;
-  color: #222;
+  color: var(--tertiaryColor);
 }
 
 /* TRACKING RESULT */
 .trackResult {
   background: white;
-  border: 1px solid #eee;
+  border: 1px solid var(--secondaryColor);
   border-radius: 12px;
   padding: 24px;
 }
@@ -111,7 +122,7 @@
 
 .trackResultHeader h2 {
   font-size: 18px;
-  color: #222;
+  color: var(--tertiaryColor);
   margin: 0;
 }
 
@@ -151,12 +162,12 @@
 }
 
 .trackStep.active .trackStepDot {
-  background: #e08c3a;
-  border-color: #e08c3a;
+  background: var(--trackColor);
+  border-color: var(--trackColor);
 }
 
 .trackStep.active p {
-  color: #e08c3a;
+  color: var(--trackColor);
   font-weight: bold;
 }
 
@@ -224,7 +235,7 @@
   height: 48px;
   object-fit: cover;
   border-radius: 6px;
-  border: 1px solid #eee;
+  border: 1px solid var(--secondaryColor);
 }
 
 .trackItem p {
@@ -234,7 +245,7 @@
 
 .trackItem .itemPrice {
   font-weight: bold;
-  color: #222;
+  color: var(--tertiaryColor);
 }
 
 .trackSummaryRow {
@@ -248,9 +259,9 @@
 .trackSummaryRow.total {
   font-size: 15px;
   font-weight: bold;
-  color: #222;
+  color: var(--tertiaryColor);
   padding-top: 8px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--secondaryColor);
   margin-top: 4px;
 }
 
@@ -321,4 +332,129 @@
 /* MY ORDERS */
 .myOrdersSection {
   margin-bottom: 32px;
+}
+/* RATINGS SECTION */
+.ratingsSection {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.ratingsSection h3 {
+  font-size: 16px;
+  color: var(--tertiaryColor);
+  margin-bottom: 4px;
+}
+
+.ratingsSubtitle {
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 20px;
+}
+
+.ratingItem {
+  background: #f9f9f9;
+  border: 1px solid var(--secondaryColor);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.ratingItemHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ratingItemHeader img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--secondaryColor);
+}
+
+.ratingItemHeader p {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--tertiaryColor);
+  margin: 0;
+}
+
+.starRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.star {
+  font-size: 28px;
+  cursor: pointer;
+  color: #ddd;
+  transition: color 0.2s;
+  user-select: none;
+}
+
+.star.selected {
+  color: var(--trackColor);
+}
+
+.star.hovered {
+  color: hsl(357, 45%, 66%);
+}
+
+.ratingReview {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  resize: none;
+  height: 70px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.ratingReview:focus {
+  border-color: var(--trackColor);
+}
+
+.alreadyRated {
+  font-size: 13px;
+  color: #4CAF50;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+#submitRatingsBtn {
+  width: 100%;
+  padding: 12px;
+  background: var(--trackColor);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+#submitRatingsBtn:hover {
+  background: hsl(357, 45%, 66%);
+}
+
+.existingReview {
+  margin-top: 8px;
+  background: white;
+  border: 1px solid var(--secondaryColor);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.existingReview p {
+  font-size: 13px;
+  color: #555;
+  font-style: italic;
+  margin: 0;
 }

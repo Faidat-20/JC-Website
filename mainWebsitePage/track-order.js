@@ -139,6 +139,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       markReceivedSection.style.display = "none";
     }
 
+    // Show ratings form if already delivered
+    const ratingsSection = document.getElementById("ratingsSection");
+
+    // Only show ratings for delivered orders
+    if (order.status === "delivered") {
+      showRatingsForm(order);
+    } else {
+      ratingsSection.style.display = "none"; // 🔥 THIS IS WHAT YOU WERE MISSING
+    }
     // Scroll to result
     trackResult.scrollIntoView({ behavior: "smooth" });
   }
@@ -154,7 +163,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("line-3")
     ];
 
-    // Determine current stage
     let currentStage = 0;
     if (order.paymentStatus === "paid") currentStage = 1;
     if (order.status === "shipped") currentStage = 2;
@@ -204,6 +212,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Update progress bar
         updateProgress({ ...data.order, paymentStatus: "paid" });
+
+        // Show ratings form
+        showRatingsForm(data.order);
+
       } else {
         alert("Failed to update order. Please try again.");
       }
@@ -211,6 +223,188 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.error("Mark as received error:", err);
       alert("Server error. Please try again.");
     }
+  }
+
+  // ─────────────────────────────────────────
+  // SHOW RATINGS FORM
+  // ─────────────────────────────────────────
+  async function showRatingsForm(order) {
+    const ratingsSection = document.getElementById("ratingsSection");
+    const ratingsList = document.getElementById("ratingsList");
+    const submitRatingsBtn = document.getElementById("submitRatingsBtn");
+
+    ratingsSection.style.display = "block";
+    ratingsList.innerHTML = "";
+
+    // Hide submit button and remove any existing thank you message
+    submitRatingsBtn.style.display = "none";
+    const existingThankYou = ratingsSection.querySelector(".thankYouMsg");
+    if (existingThankYou) existingThankYou.remove();
+
+    const ratings = {};
+    let unratedCount = 0;
+
+    for (const item of order.items) {
+      // Get product from DB by name
+      const productRes = await fetch(`http://localhost:5000/api/products/byname/${encodeURIComponent(item.name)}`);
+      const productData = await productRes.json();
+
+      if (!productData.success) continue;
+
+      const product = productData.product;
+
+      // Check if already rated
+      const checkRes = await fetch(`http://localhost:5000/api/ratings/check/${order._id}/${product._id}/${userId}`);
+      const checkData = await checkRes.json();
+
+      const div = document.createElement("div");
+      div.className = "ratingItem";
+
+      if (checkData.alreadyRated) {
+        // Fetch the existing rating to display it
+        const existingRes = await fetch(`http://localhost:5000/api/ratings/get/${order._id}/${product._id}/${userId}`);
+        const existingData = await existingRes.json();
+        const existingRating = existingData.rating;
+
+        // Build filled stars based on their rating
+        const starsHTML = [1, 2, 3, 4, 5].map(i => `
+          <span class="star ${i <= existingRating.rating ? "selected" : ""}" style="cursor: default;">&#9733;</span>
+        `).join("");
+
+        div.innerHTML = `
+          <div class="ratingItemHeader">
+            <img src="${item.image}" alt="${item.name}">
+            <p>${item.name}</p>
+          </div>
+          <p class="alreadyRated">✓ Already rated</p>
+          <div class="starRow" style="pointer-events: none;">
+            ${starsHTML}
+          </div>
+          ${existingRating.review ? `
+            <div class="existingReview">
+              <p>"${existingRating.review}"</p>
+            </div>
+          ` : ""}
+        `;
+      } else {
+        unratedCount++;
+
+        div.innerHTML = `
+          <div class="ratingItemHeader">
+            <img src="${item.image}" alt="${item.name}">
+            <p>${item.name}</p>
+          </div>
+          <div class="starRow" data-product-id="${product._id}">
+            <span class="star" data-value="1">&#9733;</span>
+            <span class="star" data-value="2">&#9733;</span>
+            <span class="star" data-value="3">&#9733;</span>
+            <span class="star" data-value="4">&#9733;</span>
+            <span class="star" data-value="5">&#9733;</span>
+          </div>
+          <textarea class="ratingReview" placeholder="Write a review (optional)" data-product-id="${product._id}"></textarea>
+        `;
+
+        // Star hover and click interactions
+        const starRow = div.querySelector(".starRow");
+        const stars = starRow.querySelectorAll(".star");
+
+        stars.forEach(star => {
+          star.addEventListener("mouseover", () => {
+            const val = parseInt(star.dataset.value);
+            stars.forEach(s => {
+              s.classList.toggle("hovered", parseInt(s.dataset.value) <= val);
+            });
+          });
+
+          star.addEventListener("mouseout", () => {
+            stars.forEach(s => s.classList.remove("hovered"));
+          });
+
+          star.addEventListener("click", () => {
+            const val = parseInt(star.dataset.value);
+            ratings[product._id] = ratings[product._id] || {};
+            ratings[product._id].rating = val;
+            stars.forEach(s => {
+              s.classList.toggle("selected", parseInt(s.dataset.value) <= val);
+            });
+          });
+        });
+
+        // Capture review text
+        const textarea = div.querySelector(".ratingReview");
+        textarea.addEventListener("input", () => {
+          ratings[product._id] = ratings[product._id] || {};
+          ratings[product._id].review = textarea.value;
+        });
+
+        ratings[product._id] = { productId: product._id, rating: 0, review: "" };
+      }
+
+      ratingsList.appendChild(div);
+    }
+
+    // If all products already rated show thank you, otherwise show submit button
+    if (unratedCount === 0) {
+      const thankYou = document.createElement("p");
+      thankYou.className = "thankYouMsg";
+      thankYou.style.cssText = "text-align: center; color: #4CAF50; font-weight: bold; font-size: 14px; margin-top: 12px;";
+      thankYou.textContent = "✓ Thank you for your ratings!";
+      ratingsSection.appendChild(thankYou);
+    } else {
+      submitRatingsBtn.style.display = "block";
+    }
+
+    // Submit all ratings
+    submitRatingsBtn.onclick = async () => {
+      let submitted = 0;
+      let skipped = 0;
+
+      for (const productId in ratings) {
+        const r = ratings[productId];
+        if (!r.rating || r.rating === 0) {
+          skipped++;
+          continue;
+        }
+
+        try {
+          const res = await fetch("http://localhost:5000/api/ratings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              productId,
+              orderId: order._id,
+              userId,
+              rating: r.rating,
+              review: r.review || ""
+            })
+          });
+          const data = await res.json();
+          if (data.success) submitted++;
+        } catch (err) {
+          console.error("Submit rating error:", err);
+        }
+      }
+
+      if (submitted === 0 && skipped > 0) {
+        alert("Please select at least one star rating before submitting.");
+        return;
+      }
+
+      alert(`Thank you! ${submitted} rating${submitted !== 1 ? "s" : ""} submitted successfully.`);
+
+      // Hide submit button and show thank you message permanently
+      submitRatingsBtn.style.display = "none";
+      const thankYou = document.createElement("p");
+      thankYou.className = "thankYouMsg";
+      thankYou.style.cssText = "text-align: center; color: #4CAF50; font-weight: bold; font-size: 14px; margin-top: 12px;";
+      thankYou.textContent = "✓ Thank you for your ratings!";
+      ratingsSection.appendChild(thankYou);
+
+      // Reload the ratings form after 1 second to show filled stars
+      setTimeout(() => {
+        showRatingsForm(order);
+      }, 1000);
+    };
   }
 
 });

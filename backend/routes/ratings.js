@@ -76,4 +76,21 @@ router.get("/check/:orderId/:productId/:userId", async (req, res) => {
   }
 });
 
+// ----------------------
+// GET SINGLE RATING BY ORDER + PRODUCT + USER
+// ----------------------
+router.get("/get/:orderId/:productId/:userId", async (req, res) => {
+  try {
+    const rating = await Rating.findOne({
+      orderId: req.params.orderId,
+      productId: req.params.productId,
+      userId: req.params.userId
+    });
+    res.json({ success: true, rating });
+  } catch (err) {
+    console.error("Get single rating error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 module.exports = router;
