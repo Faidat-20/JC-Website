@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmed — Jikes Cosmetics</title>
+  <link rel="stylesheet" href="mainWebsitePage/order-success.css">
+</head>
+<body>
+
+  <div class="success-wrapper">
+
+    <div class="success-icon">✓</div>
+    <h1>Order Confirmed!</h1>
+    <p class="success-sub">Thank you for your order. Here are your order details.</p>
+
+    <div class="tracking-box">
+      <p class="tracking-label">Your tracking ID</p>
+      <p class="tracking-id" id="trackingId">Loading...</p>
+    </div>
+
+    <div class="order-card">
+
+      <div class="order-section">
+        <h3>Delivery details</h3>
+        <p id="customerName"></p>
+        <p id="customerPhone"></p>
+        <p id="customerAddress"></p>
+      </div>
+
+      <div class="order-section">
+        <h3>Shipping option</h3>
+        <p id="shippingOption"></p>
+      </div>
+      
+      <div class="order-section">
+        <h3>Items ordered</h3>
+        <div id="orderItems"></div>
+      </div>
+
+      <div class="order-section">
+        <h3>Order summary</h3>
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span id="subtotal"></span>
+        </div>
+        <div class="summary-row">
+          <span>Shipping</span>
+          <span id="shippingFee"></span>
+        </div>
+        <div class="summary-row total">
+          <span>Total</span>
+          <span id="total"></span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="success-actions">
+      <a href="index.html" class="btn-primary">Continue shopping</a>
+      <a href="track-order.html" class="btn-secondary">Track my order</a>
+    </div>
+
+  </div>
+
+  <script src="mainWebsitePage/order-success.js"></script>
+</body>
+</html>

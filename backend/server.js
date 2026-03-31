@@ -7,6 +7,9 @@ console.log("MONGO_URI:", process.env.MONGO_URI);
 const app = express();
 
 // MIDDLEWARE
+// MUST come before bodyParser.json()
+app.use("/api/payment/webhook", express.raw({ type: "application/json" }));
+
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -17,7 +20,6 @@ app.get("/", (req, res) => {
 
 // DATABASE CONNECTION
 mongoose.connect(process.env.MONGO_URI)
-
 .then(() => console.log("MongoDB connected ✅"))
 .catch(err => console.log("MongoDB connection error:", err));
 

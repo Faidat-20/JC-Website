@@ -587,6 +587,11 @@ document.addEventListener("DOMContentLoaded", () => {
         userId,
         cart,
         deliveryDetails,
+        shippingOption: {
+          name: shipping.name,
+          price: shipping.price
+        },
+        subtotal,
         shipping: shipping.price,
         total
       };
