@@ -9,12 +9,11 @@ const app = express();
 // MIDDLEWARE
 // MUST come before bodyParser.json()
 app.use("/api/payment/webhook", express.raw({ type: "application/json" }));
-
 app.use(cors());
 app.use(bodyParser.json());
 
 // TEST ROUTE
-app.get("/", (req, res) => {
+app.get("/", (_, res) => {
   res.send("Backend server is running!");
 });
 
@@ -31,6 +30,12 @@ app.use("/api/orders", orderRoutes);
 
 const paymentRoute = require("./routes/payment");
 app.use("/api/payment", paymentRoute);
+
+const productRoutes = require("./routes/products");
+app.use("/api/products", productRoutes);
+
+const ratingRoutes = require("./routes/ratings");
+app.use("/api/ratings", ratingRoutes);
 
 // START SERVER
 const PORT = process.env.PORT || 5000;
