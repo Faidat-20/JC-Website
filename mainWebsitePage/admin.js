@@ -38,6 +38,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   let currentFilter = "all";
 
   // -----------------------------
+  // ALLOWED STATUS OPTIONS
+  // -----------------------------
+  function getAllowedOptions(currentStatus) {
+    switch (currentStatus) {
+      case "pending":
+        return [
+          { value: "pending", label: "Pending" },
+          { value: "shipped", label: "Shipped" },
+          { value: "cancelled", label: "Cancelled" }
+        ];
+      case "shipped":
+        return [
+          { value: "shipped", label: "Shipped" },
+          { value: "delivered", label: "Delivered" }
+        ];
+      case "delivered":
+        return [{ value: "delivered", label: "Delivered" }];
+      case "cancelled":
+        return [{ value: "cancelled", label: "Cancelled" }];
+      default:
+        return [{ value: currentStatus, label: currentStatus }];
+    }
+  }
+
+  // -----------------------------
   // FETCH ALL ORDERS
   // -----------------------------
   async function fetchOrders() {
@@ -62,12 +87,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   function renderOrders(orders) {
     ordersContainer.innerHTML = "";
 
-    // filter orders
     const filtered = currentFilter === "all"
       ? orders
       : orders.filter(order => order.status === currentFilter);
 
-    // update order count
     orderCount.textContent = `${filtered.length} ${filtered.length === 1 ? "order" : "orders"}`;
 
     if (filtered.length === 0) {
@@ -83,6 +106,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         day: "numeric", month: "short", year: "numeric"
       });
 
+      const isLocked = order.status === "delivered" || order.status === "cancelled";
+      const allowedOptions = getAllowedOptions(order.status);
+
       card.innerHTML = `
         <div class="orderCardLeft">
           <h3>Tracking ID: ${order.trackingId}</h3>
@@ -97,11 +123,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           <span class="statusBadge ${order.paymentStatus}">${order.paymentStatus}</span>
 
           <div class="orderCardActions">
-            <select class="statusSelect" data-id="${order._id}">
-              <option value="pending" ${order.status === "pending" ? "selected" : ""}>Pending</option>
-              <option value="shipped" ${order.status === "shipped" ? "selected" : ""}>Shipped</option>
-              <option value="delivered" ${order.status === "delivered" ? "selected" : ""}>Delivered</option>
-              <option value="cancelled" ${order.status === "cancelled" ? "selected" : ""}>Cancelled</option>
+            <select class="statusSelect" data-id="${order._id}" ${isLocked ? "disabled" : ""}>
+              ${allowedOptions.map(opt => `
+                <option value="${opt.value}" ${order.status === opt.value ? "selected" : ""}>
+                  ${opt.label}
+                </option>
+              `).join("")}
             </select>
 
             <button class="viewBtn" data-id="${order._id}">
@@ -113,14 +140,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // UPDATE STATUS
       const statusSelect = card.querySelector(".statusSelect");
-      statusSelect.addEventListener("change", async () => {
-        const newStatus = statusSelect.value;
-        const success = await updateOrderStatus(order._id, newStatus);
-        if (success) {
-          order.status = newStatus;
-          renderOrders(allOrders);
-        }
-      });
+      if (!isLocked) {
+        statusSelect.addEventListener("change", async () => {
+          const newStatus = statusSelect.value;
+          const success = await updateOrderStatus(order._id, newStatus);
+          if (success) {
+            order.status = newStatus;
+            renderOrders(allOrders);
+          }
+        });
+      }
 
       // VIEW ORDER DETAILS
       const viewBtn = card.querySelector(".viewBtn");
@@ -169,6 +198,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <h3>Order Info</h3>
         <p><strong>Tracking ID:</strong> ${order.trackingId}</p>
         <p><strong>Status:</strong> ${order.status}</p>
+        <p><strong>Payment:</strong> ${order.paymentStatus}</p>
         <p><strong>Date:</strong> ${date}</p>
       </div>
 
