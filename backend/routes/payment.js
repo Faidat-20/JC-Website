@@ -3,6 +3,7 @@ const router = express.Router();
 const axios = require("axios");
 const crypto = require("crypto");
 const Order = require("../models/Order");
+const { sendOrderConfirmationEmail, sendOwnerNotificationEmail } = require("../utils/mailer");
 
 // ─────────────────────────────────────────
 // INITIATE PAYMENT
@@ -95,6 +96,12 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
       }
 
       console.log(`Order ${updatedOrder.trackingId} marked as PAID ✅`);
+
+      // 5. Send confirmation email to customer
+      await sendOrderConfirmationEmail(updatedOrder);
+
+      // 6. Send new order alert to owner
+      await sendOwnerNotificationEmail(updatedOrder);
 
     } catch (err) {
       console.error("Webhook order update error:", err.message);
