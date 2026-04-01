@@ -34,6 +34,7 @@ body{
 .businessName{
     font-family: 'Playfair Display', serif;
     font-size: 10px;
+    cursor: pointer;
 }
 .search {
     display: flex;

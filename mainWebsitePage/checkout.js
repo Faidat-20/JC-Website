@@ -231,13 +231,26 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
         if (data.success && data.deliveryDetails) {
           const details = data.deliveryDetails;
+
           if (details.firstName) document.getElementById("firstName").value = details.firstName;
           if (details.lastName) document.getElementById("lastName").value = details.lastName;
           if (details.phone) document.getElementById("phone").value = details.phone;
           if (details.email) document.getElementById("email").value = details.email;
           if (details.address) document.getElementById("address").value = details.address;
           if (details.city) document.getElementById("city").value = details.city;
-          
+
+          // ✅ NEW: restore country & state AFTER countries load
+          if (details.country) {
+            countrySelect.value = details.country;
+            updateStates(details.country);
+          }
+
+          if (details.state) {
+            setTimeout(() => {
+              stateSelect.value = details.state;
+            }, 200); // small delay ensures states are populated
+          }
+
           console.log("Delivery details from DB:", details);
         }
       } catch (err) {
@@ -263,6 +276,22 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Countries loaded:", countriesData);
 
       populateCountries();
+
+      // ✅ After countries load, restore saved values from localStorage
+      const savedDetails = JSON.parse(localStorage.getItem("deliveryDetails"));
+
+      if (savedDetails) {
+        if (savedDetails.country) {
+          countrySelect.value = savedDetails.country;
+          updateStates(savedDetails.country);
+        }
+
+        if (savedDetails.state) {
+          setTimeout(() => {
+            stateSelect.value = savedDetails.state;
+          }, 200);
+        }
+      }
 
     } catch (error) {
       console.error("Error loading countries:", error);
@@ -568,7 +597,21 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!userId) return alert("Please log in to place your order.");
 
       // Get delivery and shipping info
-      const deliveryDetails = JSON.parse(localStorage.getItem("deliveryDetails")) || {};
+      let deliveryDetails = JSON.parse(localStorage.getItem("deliveryDetails")) || {};
+
+      // ✅ fallback: get values directly from inputs (already filled from backend)
+      if (!deliveryDetails.firstName) {
+        deliveryDetails = {
+          firstName: document.getElementById("firstName").value,
+          lastName: document.getElementById("lastName").value,
+          phone: document.getElementById("phone").value,
+          email: document.getElementById("email").value,
+          address: document.getElementById("address").value,
+          city: document.getElementById("city").value,
+          country: document.getElementById("country").value,
+          state: document.getElementById("state").value
+        };
+      }
       const shipping = JSON.parse(localStorage.getItem("selectedShipping")) || null;
 
       // ✅ Validation

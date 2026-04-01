@@ -44,7 +44,7 @@ h1 {
 
 .tracking-box {
   background: #fff8f0;
-  border: 1.5px dashed #e08c3a;
+  border: 1.5px dashed hsl(357, 45%, 69%);
   border-radius: 10px;
   padding: 16px 24px;
   margin-bottom: 24px;
@@ -59,7 +59,7 @@ h1 {
 .tracking-id {
   font-size: 22px;
   font-weight: bold;
-  color: #e08c3a;
+  color: hsl(357, 45%, 69%);
   letter-spacing: 1px;
 }
 
@@ -149,7 +149,7 @@ h1 {
 }
 
 .btn-primary {
-  background: #e08c3a;
+  background: hsl(357, 45%, 69%);
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -160,11 +160,11 @@ h1 {
 
 .btn-secondary {
   background: white;
-  color: #e08c3a;
+  color: hsl(357, 45%, 69%);
   padding: 12px 24px;
   border-radius: 8px;
   text-decoration: none;
   font-size: 14px;
   font-weight: bold;
-  border: 1.5px solid #e08c3a;
+  border: 1.5px solid hsl(357, 45%, 69%);
 }
