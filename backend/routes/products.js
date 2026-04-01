@@ -90,4 +90,17 @@ router.get("/byname/:name", async (req, res) => {
   }
 });
 
+// ----------------------
+// GET PRODUCTS BY PAGE
+// ----------------------
+router.get("/page/:page", async (req, res) => {
+  try {
+    const products = await Product.find({ page: req.params.page }).sort({ name: 1 });
+    res.json({ success: true, products });
+  } catch (err) {
+    console.error("Get products by page error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 module.exports = router;
