@@ -103,4 +103,33 @@ router.get("/page/:page", async (req, res) => {
   }
 });
 
+// ----------------------
+// GET PRODUCTS WITH PAGINATION
+// ----------------------
+router.get("/paginate", async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 8;
+    const skip = (page - 1) * limit;
+
+    const total = await Product.countDocuments();
+    const products = await Product.find()
+      .skip(skip)
+      .limit(limit);
+
+    const totalPages = Math.ceil(total / limit);
+
+    res.json({
+      success: true,
+      products,
+      currentPage: page,
+      totalPages,
+      total
+    });
+  } catch (err) {
+    console.error("Paginate products error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 module.exports = router;
