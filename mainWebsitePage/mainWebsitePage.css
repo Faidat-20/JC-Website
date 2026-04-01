@@ -1074,7 +1074,7 @@ a:hover {
 
 .productRating .stars {
   font-size: 14px;
-  color: #f5a623;
+  color: hsl(357, 45%, 69%);
   letter-spacing: 2px;
 }
 

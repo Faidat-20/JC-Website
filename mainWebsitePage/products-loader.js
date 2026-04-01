@@ -191,17 +191,35 @@ async function showReviewsModal(product) {
     }
 
     reviewsList.innerHTML = data.ratings.map(r => `
-      <div style="border-bottom: 1px solid #f0f0f0; padding: 12px 0;">
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-          <span style="color: #f5a623; font-size: 14px;">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</span>
-          <span style="font-size: 12px; color: #aaa;">${new Date(r.rating_created_at).toLocaleDateString("en-GB", {
-            day: "numeric", month: "short", year: "numeric"
-          })}</span>
-        </div>
-        ${r.review ? `<p style="font-size: 13px; color: #555; margin: 0; font-style: italic;">"${r.review}"</p>` : ""}
-      </div>
-    `).join("");
+        <div style="border-bottom: 1px solid #f0f0f0; padding: 12px 0;">
 
+            <!-- Top row: Username + Date -->
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span style="font-size: 12px; font-weight: bold; color: #333;">
+                ${r.username || "Anonymous"}
+            </span>
+
+            <span style="font-size: 12px; color: #aaa;">
+                ${new Date(r.rating_created_at).toLocaleDateString("en-GB", {
+                day: "numeric", month: "short", year: "numeric"
+                })}
+            </span>
+            </div>
+
+            <!-- Stars BELOW username -->
+            <div style="margin-bottom: 6px; color: hsl(357, 45%, 69%); font-size: 14px;">
+            ${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}
+            </div>
+
+            <!-- Review -->
+            ${r.review ? `
+            <p style="font-size: 13px; color: #555; margin: 0; font-style: italic;">
+                "${r.review}"
+            </p>
+            ` : ""}
+
+        </div>
+    `).join("");
   } catch (err) {
     console.error("Load reviews error:", err);
     document.getElementById("reviewsList").innerHTML =

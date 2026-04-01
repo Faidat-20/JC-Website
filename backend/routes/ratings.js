@@ -7,7 +7,7 @@ const Product = require("../models/Product");
 // SUBMIT A RATING
 // ----------------------
 router.post("/", async (req, res) => {
-  const { productId, orderId, userId, rating, review } = req.body;
+  const { productId, orderId, userId, username, rating, review } = req.body;
 
   if (!productId || !orderId || !userId || !rating) {
     return res.status(400).json({ success: false, message: "Missing required fields" });
@@ -19,6 +19,7 @@ router.post("/", async (req, res) => {
       productId,
       orderId,
       userId,
+      username: username || "Anonymous",
       rating,
       review
     });

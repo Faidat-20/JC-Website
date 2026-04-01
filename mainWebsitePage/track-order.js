@@ -229,6 +229,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   // SHOW RATINGS FORM
   // ─────────────────────────────────────────
   async function showRatingsForm(order) {
+
+    // Get username from backend
+    let username = "Anonymous";
+    if (userId) {
+      try {
+        const userRes = await fetch(`http://localhost:5000/api/auth/userdata/${userId}`);
+        const userData = await userRes.json();
+        if (userData.success && userData.username) {
+          username = userData.username;
+        }
+      } catch (err) {
+        console.error("Get username error:", err);
+      }
+    }
     const ratingsSection = document.getElementById("ratingsSection");
     const ratingsList = document.getElementById("ratingsList");
     const submitRatingsBtn = document.getElementById("submitRatingsBtn");
@@ -374,6 +388,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               productId,
               orderId: order._id,
               userId,
+              username,
               rating: r.rating,
               review: r.review || ""
             })

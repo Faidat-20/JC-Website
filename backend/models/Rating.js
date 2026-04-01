@@ -16,6 +16,10 @@ const RatingSchema = new mongoose.Schema({
     ref: "User",
     required: true
   },
+  username: {
+    type: String,
+    default: "Anonymous"
+  },
   rating: {
     type: Number,
     required: true,
