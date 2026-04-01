@@ -1,3 +1,15 @@
+:root{
+    --color: black;
+    --primaryColor: white; 
+    --secondaryColor: #f6f6f6;
+    --tertiaryColor: #333333;
+    --navColor: hsl(357, 45%, 69%);
+    --pageColor: rgba(220, 166, 172, 0.25);
+    --backgroundcolor: hsl(0, 0%, 96%);
+    --paginationColor: #eee;
+    --paginationActive: #f7f7f7;
+    --grey: #ddd;
+}
 * {
   margin: 0;
   padding: 0;
