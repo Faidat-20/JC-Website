@@ -1,24 +1,21 @@
 // -----------------------------
 // CART OVERLAY MESSAGE SETUP
 // -----------------------------
-const cartOverlayMessage = document.getElementById("cartOverlayMessage"); // make sure you have this element in your HTML
+const cartOverlayMessage = document.getElementById("cartOverlayMessage");
 let cartOverlayTimer;
 
 function showCartOverlayMessage(message) {
   if (!cartOverlayMessage) return;
   clearTimeout(cartOverlayTimer);
-
   cartOverlayMessage.textContent = message;
   cartOverlayMessage.classList.add("show");
-
   cartOverlayTimer = setTimeout(() => {
     cartOverlayMessage.classList.remove("show");
   }, 1200);
 }
 
 function renderCart() {
-  // Example: update a cart count badge
-  const cartCountElement = document.getElementById("cartCount"); // your cart badge element
+  const cartCountElement = document.getElementById("cartCount");
   if (cartCountElement) {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     cartCountElement.textContent = totalItems;
@@ -29,15 +26,11 @@ function renderCart() {
 // CART SETUP
 // -----------------------------
 let cart = [];
-
-// Try to load from localStorage if it exists
 const savedCart = localStorage.getItem("cart");
 if (savedCart) {
   try {
     cart = JSON.parse(savedCart);
-    if (!Array.isArray(cart)) {
-      cart = [];
-    }
+    if (!Array.isArray(cart)) cart = [];
   } catch (err) {
     cart = [];
   }
@@ -48,7 +41,6 @@ if (savedCart) {
 // -----------------------------
 const resultsPerPage = 8;
 let currentPageNumber = 1;
-
 
 // -----------------------------
 // GET SEARCH TERM FROM URL
@@ -62,20 +54,10 @@ const searchTerm = getQueryParam("search")?.toLowerCase().trim() || "";
 const resultsContainer = document.getElementById("searchResultsContainer");
 const searchMessage = document.getElementById("searchMessage");
 
-
-// -----------------------------
-// FILTER PRODUCTS
-// -----------------------------
-const matchingProducts = allProducts.filter(product =>
-  product.name.toLowerCase().includes(searchTerm)
-);
-
-
 // -----------------------------
 // MAIN RENDER FUNCTION
 // -----------------------------
 function renderSearchResults(products) {
-
   resultsContainer.innerHTML = "";
 
   if (products.length > 0 && searchMessage) {
@@ -95,43 +77,48 @@ function renderSearchResults(products) {
   }
 
   products.forEach(product => {
+    const avg = product.averageRating || 0;
+    const total = product.totalRatings || 0;
+    const filled = Math.round(avg);
+    const starsHTML = "★".repeat(filled) + "☆".repeat(5 - filled);
+    const ratingText = total === 0
+      ? "No ratings yet"
+      : `${avg.toFixed(1)} (${total} ${total === 1 ? "review" : "reviews"})`;
 
     const productDiv = document.createElement("div");
     productDiv.className = "item";
-
     productDiv.innerHTML = `
       <img src="${product.image}" alt="${product.name}">
       <h2>${product.name}</h2>
-      <div class="price">${product.price}</div>
+      <div class="productRating" data-id="${product._id}" data-name="${product.name}" style="cursor:pointer;" title="Click to see reviews">
+        <span class="stars" style="color:#f5a623; font-size:14px; letter-spacing:2px;">${starsHTML}</span>
+        <span class="ratingCount" style="font-size:12px; color:#999;">${ratingText}</span>
+      </div>
+      <div class="price">₦${product.price.toLocaleString()}</div>
       <button class="addToCart">Add to Cart</button>
     `;
 
+    // Click rating to show reviews
+    const ratingDiv = productDiv.querySelector(".productRating");
+    ratingDiv.addEventListener("click", () => showReviewsModal(product));
+
     resultsContainer.appendChild(productDiv);
-
   });
-
-  
 
   // ADD TO CART
   const addToCartButtons = resultsContainer.querySelectorAll(".addToCart");
-
   addToCartButtons.forEach(button => {
-
     button.addEventListener("click", async () => {
-
       const userId = sessionStorage.getItem("userId");
       if (!userId) return alert("Please log in to add items to cart.");
 
       const itemCard = button.closest(".item");
-
       const name = itemCard.querySelector("h2").textContent;
       const image = itemCard.querySelector("img").src;
       const priceAmount = itemCard.querySelector(".price").textContent;
-
       const price = Number(priceAmount.replace(/[₦,]/g, ""));
 
       const existingItem = cart.find(item => item.name === name);
-
       if (existingItem) {
         existingItem.quantity++;
       } else {
@@ -140,11 +127,9 @@ function renderSearchResults(products) {
 
       localStorage.setItem("cart", JSON.stringify(cart));
       window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
-
       renderCart();
       showCartOverlayMessage("Product added to cart!");
 
-      // SYNC WITH BACKEND
       if (userId) {
         try {
           await fetch("http://localhost:5000/api/auth/update-cart", {
@@ -156,84 +141,122 @@ function renderSearchResults(products) {
           console.error("Cart backend sync error:", err);
         }
       }
-
     });
-
   });
-
 }
 
+// -----------------------------
+// REVIEWS MODAL
+// -----------------------------
+async function showReviewsModal(product) {
+  const existing = document.getElementById("reviewsModal");
+  if (existing) existing.remove();
+
+  const modal = document.createElement("div");
+  modal.id = "reviewsModal";
+  modal.style.cssText = `
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+  `;
+
+  modal.innerHTML = `
+    <div style="background: white; border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative;">
+      <button id="closeReviewsModal" style="position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 22px; cursor: pointer; color: #999;">&times;</button>
+      <h3 style="margin: 0 0 4px; font-size: 16px;">${product.name}</h3>
+      <p style="font-size: 13px; color: #888; margin: 0 0 16px;">
+        ${product.averageRating && product.totalRatings
+          ? `Average: ${product.averageRating.toFixed(1)} ★ (${product.totalRatings} ${product.totalRatings === 1 ? "review" : "reviews"})`
+          : "No ratings yet"}
+      </p>
+      <div id="reviewsList">
+        <p style="color: #999; font-size: 13px;">Loading reviews...</p>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  document.body.style.overflow = "hidden";
+
+  document.getElementById("closeReviewsModal").addEventListener("click", () => {
+    modal.remove();
+    document.body.style.overflow = "auto";
+  });
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.remove();
+      document.body.style.overflow = "auto";
+    }
+  });
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/ratings/${product._id}`);
+    const data = await res.json();
+    const reviewsList = document.getElementById("reviewsList");
+
+    if (!data.success || data.ratings.length === 0) {
+      reviewsList.innerHTML = `<p style="color: #999; font-size: 13px;">No reviews yet for this product.</p>`;
+      return;
+    }
+
+    reviewsList.innerHTML = data.ratings.map(r => `
+      <div style="border-bottom: 1px solid #f0f0f0; padding: 12px 0;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+          <span style="color: #f5a623; font-size: 14px;">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</span>
+          <span style="font-size: 12px; color: #aaa;">${new Date(r.rating_created_at).toLocaleDateString("en-GB", {
+            day: "numeric", month: "short", year: "numeric"
+          })}</span>
+        </div>
+        ${r.review ? `<p style="font-size: 13px; color: #555; margin: 0; font-style: italic;">"${r.review}"</p>` : ""}
+      </div>
+    `).join("");
+  } catch (err) {
+    console.error("Load reviews error:", err);
+    document.getElementById("reviewsList").innerHTML =
+      `<p style="color: #e74c3c; font-size: 13px;">Failed to load reviews.</p>`;
+  }
+}
 
 // -----------------------------
 // PAGINATION LOGIC
 // -----------------------------
 function getPaginatedProducts(products, page, perPage) {
-
   const start = (page - 1) * perPage;
   const end = start + perPage;
-
   return products.slice(start, end);
-
 }
 
-
-// -----------------------------
-// CREATE PAGINATION STRUCTURE
-// -----------------------------
 const paginationSection = document.createElement("section");
 paginationSection.className = "paginationContainer";
-
 const paginationDiv = document.createElement("div");
 paginationDiv.className = "pagination";
-
 paginationSection.appendChild(paginationDiv);
-
 resultsContainer.after(paginationSection);
 
-
-// -----------------------------
-// PAGINATION CONTROLS
-// -----------------------------
 function renderPaginationControls(products, page) {
-
   paginationDiv.innerHTML = "";
-
   const totalPages = Math.ceil(products.length / resultsPerPage);
-
   if (totalPages <= 1) return;
 
-  // BACK BUTTON
   const backBtn = document.createElement("button");
   backBtn.textContent = "←";
   backBtn.className = "backwardBtn";
-
   backBtn.addEventListener("click", () => {
-    if (currentPageNumber > 1) {
-      currentPageNumber--;
-    } else {
-      location.reload();
-    }
+    if (currentPageNumber > 1) currentPageNumber--;
+    else location.reload();
     renderSearchResultsWithPagination(products, currentPageNumber);
     window.scrollTo({ top: resultsContainer.offsetTop - 120, behavior: "smooth" });
   });
-
   paginationDiv.appendChild(backBtn);
 
-
-  // PAGE NUMBERS
   const pagesDiv = document.createElement("div");
   pagesDiv.className = "pages";
-
   for (let i = 1; i <= totalPages; i++) {
-
     const pageLink = document.createElement("a");
     pageLink.href = "#";
     pageLink.textContent = i;
-
-    if (i === page) {
-      pageLink.classList.add("active");
-    }
-
+    if (i === page) pageLink.classList.add("active");
     pageLink.addEventListener("click", (e) => {
       e.preventDefault();
       currentPageNumber = i;
@@ -244,43 +267,53 @@ function renderPaginationControls(products, page) {
   }
   paginationDiv.appendChild(pagesDiv);
 
-
-  // FORWARD BUTTON
   const forwardBtn = document.createElement("button");
   forwardBtn.textContent = "→";
   forwardBtn.className = "fowardBtn";
-
   forwardBtn.addEventListener("click", () => {
-    if (currentPageNumber < totalPages) {
-      currentPageNumber++;
-    } else {
-      currentPageNumber = 1;
-    }
+    if (currentPageNumber < totalPages) currentPageNumber++;
+    else currentPageNumber = 1;
     renderSearchResultsWithPagination(products, currentPageNumber);
     window.scrollTo({ top: resultsContainer.offsetTop - 120, behavior: "smooth" });
   });
   paginationDiv.appendChild(forwardBtn);
 }
 
-// RENDER WITH PAGINATION
 function renderSearchResultsWithPagination(products, page = 1) {
-
   const paginatedProducts = getPaginatedProducts(products, page, resultsPerPage);
   renderSearchResults(paginatedProducts);
   renderPaginationControls(products, page);
-
 }
 
+// -----------------------------
 // GREETING TEXT
+// -----------------------------
 const greetingHeading2 = document.querySelector(".greetingMessage h2");
-
 if (greetingHeading2) {
-  if (searchTerm) {
-    greetingHeading2.textContent = "Search Results";
-  } else {
-    greetingHeading2.textContent = "Jikes Cosmetics";
-  }
+  greetingHeading2.textContent = searchTerm ? "Search Results" : "Jikes Cosmetics";
 }
 
-// INITIAL RUN
-renderSearchResultsWithPagination(matchingProducts, currentPageNumber);
+// -----------------------------
+// FETCH ALL PRODUCTS FROM MONGODB AND FILTER
+// -----------------------------
+(async () => {
+  try {
+    const res = await fetch("http://localhost:5000/api/products");
+    const data = await res.json();
+
+    if (!data.success) {
+      resultsContainer.innerHTML = `<p style="color:#e74c3c;">Failed to load products.</p>`;
+      return;
+    }
+
+    const matchingProducts = data.products.filter(product =>
+      product.name.toLowerCase().includes(searchTerm)
+    );
+
+    renderSearchResultsWithPagination(matchingProducts, currentPageNumber);
+
+  } catch (err) {
+    console.error("Search fetch error:", err);
+    resultsContainer.innerHTML = `<p style="color:#e74c3c;">Server error. Make sure your backend is running.</p>`;
+  }
+})();
