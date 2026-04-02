@@ -100,8 +100,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("trackName").textContent =
       `${order.deliveryDetails.firstName} ${order.deliveryDetails.lastName}`;
     document.getElementById("trackPhone").textContent = order.deliveryDetails.phone;
-    document.getElementById("trackAddress").textContent =
-      `${order.deliveryDetails.address}, ${order.deliveryDetails.city}, ${order.deliveryDetails.state}`;
+    const d = order.deliveryDetails;
+    document.getElementById("trackAddress").innerHTML = `
+      ${d.address}<br>
+      ${[d.state, d.country].filter(part => part && part.trim() !== "").join(", ")}
+    `;
 
     // Shipping option
     document.getElementById("trackShipping").textContent =

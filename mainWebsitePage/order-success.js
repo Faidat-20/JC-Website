@@ -28,8 +28,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("customerName").textContent =
       `${order.deliveryDetails.firstName} ${order.deliveryDetails.lastName}`;
     document.getElementById("customerPhone").textContent = order.deliveryDetails.phone;
-    document.getElementById("customerAddress").textContent =
-      `${order.deliveryDetails.address}, ${order.deliveryDetails.city}, ${order.deliveryDetails.state}`;
+    const d = order.deliveryDetails;
+    document.getElementById("customerAddress").innerHTML = `
+      ${d.address}<br>
+      ${[d.state, d.country].filter(part => part && part.trim() !== "").join(", ")}
+    `;
 
     // 5. Display shipping option name
     document.getElementById("shippingOption").textContent =
