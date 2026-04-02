@@ -1,5 +1,15 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
+  function formatDateTime(dateStr) {
+    if (!dateStr) return "N/A";
+    return new Date(dateStr).toLocaleString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
   const params = new URLSearchParams(window.location.search);
   const orderId = params.get("orderId");
 
@@ -23,6 +33,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 3. Display tracking ID
     document.getElementById("trackingId").textContent = order.trackingId;
+    // Display order timeline
+document.getElementById("timeOrdered").textContent = formatDateTime(order.order_created_at);
 
     // 4. Display delivery details
     document.getElementById("customerName").textContent =

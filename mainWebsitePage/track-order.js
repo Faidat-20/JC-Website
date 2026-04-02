@@ -11,6 +11,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const userId = sessionStorage.getItem("userId");
 
+  function formatDateTime(dateStr) {
+    if (!dateStr) return "N/A";
+    return new Date(dateStr).toLocaleString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
   // ─────────────────────────────────────────
   // LOAD USER'S OWN ORDERS (if logged in)
   // ─────────────────────────────────────────
@@ -23,9 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         myOrdersSection.style.display = "block";
 
         data.orders.forEach(order => {
-          const date = new Date(order.order_created_at).toLocaleDateString("en-GB", {
-            day: "numeric", month: "short", year: "numeric"
-          });
+          const date = formatDateTime(order.order_created_at);
 
           const item = document.createElement("div");
           item.className = "myOrderItem";
@@ -110,6 +118,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("trackShipping").textContent =
       order.shippingOption ? order.shippingOption.name : "Not specified";
 
+    // Order timeline
+    document.getElementById("timeOrdered").textContent = formatDateTime(order.order_created_at);
+
+    const shippedRow = document.getElementById("timeShippedRow");
+    const deliveredRow = document.getElementById("timeDeliveredRow");
+
+    if (order.order_shipped_at) {
+      shippedRow.style.display = "flex";
+      document.getElementById("timeShipped").textContent = formatDateTime(order.order_shipped_at);
+    } else {
+      shippedRow.style.display = "none";
+    }
+
+    if (order.order_delivered_at) {
+      deliveredRow.style.display = "flex";
+      document.getElementById("timeDelivered").textContent = formatDateTime(order.order_delivered_at);
+    } else {
+      deliveredRow.style.display = "none";
+    }
     // Items
     const trackItems = document.getElementById("trackItems");
     trackItems.innerHTML = "";

@@ -25,6 +25,17 @@
   }
 })();
 
+function formatDateTime(dateStr) {
+  if (!dateStr) return "N/A";
+  return new Date(dateStr).toLocaleString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
 
   const ordersContainer = document.getElementById("ordersContainer");
@@ -110,9 +121,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const card = document.createElement("div");
       card.className = "orderCard";
 
-      const date = new Date(order.order_created_at).toLocaleDateString("en-GB", {
-        day: "numeric", month: "short", year: "numeric"
-      });
+      const date = formatDateTime(order.order_created_at);
 
       const isLocked = order.status === "delivered" || order.status === "cancelled";
       const allowedOptions = getAllowedOptions(order.status, order.paymentStatus);
@@ -209,7 +218,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         <p><strong>Order ID:</strong> ${order._id}</p>
         <p><strong>Status:</strong> ${order.status}</p>
         <p><strong>Payment:</strong> ${order.paymentStatus}</p>
-        <p><strong>Date:</strong> ${date}</p>
+        <p><strong>Order placed:</strong> ${formatDateTime(order.order_created_at)}</p>
+        ${order.order_shipped_at ? `<p><strong>Shipped:</strong> ${formatDateTime(order.order_shipped_at)}</p>` : ""}
+        ${order.order_delivered_at ? `<p><strong>Delivered:</strong> ${formatDateTime(order.order_delivered_at)}</p>` : ""}
       </div>
 
       <div class="modalSection">
