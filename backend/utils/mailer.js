@@ -27,7 +27,7 @@ async function sendOrderConfirmationEmail(order) {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
         
-        <div style="background: #e08c3a; padding: 24px; text-align: center;">
+        <div style="background: hsl(357, 45%, 69%); padding: 24px; text-align: center;">
           <h1 style="color: white; margin: 0;">Jikes Cosmetics</h1>
         </div>
 
@@ -35,9 +35,9 @@ async function sendOrderConfirmationEmail(order) {
           <h2>Your order is confirmed!</h2>
           <p>Hi ${order.deliveryDetails.firstName}, thank you for your order. We will process it shortly.</p>
 
-          <div style="background: #fff8f0; border: 1.5px dashed #e08c3a; border-radius: 8px; padding: 16px; margin: 20px 0; text-align: center;">
+          <div style="background: #fff8f0; border: 1.5px dashed hsl(357, 45%, 69%); border-radius: 8px; padding: 16px; margin: 20px 0; text-align: center;">
             <p style="margin: 0; color: #888; font-size: 13px;">Your tracking ID</p>
-            <p style="margin: 8px 0 0; font-size: 24px; font-weight: bold; color: #e08c3a;">${order.trackingId}</p>
+            <p style="margin: 8px 0 0; font-size: 24px; font-weight: bold; color: hsl(357, 45%, 69%);">${order.trackingId}</p>
           </div>
 
           <h3>Delivery details</h3>
@@ -118,7 +118,7 @@ async function sendOwnerNotificationEmail(order) {
         </div>
 
         <div style="padding: 24px;">
-          <h2 style="color: #e08c3a;">Order ${order.trackingId}</h2>
+          <h2 style="color: hsl(357, 45%, 69%);">Order ${order.trackingId}</h2>
           <p>A new order has been placed and payment confirmed.</p>
 
           <h3>Customer details</h3>
@@ -151,7 +151,7 @@ async function sendOwnerNotificationEmail(order) {
             </div>
           </div>
 
-          <div style="margin-top: 24px; background: #fff8f0; border-left: 4px solid #e08c3a; padding: 12px;">
+          <div style="margin-top: 24px; background: #fff8f0; border-left: 4px solid hsl(357, 45%, 69%); padding: 12px;">
             <p style="margin: 0; font-weight: bold;">Action required</p>
             <p style="margin: 4px 0; font-size: 13px;">Log in to your admin dashboard to process this order.</p>
           </div>
@@ -176,7 +176,7 @@ async function sendShippedNotificationEmail(order) {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
         
-        <div style="background: #e08c3a; padding: 24px; text-align: center;">
+        <div style="background: hsl(357, 45%, 69%); padding: 24px; text-align: center;">
           <h1 style="color: white; margin: 0;">Jikes Cosmetics</h1>
         </div>
 
@@ -184,9 +184,9 @@ async function sendShippedNotificationEmail(order) {
           <h2>Your order is on its way!</h2>
           <p>Hi ${order.deliveryDetails.firstName}, great news — your order has been shipped and is on its way to you.</p>
 
-          <div style="background: #fff8f0; border: 1.5px dashed #e08c3a; border-radius: 8px; padding: 16px; margin: 20px 0; text-align: center;">
+          <div style="background: #fff8f0; border: 1.5px dashed hsl(357, 45%, 69%); border-radius: 8px; padding: 16px; margin: 20px 0; text-align: center;">
             <p style="margin: 0; color: #888; font-size: 13px;">Your tracking ID</p>
-            <p style="margin: 8px 0 0; font-size: 24px; font-weight: bold; color: #e08c3a;">${order.trackingId}</p>
+            <p style="margin: 8px 0 0; font-size: 24px; font-weight: bold; color: hsl(357, 45%, 69%);">${order.trackingId}</p>
           </div>
 
           <h3>Delivery details</h3>
@@ -224,7 +224,7 @@ async function sendCancellationEmail(order) {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
 
-        <div style="background: #c0392b; padding: 24px; text-align: center;">
+        <div style="background: hsl(357, 45%, 69%); padding: 24px; text-align: center;">
           <h1 style="color: white; margin: 0;">Jikes Cosmetics</h1>
         </div>
 
@@ -232,9 +232,9 @@ async function sendCancellationEmail(order) {
           <h2>Your order has been cancelled</h2>
           <p>Hi ${order.deliveryDetails.firstName}, we are sorry to inform you that your order has been cancelled.</p>
 
-          <div style="background: #fff8f0; border: 1.5px dashed #e08c3a; border-radius: 8px; padding: 16px; margin: 20px 0; text-align: center;">
+          <div style="background: #fff8f0; border: 1.5px dashed hsl(357, 45%, 69%); border-radius: 8px; padding: 16px; margin: 20px 0; text-align: center;">
             <p style="margin: 0; color: #888; font-size: 13px;">Order tracking ID</p>
-            <p style="margin: 8px 0 0; font-size: 24px; font-weight: bold; color: #e08c3a;">${order.trackingId}</p>
+            <p style="margin: 8px 0 0; font-size: 24px; font-weight: bold; color: hsl(357, 45%, 69%);">${order.trackingId}</p>
           </div>
 
           ${order.paymentStatus === "paid" ? `
@@ -244,7 +244,7 @@ async function sendCancellationEmail(order) {
               <p style="margin: 10px 0 0; font-size: 13px;">
                 <strong>Email:</strong> ${process.env.EMAIL_USER}<br>
                 <strong>Phone:</strong> 09040472851 / 07057181591<br>
-                <strong>WhatsApp:</strong> <a href="https://wa.me/2349040472851" style="color: #e08c3a;">Click here to chat</a>
+                <strong>WhatsApp:</strong> <a href="https://wa.me/2349040472851" style="color: hsl(357, 45%, 69%);">Click here to chat</a>
               </p>
             </div>
           ` : ""}
