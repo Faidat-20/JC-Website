@@ -133,7 +133,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           <p><strong>Customer:</strong> ${order.deliveryDetails?.firstName || ""} ${order.deliveryDetails?.lastName || ""}</p>
           <p><strong>Phone:</strong> ${order.deliveryDetails?.phone || "N/A"}</p>
           <p><strong>Total:</strong> ₦${order.total?.toLocaleString()}</p>
-          <p><strong>Date:</strong> ${date}</p>
+          <p><strong>Order placed:</strong> ${date}</p>
+          ${order.order_shipped_at ? `<p><strong>Shipped:</strong> ${formatDateTime(order.order_shipped_at)}</p>` : ""}
+          ${order.order_delivered_at ? `<p><strong>Delivered:</strong> ${formatDateTime(order.order_delivered_at)}</p>` : ""}
+          ${order.status === "cancelled" ? `<p><strong>Cancelled:</strong> ${formatDateTime(order.updatedAt)}</p>` : ""}
         </div>
 
         <div class="orderCardRight">
