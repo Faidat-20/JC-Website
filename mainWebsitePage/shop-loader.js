@@ -122,18 +122,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ─────────────────────────────────────────
   function reattachCartListeners() {
     const userId = sessionStorage.getItem("userId");
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-
+    
     document.querySelectorAll(".addToCart").forEach(button => {
       button.addEventListener("click", async () => {
         if (!userId) return alert("Please log in to add items to cart.");
 
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
         const itemCard = button.closest(".item");
         const name = itemCard.querySelector("h2").textContent;
         const image = itemCard.querySelector("img").src;
         const priceText = itemCard.querySelector(".price").textContent;
         const price = Number(priceText.replace(/[₦,]/g, ""));
-
         const existingItem = cart.find(item => item.name === name);
         const addCartMessage = document.querySelector(".addCartMessage");
 

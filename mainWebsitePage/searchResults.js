@@ -25,16 +25,16 @@ function renderCart() {
 // -----------------------------
 // CART SETUP
 // -----------------------------
-let cart = [];
-const savedCart = localStorage.getItem("cart");
-if (savedCart) {
-  try {
-    cart = JSON.parse(savedCart);
-    if (!Array.isArray(cart)) cart = [];
-  } catch (err) {
-    cart = [];
-  }
-}
+// let cart = [];
+// const savedCart = localStorage.getItem("cart");
+// if (savedCart) {
+//   try {
+//     cart = JSON.parse(savedCart);
+//     if (!Array.isArray(cart)) cart = [];
+//   } catch (err) {
+//     cart = [];
+//   }
+// }
 
 // -----------------------------
 // PAGINATION SETTINGS
@@ -112,6 +112,8 @@ function renderSearchResults(products) {
       const userId = sessionStorage.getItem("userId");
       if (!userId) return alert("Please log in to add items to cart.");
 
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
       const itemCard = button.closest(".item");
       const name = itemCard.querySelector("h2").textContent;
       const image = itemCard.querySelector("img").src;
@@ -127,15 +129,26 @@ function renderSearchResults(products) {
 
       localStorage.setItem("cart", JSON.stringify(cart));
       window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
-      renderCart();
-      showCartOverlayMessage("Product added to cart!");
+      
+      const addCartMessage = document.querySelector(".addCartMessage");
+      if (addCartMessage) {
+        addCartMessage.textContent = existingItem ? "Product quantity updated in cart!" : "Added to cart!";
+        addCartMessage.classList.add("show");
+        setTimeout(() => addCartMessage.classList.remove("show"), 1200);
+      }
 
       if (userId) {
         try {
           await fetch("http://localhost:5000/api/auth/update-cart", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId, name, image, price, action: "add", quantity: 1 })
+            body: JSON.stringify({userId,
+              name,
+              image,
+              price,
+              action: existingItem ? "update" : "add",
+              quantity: existingItem ? existingItem.quantity : 1
+            })
           });
         } catch (err) {
           console.error("Cart backend sync error:", err);
