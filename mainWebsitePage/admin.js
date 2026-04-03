@@ -15,8 +15,11 @@
     });
     const data = await res.json();
 
-    if (!data.success) {
-      alert("Access denied. You are not an admin.");
+    if (data.success) {
+      // Admin verified — show the page
+      document.documentElement.style.display = "";
+    } else {
+      // Not an admin — redirect immediately
       window.location.href = "mainWebsitePage.html";
     }
   } catch (err) {
