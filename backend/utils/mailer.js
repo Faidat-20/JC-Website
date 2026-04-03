@@ -213,5 +213,60 @@ async function sendShippedNotificationEmail(order) {
   await transporter.sendMail(mailOptions);
   console.log(`Shipped notification email sent to ${order.deliveryDetails.email} ✅`);
 }
+// ─────────────────────────────────────────
+// SEND CANCELLATION + REFUND EMAIL TO CUSTOMER
+// ─────────────────────────────────────────
+async function sendCancellationEmail(order) {
+  const mailOptions = {
+    from: `"Jikes Cosmetics" <${process.env.EMAIL_USER}>`,
+    to: order.deliveryDetails.email,
+    subject: `Your order has been cancelled — ${order.trackingId}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
 
-module.exports = { sendOrderConfirmationEmail, sendOwnerNotificationEmail, sendShippedNotificationEmail  };
+        <div style="background: #c0392b; padding: 24px; text-align: center;">
+          <h1 style="color: white; margin: 0;">Jikes Cosmetics</h1>
+        </div>
+
+        <div style="padding: 24px;">
+          <h2>Your order has been cancelled</h2>
+          <p>Hi ${order.deliveryDetails.firstName}, we are sorry to inform you that your order has been cancelled.</p>
+
+          <div style="background: #fff8f0; border: 1.5px dashed #e08c3a; border-radius: 8px; padding: 16px; margin: 20px 0; text-align: center;">
+            <p style="margin: 0; color: #888; font-size: 13px;">Order tracking ID</p>
+            <p style="margin: 8px 0 0; font-size: 24px; font-weight: bold; color: #e08c3a;">${order.trackingId}</p>
+          </div>
+
+          ${order.paymentStatus === "paid" ? `
+            <div style="background: #fce8e8; border-left: 4px solid #c0392b; padding: 16px; border-radius: 4px; margin: 20px 0;">
+              <p style="margin: 0 0 8px; font-weight: bold; color: #c0392b;">Refund information</p>
+              <p style="margin: 0; font-size: 13px; color: #555;">Since you already paid for this order, you are entitled to a full refund of <strong>₦${order.total.toLocaleString()}</strong>. Please contact us to arrange your refund:</p>
+              <p style="margin: 10px 0 0; font-size: 13px;">
+                <strong>Email:</strong> ${process.env.EMAIL_USER}<br>
+                <strong>Phone:</strong> 09040472851 / 07057181591<br>
+                <strong>WhatsApp:</strong> <a href="https://wa.me/2349040472851" style="color: #e08c3a;">Click here to chat</a>
+              </p>
+            </div>
+          ` : ""}
+
+          <h3 style="margin-top: 24px;">Order details</h3>
+          <p style="margin: 4px 0;"><strong>Name:</strong> ${order.deliveryDetails.firstName} ${order.deliveryDetails.lastName}</p>
+          <p style="margin: 4px 0;"><strong>Total paid:</strong> ₦${order.total.toLocaleString()}</p>
+
+          <p style="margin-top: 24px; color: #777; font-size: 13px;">
+            We apologise for any inconvenience. Please contact us if you have any questions.
+          </p>
+        </div>
+
+        <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999;">
+          © 2026 Jikes Cosmetics. All rights reserved.
+        </div>
+
+      </div>
+    `
+  };
+
+  await transporter.sendMail(mailOptions);
+  console.log(`Cancellation email sent to ${order.deliveryDetails.email} ✅`);
+}
+module.exports = { sendOrderConfirmationEmail, sendOwnerNotificationEmail, sendShippedNotificationEmail, sendCancellationEmail  };

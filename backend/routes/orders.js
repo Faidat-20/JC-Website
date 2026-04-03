@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order");
-const { sendShippedNotificationEmail } = require("../utils/mailer");
+const { sendShippedNotificationEmail, sendCancellationEmail } = require("../utils/mailer");
 
 // ----------------------
 // CREATE ORDER
@@ -124,6 +124,11 @@ router.put("/:orderId/status", async (req, res) => {
     // Send shipped email to customer
     if (status === "shipped") {
       await sendShippedNotificationEmail(order);
+    }
+
+    // Send cancellation email to customer
+    if (status === "cancelled") {
+      await sendCancellationEmail(order);
     }
 
     res.json({ success: true, message: `Order marked as ${status}!`, order });
