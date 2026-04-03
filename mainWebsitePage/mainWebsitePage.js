@@ -25,15 +25,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logoutBtn");
   const businessName = document.querySelector(".businessName");
   const currentPage = window.location.pathname.split("/").pop();
-
   const userId = sessionStorage.getItem("userId");
+  const footerTrack = document.getElementById("footerTrack");
 
   if (userId) {
     if (logoutBtn) logoutBtn.style.display = "inline-block";
     if (loginBtn) loginBtn.style.display = "none";
+    if (footerTrack) footerTrack.style.display = "block";
   } else {
     if (logoutBtn) logoutBtn.style.display = "none";
     if (loginBtn) loginBtn.style.display = "inline-block";
+    if (footerTrack) footerTrack.style.display = "none";
   }
 
   // Logout
