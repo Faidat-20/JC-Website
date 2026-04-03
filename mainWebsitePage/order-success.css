@@ -86,7 +86,7 @@ h1 {
 
 /* ─── TRACKING BOX ─── */
 .tracking-box {
-  background: white;
+  background: #fff8f0;
   border: 2px dashed hsl(357, 45%, 69%);
   border-radius: 12px;
   padding: 20px 24px;
