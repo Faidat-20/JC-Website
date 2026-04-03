@@ -4,9 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order Confirmed — Jikes Cosmetics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="mainWebsitePage/order-success.css">
 </head>
 <body>
+
+  <!-- TOP BAR -->
+  <div class="success-topbar">
+    <a href="mainWebsitePage.html" class="brand">Jikes Cosmetics</a>
+    <div class="nav-links">
+      <a href="mainWebsitePage.html">Home</a>
+      <a href="track-order.html">Track order</a>
+    </div>
+  </div>
 
   <div class="success-wrapper">
 
@@ -32,7 +42,7 @@
         <h3>Shipping option</h3>
         <p id="shippingOption"></p>
       </div>
-      
+
       <div class="order-section">
         <h3>Items ordered</h3>
         <div id="orderItems"></div>
@@ -40,9 +50,12 @@
 
       <div class="order-section">
         <h3>Order timeline</h3>
-        <p><strong>Order placed:</strong> <span id="timeOrdered"></span></p>
+        <div class="timeline-row">
+          <span class="timeline-label">Order placed</span>
+          <span class="timeline-value" id="timeOrdered"></span>
+        </div>
       </div>
-      
+
       <div class="order-section">
         <h3>Order summary</h3>
         <div class="summary-row">

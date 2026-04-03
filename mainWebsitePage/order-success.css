@@ -6,165 +6,280 @@
 
 body {
   font-family: 'Arial', sans-serif;
-  background: #f9f9f9;
+  background: #f5f5f5;
   color: #333;
-  padding: 40px 16px;
+  min-height: 100vh;
 }
 
+/* ─── TOP BAR ─── */
+.success-topbar {
+  background: white;
+  border-bottom: 1px solid #eee;
+  padding: 30px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0;
+  gap: 28px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.success-topbar .brand {
+  font-family: 'Playfair Display', serif;
+    font-size: 10px;
+    cursor: pointer;
+  text-decoration: none;
+}
+
+.success-topbar .nav-links {
+  display: flex;
+  gap: 16px;
+}
+
+.success-topbar .nav-links a {
+  font-size: 13px;
+  color: #555;
+  text-decoration: none;
+}
+
+.success-topbar .nav-links a:hover {
+  color: hsl(357, 45%, 69%);
+}
+
+/* ─── WRAPPER ─── */
 .success-wrapper {
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 640px;
+  margin: 40px auto;
+  padding: 0 16px 60px;
   text-align: center;
 }
 
+/* ─── SUCCESS ICON ─── */
 .success-icon {
-  width: 70px;
-  height: 70px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  background: #4CAF50;
+  background: hsl(357, 45%, 69%);
   color: white;
-  font-size: 36px;
+  font-size: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 20px;
+  box-shadow: 0 4px 16px hsla(357, 45%, 69%, 0.3);
 }
 
 h1 {
-  font-size: 28px;
-  margin-bottom: 8px;
-  color: #222;
+  font-size: 26px;
+  margin-bottom: 6px;
+  color: #1a1a1a;
+  font-weight: 700;
 }
 
 .success-sub {
-  color: #777;
-  margin-bottom: 24px;
-  font-size: 15px;
+  color: #888;
+  margin-bottom: 28px;
+  font-size: 14px;
 }
 
+/* ─── TRACKING BOX ─── */
 .tracking-box {
-  background: #fff8f0;
-  border: 1.5px dashed hsl(357, 45%, 69%);
-  border-radius: 10px;
-  padding: 16px 24px;
+  background: white;
+  border: 2px dashed hsl(357, 45%, 69%);
+  border-radius: 12px;
+  padding: 20px 24px;
   margin-bottom: 24px;
 }
 
 .tracking-label {
-  font-size: 13px;
-  color: #888;
-  margin-bottom: 4px;
+  font-size: 12px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
 }
 
 .tracking-id {
-  font-size: 22px;
-  font-weight: bold;
+  font-size: 24px;
+  font-weight: 800;
   color: hsl(357, 45%, 69%);
-  letter-spacing: 1px;
+  letter-spacing: 2px;
 }
 
+/* ─── ORDER CARD ─── */
 .order-card {
   background: white;
-  border-radius: 12px;
-  border: 1px solid #eee;
-  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid #ebebeb;
+  overflow: hidden;
   text-align: left;
   margin-bottom: 24px;
 }
 
+/* ─── ORDER SECTION ─── */
 .order-section {
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 18px 20px;
+  border-bottom: 1px solid #f2f2f2;
 }
 
 .order-section:last-child {
   border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 0;
 }
 
 .order-section h3 {
-  font-size: 14px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #999;
+  letter-spacing: 0.8px;
+  color: #bbb;
   margin-bottom: 10px;
+  font-weight: 600;
 }
 
 .order-section p {
   font-size: 14px;
   color: #444;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 
+/* ─── ORDER ITEMS ─── */
 .order-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f8f8f8;
+}
+
+.order-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .order-item img {
-  width: 50px;
-  height: 50px;
+  width: 56px;
+  height: 56px;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+.order-item-details {
+  flex: 1;
 }
 
 .order-item-details p {
   font-size: 13px;
   color: #444;
   margin: 0;
+  line-height: 1.5;
 }
 
 .order-item-details .item-price {
-  font-weight: bold;
-  color: #222;
+  font-weight: 700;
+  color: #1a1a1a;
+  font-size: 14px;
 }
 
+/* ─── ORDER SUMMARY ─── */
 .summary-row {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
-  color: #555;
+  color: #666;
   margin-bottom: 8px;
 }
 
 .summary-row.total {
   font-size: 16px;
-  font-weight: bold;
-  color: #222;
-  padding-top: 8px;
-  border-top: 1px solid #eee;
-  margin-top: 4px;
+  font-weight: 700;
+  color: #1a1a1a;
+  padding-top: 10px;
+  border-top: 1.5px solid #eee;
+  margin-top: 6px;
+  margin-bottom: 0;
 }
 
+/* ─── TIMELINE ─── */
+.timeline-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f8f8f8;
+}
+
+.timeline-row:last-child {
+  border-bottom: none;
+}
+
+.timeline-label {
+  color: #888;
+  font-size: 12px;
+}
+
+.timeline-value {
+  color: #333;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+/* ─── ACTION BUTTONS ─── */
 .success-actions {
   display: flex;
   gap: 12px;
   justify-content: center;
   flex-wrap: wrap;
+  margin-top: 8px;
 }
 
 .btn-primary {
   background: hsl(357, 45%, 69%);
   color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
+  padding: 13px 28px;
+  border-radius: 10px;
   text-decoration: none;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 700;
+  transition: opacity 0.2s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
 }
 
 .btn-secondary {
   background: white;
   color: hsl(357, 45%, 69%);
-  padding: 12px 24px;
-  border-radius: 8px;
+  padding: 13px 28px;
+  border-radius: 10px;
   text-decoration: none;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 700;
   border: 1.5px solid hsl(357, 45%, 69%);
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #fff5f5;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 480px) {
+  .success-topbar .nav-links {
+    display: none;
+  }
+
+  .tracking-id {
+    font-size: 18px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
 }

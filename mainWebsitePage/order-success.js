@@ -73,19 +73,23 @@ document.getElementById("timeOrdered").textContent = formatDateTime(order.order_
     document.getElementById("total").textContent =
       `₦${order.total.toLocaleString()}`;
 
-    // 8. Clear cart from localStorage after successful order
-    localStorage.removeItem("cart");
-    localStorage.removeItem("deliveryDetails");
-    localStorage.removeItem("selectedShipping");
+    // AFTER
+    // 8. Only clear cart if this is the first visit (cart still has items)
+    const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+    if (existingCart.length > 0) {
+      localStorage.removeItem("cart");
+      localStorage.removeItem("deliveryDetails");
+      localStorage.removeItem("selectedShipping");
 
-    // 9. Clear cart from backend
-    const userId = sessionStorage.getItem("userId");
-    if (userId) {
-      await fetch("http://localhost:5000/api/auth/clear-cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId })
-      });
+      // Clear cart from backend
+      const userId = sessionStorage.getItem("userId");
+      if (userId) {
+        await fetch("http://localhost:5000/api/auth/clear-cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId })
+        });
+      }
     }
 
   } catch (err) {  // ← this closes the main try block correctly

@@ -458,3 +458,11 @@
   font-style: italic;
   margin: 0;
 }
+.viewConfirmationBtn {
+  display: inline-block;
+  margin-top: 10px;
+  margin-right: 100px;
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--trackColor)
+}

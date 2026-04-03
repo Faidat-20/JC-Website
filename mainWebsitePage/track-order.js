@@ -97,6 +97,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Tracking ID and status badge
     document.getElementById("resultTrackingId").textContent = order.trackingId;
     document.getElementById("resultOrderId").textContent = order._id;
+    // Link to order confirmation page
+    document.getElementById("viewConfirmationBtn").href = `order-success.html?orderId=${order._id}`;
     const statusBadge = document.getElementById("resultStatus");
     statusBadge.textContent = order.status;
     statusBadge.className = `statusBadge ${order.status}`;
@@ -124,6 +126,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shippedRow = document.getElementById("timeShippedRow");
     const deliveredRow = document.getElementById("timeDeliveredRow");
 
+    // Add this after the deliveredRow block
+    const cancelledRow = document.getElementById("timeCancelledRow");
+    if (order.status === "cancelled") {
+      cancelledRow.style.display = "flex";
+      document.getElementById("timeCancelled").textContent = formatDateTime(order.updatedAt);
+    } else {
+      cancelledRow.style.display = "none";
+    }
+    
     if (order.order_shipped_at) {
       shippedRow.style.display = "flex";
       document.getElementById("timeShipped").textContent = formatDateTime(order.order_shipped_at);
