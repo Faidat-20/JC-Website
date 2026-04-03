@@ -196,34 +196,74 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ─────────────────────────────────────────
   // UPDATE PROGRESS BAR
   // ─────────────────────────────────────────
+  // AFTER
   function updateProgress(order) {
-    const steps = ["pending", "paid", "shipped", "delivered"];
-    const lines = [
-      document.getElementById("line-1"),
-      document.getElementById("line-2"),
-      document.getElementById("line-3")
-    ];
+    const progressContainer = document.getElementById("trackProgress");
+    progressContainer.innerHTML = "";
 
-    let currentStage = 0;
-    if (order.paymentStatus === "paid") currentStage = 1;
-    if (order.status === "shipped") currentStage = 2;
-    if (order.status === "delivered") currentStage = 3;
+    // Build steps based on order status
+    let steps = [];
 
-    steps.forEach((step, index) => {
-      const stepEl = document.getElementById(`step-${step}`);
-      stepEl.classList.remove("active", "done");
-
-      if (index < currentStage) {
-        stepEl.classList.add("done");
-      } else if (index === currentStage) {
-        stepEl.classList.add("active");
+    if (order.status === "cancelled") {
+      if (order.paymentStatus === "paid") {
+        // Paid then cancelled
+        steps = [
+          { label: "Order placed", state: "done" },
+          { label: "Payment confirmed", state: "done" },
+          { label: "Cancelled", state: "active", color: "red" },
+          { label: "Refunded", state: "inactive" }
+        ];
+      } else {
+        // Not paid, cancelled
+        steps = [
+          { label: "Order placed", state: "done" },
+          { label: "Cancelled", state: "active", color: "red" }
+        ];
       }
-    });
+    } else {
+      // Normal flow
+      steps = [
+        { label: "Order placed", state: "done" },
+        { label: "Payment confirmed", state: order.paymentStatus === "paid" ? "done" : "inactive" },
+        { label: "Shipped", state: order.status === "shipped" || order.status === "delivered" ? "done" : order.paymentStatus === "paid" ? "inactive" : "inactive" },
+        { label: "Delivered", state: order.status === "delivered" ? "active" : "inactive" }
+      ];
 
-    lines.forEach((line, index) => {
-      line.classList.remove("done");
-      if (index < currentStage) {
-        line.classList.add("done");
+      // Fix active step
+      if (order.status === "delivered") {
+        steps[3].state = "active";
+        steps[2].state = "done";
+      } else if (order.status === "shipped") {
+        steps[2].state = "active";
+      } else if (order.paymentStatus === "paid") {
+        steps[1].state = "active";
+      } else {
+        steps[0].state = "active";
+      }
+    }
+
+    // Build the HTML
+    steps.forEach((step, index) => {
+      // Add step dot
+      const stepEl = document.createElement("div");
+      stepEl.className = "trackStep";
+
+      if (step.state === "done") stepEl.classList.add("done");
+      if (step.state === "active") stepEl.classList.add("active");
+      if (step.color === "red") stepEl.classList.add("cancelled-step");
+
+      stepEl.innerHTML = `
+        <div class="trackStepDot"></div>
+        <p>${step.label}</p>
+      `;
+      progressContainer.appendChild(stepEl);
+
+      // Add line between steps
+      if (index < steps.length - 1) {
+        const line = document.createElement("div");
+        line.className = "trackLine";
+        if (step.state === "done") line.classList.add("done");
+        progressContainer.appendChild(line);
       }
     });
   }

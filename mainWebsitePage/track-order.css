@@ -179,6 +179,15 @@
 .trackStep.done p {
   color: #4CAF50;
 }
+.trackStep.cancelled-step .trackStepDot {
+  background: #e74c3c;
+  border-color: #e74c3c;
+}
+
+.trackStep.cancelled-step p {
+  color: #e74c3c;
+  font-weight: bold;
+}
 
 .trackLine {
   flex: 1;
