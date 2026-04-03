@@ -49,8 +49,13 @@ const UserSchema = new mongoose.Schema({
     country: String,
     state: String,
     city: String
-  }
+  },
 
+  shippingOption: {
+    name: String,
+    price: Number
+  }
+  
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", UserSchema);

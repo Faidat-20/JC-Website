@@ -259,6 +259,43 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
   }
 
+  // ----------------------
+  // LOAD SAVED SHIPPING OPTION
+  // ----------------------
+  if (userId) {
+    (async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/auth/shipping-option/${userId}`);
+        const data = await res.json();
+
+        if (data.success && data.shippingOption) {
+          const saved = data.shippingOption;
+
+          // Save to localStorage
+          localStorage.setItem("selectedShipping", JSON.stringify(saved));
+
+          // Find the matching option in shippingData
+          const matchedOption = shippingData.find(opt => opt.name === saved.name);
+          if (!matchedOption) return;
+
+          // Show it in the UI
+          shippingSectionBtn.style.display = "none";
+          shippingDisplayText.innerHTML = `
+            <div class="shippingDisplayWrapper">
+              <p class="shippingDisplayName">${matchedOption.name}</p>
+              <p class="shippingDisplayDesc">${matchedOption.desc}</p>
+            </div>
+          `;
+          shippingChangeTag.style.display = "inline";
+          shippingSelected = true;
+
+          updateTotals();
+        }
+      } catch (err) {
+        console.error("Load shipping error:", err);
+      }
+    })();
+  }
   // COUNTRY & STATE DROPDOWN
   const countrySelect = document.getElementById("country");
   const stateSelect = document.getElementById("state");
@@ -513,6 +550,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
       updateTotals();
       shippingSelected = true;
+
+      if (userId) {
+        fetch("http://localhost:5000/api/auth/save-shipping", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            shippingOption: {
+              name: selectedOption.name,
+              price: Number(selectedOption.price)
+            }
+          })
+        }).catch(err => console.error("Save shipping error:", err));
+      }
     }
     function attachShippingListeners() {
       const shippingRadios = shippingOptionsContainer.querySelectorAll("input[name='shipping']");
@@ -595,6 +646,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (placeOrderBtn) {
     placeOrderBtn.addEventListener("click", async () => {
       if (!userId) return alert("Please log in to place your order.");
+
+       if (cart.length === 0) return alert("Your cart is empty. Please add items before placing an order.");
 
       // Get delivery and shipping info
       let deliveryDetails = JSON.parse(localStorage.getItem("deliveryDetails")) || {};
