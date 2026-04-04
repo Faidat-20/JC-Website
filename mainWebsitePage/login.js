@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
- // -----------------------------
+  // -----------------------------
   // NEWSLETTER SUBSCRIPTION
   // -----------------------------
   const newsletterInput = document.querySelector("#newsletterForm input[name='user_email']");
@@ -186,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
 
       if (!newsletterInput.value.trim()) return alert("Enter your email.");
+
 
       const email = newsletterInput.value.trim();
       const userId = sessionStorage.getItem("userId");
@@ -199,28 +200,13 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId, email, username })
         });
-
+        
         const data = await res.json();
         if (data.success) {
           if (data.message === "Subscription successful!") {
-            emailjs.sendForm(
-              "service_gouqvrc",
-              "template_5tw4y1q",
-              newsletterForm
-            ).then(
-              function () {
-                newsletterInput.disabled = true;
-                alert("Subscription successful! Check your email.");
-                newsletterForm.reset();
-              },
-              function (error) {
-                console.log("EmailJS Error:", error);
-                alert("Subscribed successfully but email failed to send.");
-              }
-            );
-          } else {
             alert(data.message);
-          }
+            newsletterInput.disabled = true;
+          } 
         } else {
           alert(data.message || "Subscription failed.");
         }

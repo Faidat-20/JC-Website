@@ -572,51 +572,51 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // if (newsletterForm) {
-  //   newsletterForm.addEventListener("submit", async (e) => {
-  //     e.preventDefault();
+  if (newsletterForm) {
+    newsletterForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-  //     alert("Make sure the email you input is correct.");
+      alert("Make sure the email you input is correct.");
 
-  //     const usernameInput = newsletterForm.querySelector("input[name='username']");
-  //     const username = usernameInput.value.trim();
+      const usernameInput = newsletterForm.querySelector("input[name='username']");
+      const username = usernameInput.value.trim();
 
-  //     const newsletterInput = newsletterForm.querySelector("input[name='user_email']");
-  //     const email = newsletterInput.value.trim();
+      const newsletterInput = newsletterForm.querySelector("input[name='user_email']");
+      const email = newsletterInput.value.trim();
 
-  //     if (!email) return alert("Enter your email.");
-  //     if (!username) return alert("Enter your name.");
+      if (!email) return alert("Enter your email.");
+      if (!username) return alert("Enter your name.");
 
-  //     const userId = sessionStorage.getItem("userId"); // ✅ get userId from session
+      const userId = sessionStorage.getItem("userId"); // ✅ get userId from session
 
-  //     try {
-  //       const res = await fetch("http://localhost:5000/api/auth/subscribe-newsletter", {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({ userId, email, username  })
-  //       });
-  //       const data = await res.json();
-  //       if (data.success) {
-  //         if (data.message === "Subscription successful!") {
-  //           // New subscription
-  //           alert(data.message);
-  //           newsletterInput.disabled = true;
-  //         } else if (data.message === "You are already subscribed! Login.") {
-  //           // Already subscribed
-  //           alert(data.message); // only this alert
-  //         } else {
-  //           // fallback for any other message
-  //           alert(data.message);
-  //     }
-  //       }else {
-  //         alert(data.message || "Subscription failed.");
-  //       }
-  //     } catch (err) {
-  //       console.error("Newsletter error:", err);
-  //       alert("Server error.");
-  //     }
-  //   });
-  // }
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/subscribe-newsletter", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId, email, username  })
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (data.message === "Subscription successful!") {
+            // New subscription
+            alert(data.message);
+            newsletterInput.disabled = true;
+          } else if (data.message === "You are already subscribed! Login.") {
+            // Already subscribed
+            alert(data.message); // only this alert
+          } else {
+            // fallback for any other message
+            alert(data.message);
+      }
+        }else {
+          alert(data.message || "Subscription failed.");
+        }
+      } catch (err) {
+        console.error("Newsletter error:", err);
+        alert("Server error.");
+      }
+    });
+  }
 
   // INITIAL CART RENDER
   if (cart.length > 0) {
