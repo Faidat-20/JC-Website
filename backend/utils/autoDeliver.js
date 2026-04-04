@@ -37,6 +37,21 @@ function startAutoDeliverJob() {
   });
 
   console.log("Auto-deliver job scheduled ✅");
+
+  // Clean up abandoned pending orders older than 24 hours
+  const PendingOrder = require("../models/PendingOrder");
+
+  cron.schedule("0 1 * * *", async () => {
+    console.log("Running pending order cleanup...");
+    try {
+      const result = await PendingOrder.deleteMany({
+        createdAt: { $lte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      });
+      console.log(`Cleaned up ${result.deletedCount} abandoned pending orders ✅`);
+    } catch (err) {
+      console.error("Pending order cleanup error:", err);
+    }
+  });
 }
 
 module.exports = { startAutoDeliverJob };

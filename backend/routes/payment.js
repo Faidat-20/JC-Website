@@ -3,6 +3,7 @@ const router = express.Router();
 const axios = require("axios");
 const crypto = require("crypto");
 const Order = require("../models/Order");
+const PendingOrder = require("../models/PendingOrder");
 const { sendOrderConfirmationEmail, sendOwnerNotificationEmail } = require("../utils/mailer");
 
 // ─────────────────────────────────────────
@@ -12,25 +13,28 @@ router.post("/", async (req, res) => {
   const { userId, cart, deliveryDetails, shipping, total, shippingOption, subtotal } = req.body;
 
   try {
-    const newOrder = new Order({
+    // 1. Save to PendingOrder instead of Order
+    const pendingOrder = new PendingOrder({
       userId,
       items: cart,
       deliveryDetails,
       shippingOption,
       subtotal,
       shippingFee: shipping,
-      total,
-      paymentStatus: "pending"
+      total
     });
-    const savedOrder = await newOrder.save();
+    const savedPending = await pendingOrder.save();
 
+    // 2. Initialize Paystack
     const response = await axios.post(
       "https://api.paystack.co/transaction/initialize",
       {
         email: deliveryDetails.email,
         amount: total * 100,
-        callback_url: `${process.env.FRONTEND_URL}/order-success.html?orderId=${savedOrder._id}`,
-        metadata: { orderId: String(savedOrder._id) }
+        callback_url: `${process.env.FRONTEND_URL}/order-success.html`,
+        metadata: {
+          pendingOrderId: String(savedPending._id)
+        }
       },
       {
         headers: {
@@ -55,7 +59,7 @@ router.post("/", async (req, res) => {
 // ─────────────────────────────────────────
 router.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
 
-  // 1. Verify the request actually came from Paystack
+  // 1. Verify signature
   const secret = process.env.PAYSTACK_SECRET_KEY;
   const hash = crypto
     .createHmac("sha512", secret)
@@ -67,48 +71,53 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
     return res.status(401).send("Unauthorized");
   }
 
-  // 2. Parse the event
+  // 2. Parse event
   const event = JSON.parse(req.body);
 
-  // 3. Only handle successful charges
   if (event.event === "charge.success") {
-    const orderId = event.data.metadata?.orderId;
+    const pendingOrderId = event.data.metadata?.pendingOrderId;
 
-    if (!orderId) {
-      console.warn("Webhook received but no orderId in metadata");
+    if (!pendingOrderId) {
+      console.warn("Webhook: no pendingOrderId in metadata");
       return res.sendStatus(200);
     }
 
     try {
-      // 4. Mark order as paid
-      const updatedOrder = await Order.findByIdAndUpdate(
-        orderId,
-        {
-          paymentStatus: "paid",
-          status: "pending"
-        },
-        { returnDocument: "after" }
-      );
-
-      if (!updatedOrder) {
-        console.warn("Webhook: Order not found for ID:", orderId);
+      // 3. Find the pending order
+      const pending = await PendingOrder.findById(pendingOrderId);
+      if (!pending) {
+        console.warn("Webhook: PendingOrder not found:", pendingOrderId);
         return res.sendStatus(200);
       }
 
-      console.log(`Order ${updatedOrder.trackingId} marked as PAID ✅`);
+      // 4. Create real Order from pending order data
+      const newOrder = new Order({
+        userId: pending.userId,
+        items: pending.items,
+        deliveryDetails: pending.deliveryDetails,
+        shippingOption: pending.shippingOption,
+        subtotal: pending.subtotal,
+        shippingFee: pending.shippingFee,
+        total: pending.total,
+        status: "pending",
+        paymentStatus: "paid"
+      });
+      const savedOrder = await newOrder.save();
 
-      // 5. Send confirmation email to customer
-      await sendOrderConfirmationEmail(updatedOrder);
+      console.log(`Order ${savedOrder.trackingId} created and marked as PAID ✅`);
 
-      // 6. Send new order alert to owner
-      await sendOwnerNotificationEmail(updatedOrder);
+      // 5. Delete the pending order
+      await PendingOrder.findByIdAndDelete(pendingOrderId);
+
+      // 6. Send confirmation emails
+      await sendOrderConfirmationEmail(savedOrder);
+      await sendOwnerNotificationEmail(savedOrder);
 
     } catch (err) {
-      console.error("Webhook order update error:", err.message);
+      console.error("Webhook order creation error:", err.message);
     }
   }
 
-  // Always respond 200 to Paystack so it doesn't retry
   res.sendStatus(200);
 });
 

@@ -10,26 +10,31 @@ document.addEventListener("DOMContentLoaded", async () => {
       minute: "2-digit"
     });
   }
+
+  const userId = sessionStorage.getItem("userId");
   const params = new URLSearchParams(window.location.search);
   const orderId = params.get("orderId");
 
-  if (!orderId) {
-    document.querySelector(".success-wrapper").innerHTML = 
-      "<p>Order not found. Please contact support.</p>";
-    return;
-  }
+  let order = null;
 
   try {
-    const res = await fetch(`http://localhost:5000/api/orders/${orderId}`);
-    const data = await res.json();
-
-    if (!data.success) {
-      document.querySelector(".success-wrapper").innerHTML =
-        "<p>Could not load order details. Please contact support.</p>";
-      return;
+    if (orderId) {
+      // Returning visitor — load by orderId
+      const res = await fetch(`http://localhost:5000/api/orders/${orderId}`);
+      const data = await res.json();
+      if (data.success) order = data.order;
+    } else if (userId) {
+      // Fresh from payment — load most recent paid order
+      const res = await fetch(`http://localhost:5000/api/orders/user/${userId}/latest-paid`);
+      const data = await res.json();
+      if (data.success) order = data.order;
     }
 
-    const order = data.order;
+    if (!order) {
+      document.querySelector(".success-wrapper").innerHTML =
+        "<p>Order not found. Please contact support.</p>";
+      return;
+    }
 
     // Check payment status before showing confirmation
     if (order.paymentStatus !== "paid") {
@@ -43,12 +48,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    // 3. Display tracking ID
+    // Display tracking ID
     document.getElementById("trackingId").textContent = order.trackingId;
+
     // Display order timeline
     document.getElementById("timeOrdered").textContent = formatDateTime(order.order_created_at);
 
-    // 4. Display delivery details
+    // Display delivery details
     document.getElementById("customerName").textContent =
       `${order.deliveryDetails.firstName} ${order.deliveryDetails.lastName}`;
     document.getElementById("customerPhone").textContent = order.deliveryDetails.phone;
@@ -58,11 +64,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       ${[d.state, d.country].filter(part => part && part.trim() !== "").join(", ")}
     `;
 
-    // 5. Display shipping option name
+    // Display shipping option name
     document.getElementById("shippingOption").textContent =
       order.shippingOption ? order.shippingOption.name : "Not specified";
 
-    // 6. Display items
+    // Display items
     const itemsContainer = document.getElementById("orderItems");
     order.items.forEach(item => {
       const div = document.createElement("div");
@@ -77,7 +83,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       itemsContainer.appendChild(div);
     });
 
-    // 7. Display order summary
+    // Display order summary
     document.getElementById("subtotal").textContent =
       `₦${order.subtotal ? order.subtotal.toLocaleString() : order.total.toLocaleString()}`;
     document.getElementById("shippingFee").textContent =
@@ -85,16 +91,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("total").textContent =
       `₦${order.total.toLocaleString()}`;
 
-    // AFTER
-    // 8. Only clear cart if this is the first visit (cart still has items)
-    const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
-    if (existingCart.length > 0) {
+    // Clear cart only if coming fresh from payment
+    if (!orderId) {
       localStorage.removeItem("cart");
       localStorage.removeItem("deliveryDetails");
       localStorage.removeItem("selectedShipping");
 
-      // Clear cart from backend
-      const userId = sessionStorage.getItem("userId");
       if (userId) {
         await fetch("http://localhost:5000/api/auth/clear-cart", {
           method: "POST",
@@ -104,7 +106,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
 
-  } catch (err) {  // ← this closes the main try block correctly
+  } catch (err) {
     console.error("Order success page error:", err);
   }
 

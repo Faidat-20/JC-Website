@@ -138,4 +138,23 @@ router.put("/:orderId/status", async (req, res) => {
   }
 });
 
+// ----------------------
+// GET LATEST PAID ORDER BY USER
+// ----------------------
+router.get("/user/:userId/latest-paid", async (req, res) => {
+  try {
+    const order = await Order.findOne({
+      userId: req.params.userId,
+      paymentStatus: "paid"
+    }).sort({ createdAt: -1 });
+
+    if (!order) return res.status(404).json({ success: false, message: "No paid orders found" });
+
+    res.json({ success: true, order });
+  } catch (err) {
+    console.error("Get latest paid order error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 module.exports = router;
