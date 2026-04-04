@@ -240,11 +240,11 @@ async function sendCancellationEmail(order) {
           ${order.paymentStatus === "paid" ? `
             <div style="background: #fce8e8; border-left: 4px solid #c0392b; padding: 16px; border-radius: 4px; margin: 20px 0;">
               <p style="margin: 0 0 8px; font-weight: bold; color: #c0392b;">Refund information</p>
-              <p style="margin: 0; font-size: 13px; color: #555;">Since you already paid for this order, you are entitled to a full refund of <strong>₦${order.total.toLocaleString()}</strong>. Please contact us to arrange your refund:</p>
+              <p style="margin: 0; font-size: 13px; color: #555;">A refund of <strong>₦${order.total.toLocaleString()}</strong> has been initiated automatically to your original payment method. Refunds typically take 5-10 business days to appear. If you have any questions please contact us:</p>
               <p style="margin: 10px 0 0; font-size: 13px;">
                 <strong>Email:</strong> ${process.env.EMAIL_USER}<br>
                 <strong>Phone:</strong> 09040472851 / 07057181591<br>
-                <strong>WhatsApp:</strong> <a href="https://wa.me/2349040472851" style="color: hsl(357, 45%, 69%);">Click here to chat</a>
+                <strong>WhatsApp:</strong> <a href="https://wa.me/2349040472851" style="color: #e08c3a;">Click here to chat</a>
               </p>
             </div>
           ` : ""}

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order");
 const { sendShippedNotificationEmail, sendCancellationEmail } = require("../utils/mailer");
+const { initiatePaystackRefund } = require("../utils/refund");
 
 // ----------------------
 // CREATE ORDER
@@ -129,6 +130,18 @@ router.put("/:orderId/status", async (req, res) => {
     // Send cancellation email to customer
     if (status === "cancelled") {
       await sendCancellationEmail(order);
+
+      if (order.paymentStatus === "paid" && order.paystackReference) {
+        const refundResult = await initiatePaystackRefund(order.paystackReference, order.total);
+        if (refundResult.success) {
+          console.log(`Refund initiated for order ${order.trackingId} ✅`);
+          // Update payment status to refunded
+          order.paymentStatus = "refunded";
+          await order.save();
+        } else {
+          console.error(`Refund failed for order ${order.trackingId}:`, refundResult.message);
+        }
+      }
     }
 
     res.json({ success: true, message: `Order marked as ${status}!`, order });

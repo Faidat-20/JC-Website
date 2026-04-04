@@ -44,7 +44,7 @@ const OrderSchema = new mongoose.Schema({
   },
   paymentStatus: {
     type: String,
-    enum: ["pending", "paid", "failed"],
+    enum: ["pending", "paid", "failed", "refunded"],
     default: "pending"
   },
   trackingId: {
@@ -53,6 +53,9 @@ const OrderSchema = new mongoose.Schema({
     default: () => "TRK-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase()
   },
 
+  paystackReference: {
+    type: String
+  },
   order_created_at: {
     type: Date,
     default: Date.now

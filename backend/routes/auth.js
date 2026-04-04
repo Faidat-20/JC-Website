@@ -34,14 +34,14 @@ router.post("/check-or-create", async (req, res) => {
   if (!email) return res.status(400).json({ message: "Email is required." });
 
   try {
-    let user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
     if (!user) {
-      user = new User({ email, isSubscribed: false, cart: [] });
-      await user.save();
+      // Don't create — just tell frontend they don't exist yet
+      return res.json({ success: true, userId: null, subscribed: false, username: null });
     }
 
-    res.json({ success: true, userId: user._id, subscribed: user.isSubscribed, username: user.username || null  });
+    res.json({ success: true, userId: user._id, subscribed: user.isSubscribed, username: user.username || null });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Server error" });
@@ -268,11 +268,23 @@ router.post("/subscribe-newsletter", async (req, res) => {
     }
 
     // User doesn't exist at all — create them
+    if (email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        // Safety net: email exists but wasn't caught above
+        emailExists.isSubscribed = true;
+        if (username && !emailExists.username) {
+          emailExists.username = await generateUniqueUsername(username);
+        }
+        await emailExists.save();
+        return res.json({ success: true, message: "Subscription successful!" });
+      }
+    }
+
     const uniqueUsername = await generateUniqueUsername(username);
     user = new User({ email, username: uniqueUsername, isSubscribed: true, cart: [] });
     await user.save();
     return res.json({ success: true, message: "Subscription successful!" });
-
   } catch (err) {
     console.error("Newsletter subscription error:", err);
     return res.status(500).json({ success: false, message: "Server error." });

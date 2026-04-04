@@ -100,7 +100,8 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         shippingFee: pending.shippingFee,
         total: pending.total,
         status: "pending",
-        paymentStatus: "paid"
+        paymentStatus: "paid",
+        paystackReference: event.data.reference
       });
       const savedOrder = await newOrder.save();
 
