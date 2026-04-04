@@ -31,10 +31,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const order = data.order;
 
+    // Check payment status before showing confirmation
+    if (order.paymentStatus !== "paid") {
+      document.querySelector(".success-wrapper").innerHTML = `
+        <div style="text-align: center; padding: 40px;">
+          <h2 style="color: #e74c3c;">Payment not confirmed!</h2>
+          <p style="color: #777; margin: 12px 0;">Your order has not been paid for yet. If you completed payment please wait a moment and refresh.</p>
+          <a href="mainWebsitePage.html" style="display: inline-block; margin-top: 16px; padding: 10px 24px; background: hsl(357, 45%, 69%); color: white; border-radius: 8px; text-decoration: none; font-weight: bold;">Continue shopping</a>
+        </div>
+      `;
+      return;
+    }
+
     // 3. Display tracking ID
     document.getElementById("trackingId").textContent = order.trackingId;
     // Display order timeline
-document.getElementById("timeOrdered").textContent = formatDateTime(order.order_created_at);
+    document.getElementById("timeOrdered").textContent = formatDateTime(order.order_created_at);
 
     // 4. Display delivery details
     document.getElementById("customerName").textContent =
