@@ -1,3 +1,17 @@
+// INJECT SPINNER INTO EVERY PAGE AUTOMATICALLY
+const spinnerDiv = document.createElement("div");
+spinnerDiv.className = "pageSpinner";
+spinnerDiv.id = "pageSpinner";
+spinnerDiv.innerHTML = `<div class="spinnerCircle"></div>`;
+document.body.appendChild(spinnerDiv);
+
+function showSpinner() {
+  document.getElementById("pageSpinner").classList.add("active");
+}
+function hideSpinner() {
+  document.getElementById("pageSpinner").classList.remove("active");
+}
+
 // ✅ Persistent login check
 const storedUser = JSON.parse(localStorage.getItem("currentUser"));
 
@@ -45,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const confirmSwitch = confirm("Do you want to log out and switch users?");
         if (!confirmSwitch) return;
+        showSpinner();
 
         await fetch("http://localhost:5000/api/auth/logout", {
           method: "POST",
@@ -53,13 +68,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         sessionStorage.removeItem("userId");
         localStorage.removeItem("cart");
-
         localStorage.removeItem("currentUser");
-
         window.location.href = "login.html";
 
       } catch (err) {
         console.error("Logout error:", err);
+        hideSpinner();
         alert("Failed to log out.");
       }
     });
@@ -79,7 +93,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (businessName) {
     businessName.addEventListener("click", () => {
-      window.location.href = "mainWebsitePage.html";
+      showSpinner();
+      setTimeout(() => {
+        window.location.href = "mainWebsitePage.html";
+      }, 600);
+    });
+  }
+
+  const homeIcon = document.querySelector(".homeIcon");
+  if (homeIcon) {
+    homeIcon.addEventListener("click", (e) => {
+      e.preventDefault();
+      showSpinner();
+      setTimeout(() => {
+        window.location.href = "mainWebsitePage.html";
+      }, 600);
+    });
+  }
+
+  const footerTrackBtn = document.querySelector(".footerTrackBtn");
+  if (footerTrackBtn) {
+    footerTrackBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      showSpinner();
+      setTimeout(() => {
+        window.location.href = "track-order.html";
+      }, 600);
     });
   }
 
@@ -92,8 +131,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchIcon = document.getElementById("icon");
     function redirectToSearchResults() {
     const searchTerm = searchInput.value.trim();
-    if (!searchTerm) return; // do nothing if empty
-    window.location.href = `searchResults.html?search=${encodeURIComponent(searchTerm)}`;
+    if (!searchTerm) return;
+    showSpinner();
+    setTimeout(() => {
+      window.location.href = `searchResults.html?search=${encodeURIComponent(searchTerm)}`;
+    }, 600);
   }
 
   // Event listeners
@@ -445,13 +487,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------------
   if (checkoutBtn) {
     checkoutBtn.addEventListener("click", () => {
-      if (cart.length === 0) return; // safety check
-
-      // Save latest cart to localStorage (already done in renderCart)
+      if (cart.length === 0) return;
       localStorage.setItem("cart", JSON.stringify(cart));
-
-      // Navigate to checkout page
-      window.location.href = "checkout.html";
+      checkoutBtn.disabled = true;
+      checkoutBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing...`;
+      setTimeout(() => {
+        window.location.href = "checkout.html";
+      }, 800);
     });
   }
   function showEmptyCart() {
@@ -644,18 +686,20 @@ document.addEventListener("DOMContentLoaded", () => {
   function getCurrentPageIndex() {
     return Array.from(pageLinks).findIndex(link => link.classList.contains("active"));
   }
+
   // PREVIOUS PAGE
   if (prevBtn) {
     prevBtn.addEventListener("click", (e) => {
-      e.preventDefault(); 
+      e.preventDefault();
       const currentIndex = getCurrentPageIndex();
-
-      if (currentIndex > 0) {
-        window.location.href = pageLinks[currentIndex - 1].href;
-      } else {
-        window.scrollTo(0, 0);
-        window.location.reload();
-      }
+      showSpinner();
+      setTimeout(() => {
+        if (currentIndex > 0) {
+          window.location.href = pageLinks[currentIndex - 1].href;
+        } else {
+          window.location.reload();
+        }
+      }, 600);
     });
   }
 
@@ -664,15 +708,27 @@ document.addEventListener("DOMContentLoaded", () => {
     nextBtn.addEventListener("click", (e) => {
       e.preventDefault();
       const currentIndex = getCurrentPageIndex();
-
-      if (currentIndex < pageLinks.length - 1) {
-        window.location.href = pageLinks[currentIndex + 1].href;
-      } else {
-        window.location.href = pageLinks[0].href;
-      }
+      showSpinner();
+      setTimeout(() => {
+        if (currentIndex < pageLinks.length - 1) {
+          window.location.href = pageLinks[currentIndex + 1].href;
+        } else {
+          window.location.href = pageLinks[0].href;
+        }
+      }, 600);
     });
   }
 
+  // PAGE NUMBER LINKS
+  pageLinks.forEach(link => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      showSpinner();
+      setTimeout(() => {
+        window.location.href = link.href;
+      }, 600);
+    });
+  });
     // -----------------------------
   // FOOTER SUBSCRIBE BUTTON & AUTO POPUP
   // -----------------------------

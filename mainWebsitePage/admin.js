@@ -287,7 +287,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       filterBtns.forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       currentFilter = btn.dataset.status;
-      renderOrders(allOrders);
+      showSpinner();
+      setTimeout(() => {
+        renderOrders(allOrders);
+        hideSpinner();
+      }, 800);
     });
   });
 

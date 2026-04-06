@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!email) return alert("Please enter your email.");
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(email)) return alert("Please enter a valid email.");
-
+      showSpinner();
       try {
         // 1️⃣ Check or create user
         const resCheck = await fetch("http://localhost:5000/api/auth/check-or-create", {
@@ -61,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const dataOtp = await resOtp.json();
         if (dataOtp.success) {
+          hideSpinner();
           alert(`OTP sent successfully to ${email}`);
           showOtpInput();
         } else {
@@ -69,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       } catch (err) {
         console.error("Error:", err);
+        hideSpinner();
         alert("Server error. Check console.");
       }
     });
@@ -130,6 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
     verifyBtn.addEventListener("click", async () => {
       const enteredOTP = otpInput.value.trim();
       if (!enteredOTP) return alert("Please enter the OTP.");
+      showSpinner();
 
       try {
         const resVerify = await fetch("http://localhost:5000/api/auth/verify-otp", {
@@ -150,11 +153,13 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("Login successful!");
         window.location.href = "mainWebsitePage.html";
         } else {
+          hideSpinner();
           alert(dataVerify.message || "Incorrect OTP");
         }
 
       } catch (err) {
         console.error("Error verifying OTP:", err);
+        hideSpinner();
         alert("Server error. Check console.");
       }
     });

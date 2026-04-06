@@ -46,7 +46,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           `;
 
           item.addEventListener("click", () => {
-            displayOrder(order);
+            trackResult.style.display = "none";
+            showSpinner();
+            setTimeout(() => {
+              hideSpinner();
+              displayOrder(order);
+            }, 800);
           });
 
           myOrdersList.appendChild(item);
@@ -66,18 +71,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     trackResult.style.display = "none";
     trackError.style.display = "none";
-
+    showSpinner();
     try {
       const res = await fetch(`http://localhost:5000/api/orders/track/${trackingId}`);
       const data = await res.json();
 
       if (data.success) {
-        displayOrder(data.order);
+        setTimeout(() => {
+          hideSpinner();
+          displayOrder(data.order);
+        }, 800);
       } else {
+        hideSpinner();
         trackError.style.display = "block";
       }
     } catch (err) {
       console.error("Track order error:", err);
+      hideSpinner();
       trackError.style.display = "block";
     }
   });

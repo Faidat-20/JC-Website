@@ -74,13 +74,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     backBtn.className = "backwardBtn";
     backBtn.textContent = "←";
     backBtn.addEventListener("click", () => {
-      if (currentPage > 2) {
-        window.location.href = `shop.html?page=${currentPage - 1}`;
-      } else if (currentPage === 2) {
-        window.location.href = "mainWebsitePage.html";
-      }
+      showSpinner();
+      setTimeout(() => {
+        if (currentPage > 2) {
+          window.location.href = `shop.html?page=${currentPage - 1}`;
+        } else if (currentPage === 2) {
+          window.location.href = "mainWebsitePage.html";
+        }
+      }, 600);
     });
-    paginationDiv.appendChild(backBtn);
+      paginationDiv.appendChild(backBtn);
 
     // Page numbers
     const pagesDiv = document.createElement("div");
@@ -90,6 +93,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const page1 = document.createElement("a");
     page1.href = "mainWebsitePage.html";
     page1.textContent = "1";
+    page1.addEventListener("click", (e) => {
+      e.preventDefault();
+      showSpinner();
+      setTimeout(() => {
+        window.location.href = "mainWebsitePage.html";
+      }, 600);
+    });
     pagesDiv.appendChild(page1);
 
     // Pages 2 onwards link to shop.html?page=X
@@ -98,6 +108,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       pageLink.href = `shop.html?page=${i}`;
       pageLink.textContent = i;
       if (i === currentPage) pageLink.classList.add("active");
+      pageLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        showSpinner();
+        setTimeout(() => {
+          window.location.href = pageLink.href;
+        }, 600);
+      });
       pagesDiv.appendChild(pageLink);
     }
 
@@ -108,11 +125,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     forwardBtn.className = "fowardBtn";
     forwardBtn.textContent = "→";
     forwardBtn.addEventListener("click", () => {
-      if (currentPage < totalPages) {
-        window.location.href = `shop.html?page=${currentPage + 1}`;
-      } else {
-        window.location.href = "mainWebsitePage.html";
-      }
+      showSpinner();
+      setTimeout(() => {
+        if (currentPage < totalPages) {
+          window.location.href = `shop.html?page=${currentPage + 1}`;
+        } else {
+          window.location.href = "mainWebsitePage.html";
+        }
+      }, 600);
     });
     paginationDiv.appendChild(forwardBtn);
   }

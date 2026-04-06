@@ -646,8 +646,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (placeOrderBtn) {
     placeOrderBtn.addEventListener("click", async () => {
       if (!userId) return alert("Please log in to place your order.");
-
        if (cart.length === 0) return alert("Your cart is empty. Please add items before placing an order.");
+       showSpinner();
 
       // Get delivery and shipping info
       let deliveryDetails = JSON.parse(localStorage.getItem("deliveryDetails")) || {};
@@ -708,6 +708,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (err) {
         console.error("Place order error:", err);
+        showSpinner();
         alert("Error placing order. Check console.");
       }
     });
