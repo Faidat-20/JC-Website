@@ -199,12 +199,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (data.success) {
         return true;
       } else {
-        alert("Failed to update order status.");
+        showToast("error", "Failed to update order status.");
         return false;
       }
     } catch (err) {
       console.error("Update status error:", err);
-      alert("Server error.");
+      showToast("error", "Server error.");
       return false;
     }
   }

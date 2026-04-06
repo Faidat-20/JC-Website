@@ -12,6 +12,39 @@ function hideSpinner() {
   document.getElementById("pageSpinner").classList.remove("active");
 }
 
+// INJECT TOAST CONTAINER
+const toastContainer = document.createElement("div");
+toastContainer.className = "toastContainer";
+toastContainer.id = "toastContainer";
+document.body.appendChild(toastContainer);
+
+// TOAST FUNCTION
+function showToast(type, message) {
+  const container = document.getElementById("toastContainer");
+
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `
+    <span class="toastMsg">${message}</span>
+    <span class="toastClose">✕</span>
+  `;
+
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => toast.classList.add("show"));
+  });
+
+  const close = toast.querySelector(".toastClose");
+  const dismiss = () => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  };
+
+  close.addEventListener("click", dismiss);
+  setTimeout(dismiss, 3000);
+}
+
 // ✅ Persistent login check
 const storedUser = JSON.parse(localStorage.getItem("currentUser"));
 
@@ -74,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (err) {
         console.error("Logout error:", err);
         hideSpinner();
-        alert("Failed to log out.");
+        showToast("error", "Failed to log out.");
       }
     });
   }
@@ -300,7 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   addToCartButtons.forEach(button => {
     button.addEventListener("click", async () => {
-      if (!userId) return alert("Please log in to add items to cart.");
+      if (!userId) return showToast("error", "Please log in to add items to cart.");
       const itemCard = button.closest(".item");
       const name = itemCard.querySelector("h2").textContent;
       const image = itemCard.querySelector("img").src;
@@ -346,12 +379,12 @@ document.addEventListener("DOMContentLoaded", () => {
         renderCart();
         return true;
       } else {
-        alert("Failed to update cart on server.");
+        showToast("error", "Failed to update cart on server.");
         return false;
       }
     } catch (err) {
       console.error("Cart Error:", err);
-      alert("Server error while updating cart.");
+      showToast("error", "Server error while updating cart.");
       return false;
     }
   }
@@ -518,7 +551,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ENABLE CLEAR CART 
   clearCartBtn.addEventListener("click", async () => {
-    if (!userId) return alert("Please log in to clear your cart.");
+    if (!userId) return showToast("error", "Please log in to clear your cart.");
   
     try {
       const res = await fetch("http://localhost:5000/api/auth/clear-cart", {
@@ -533,11 +566,11 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("cart", JSON.stringify(cart)); // sync local storage
         showCartOverlayMessage("Cart cleared successfully!");
       } else {
-        alert(data.message || "Failed to clear cart.");
+        showToast("error", data.message || "Failed to clear cart.");
       }
     } catch (err) {
       console.error("Clear cart error:", err);
-      alert("Server error while clearing cart.");
+      showToast("error", "Server error while clearing cart.");
     }
   });
 
@@ -641,21 +674,21 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.success) {
           if (data.message === "Subscription successful!") {
             // New subscription
-            alert(data.message);
+            showToast("info", data.message);
             newsletterInput.disabled = true;
           } else if (data.message === "You are already subscribed! Login.") {
             // Already subscribed
-            alert(data.message); // only this alert
+            showToast("info", data.message);
           } else {
             // fallback for any other message
-            alert(data.message);
+            showToast("info", data.message);
       }
         }else {
-          alert(data.message || "Subscription failed.");
+          showToast("error", data.message || "Subscription failed.");
         }
       } catch (err) {
         console.error("Newsletter error:", err);
-        alert("Server error.");
+        showToast("error", "Server error.");
       }
     });
   }

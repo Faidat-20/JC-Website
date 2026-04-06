@@ -52,12 +52,12 @@ window.addEventListener("load", function () {
         function () {
           subscribers.push(email);
           localStorage.setItem("subscribers", JSON.stringify(subscribers));
-          alert("Subscription successful! Check your email.");
+          showToast("success", "Subscription successful! Check your email.");
           form.reset();
         },
         function (error) {
           console.log("EmailJS Error:", error);
-          alert("Something went wrong. Please try again.");
+          showToast("error", "Something went wrong. Please try again.");
         }
       );
     }

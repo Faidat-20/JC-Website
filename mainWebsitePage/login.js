@@ -29,9 +29,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const email = userEmail.value.trim();
       currentEmail = email;
 
-      if (!email) return alert("Please enter your email.");
+      if (!email) return showToast("error", "Please enter your email.");
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(email)) return alert("Please enter a valid email.");
+      if (!emailPattern.test(email)) return showToast("error", "Please enter a valid email.");
       showSpinner();
       try {
         // 1️⃣ Check or create user
@@ -42,10 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const dataCheck = await resCheck.json();
         console.log("User check response:", dataCheck);
-        if (!dataCheck.success) return alert(dataCheck.message || "Error checking user.");
+        if (!dataCheck.success) return showToast("error", dataCheck.message || "Error checking user.");
 
         if (!dataCheck.subscribed) {
-          alert("You must subscribe first before getting an OTP.");
+          showToast("info", "You must subscribe first before getting an OTP.");
           return; // <--- important
         }
         // 3️⃣ Request OTP from backend
@@ -56,22 +56,22 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         if (!resOtp.ok) {
           const dataErr = await resOtp.json();
-          return alert(dataErr.message || "Failed to request OTP.");
+          return showToast("error", dataErr.message || "Failed to request OTP.");
         }
 
         const dataOtp = await resOtp.json();
         if (dataOtp.success) {
           hideSpinner();
-          alert(`OTP sent successfully to ${email}`);
+          showToast("success", `OTP sent successfully to ${email}`);
           showOtpInput();
         } else {
-          alert(dataOtp.message || "Failed to send OTP.");
+          showToast("error", dataOtp.message || "Failed to send OTP.");
         }
 
       } catch (err) {
         console.error("Error:", err);
         hideSpinner();
-        alert("Server error. Check console.");
+        showToast("error", "Server error. Check console.");
       }
     });
   }
@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // -----------------------------
     verifyBtn.addEventListener("click", async () => {
       const enteredOTP = otpInput.value.trim();
-      if (!enteredOTP) return alert("Please enter the OTP.");
+      if (!enteredOTP) return showToast("error", "Please enter the OTP.");
       showSpinner();
 
       try {
@@ -150,17 +150,17 @@ document.addEventListener("DOMContentLoaded", () => {
             email: currentEmail
         }));
 
-        alert("Login successful!");
+        showToast("success", "Login successful!");
         window.location.href = "mainWebsitePage.html";
         } else {
           hideSpinner();
-          alert(dataVerify.message || "Incorrect OTP");
+          showToast("error", dataVerify.message || "Incorrect OTP");
         }
 
       } catch (err) {
         console.error("Error verifying OTP:", err);
         hideSpinner();
-        alert("Server error. Check console.");
+        showToast("error", "Server error. Check console.");
       }
     });
   }
@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
     newsletterForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      if (!newsletterInput.value.trim()) return alert("Enter your email.");
+      if (!newsletterInput.value.trim()) return showToast("error", "Enter your email.");
 
 
       const email = newsletterInput.value.trim();
@@ -209,15 +209,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
         if (data.success) {
           if (data.message === "Subscription successful!") {
-            alert(data.message);
+            showToast("info", data.message);
             newsletterInput.disabled = true;
           } 
         } else {
-          alert(data.message || "Subscription failed.");
+          showToast("error", data.message || "Subscription failed.");
         }
       } catch (err) {
         console.error("Newsletter error:", err);
-        alert("Server error.");
+        showToast("error", "Server error.");
       }
     });
   }

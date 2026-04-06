@@ -207,18 +207,18 @@ document.addEventListener("DOMContentLoaded", () => {
           if (data.success) {
             deliveryPanel.classList.remove("active");
             enableScroll();
-            alert("Delivery details saved!");
+            showToast("success", "Delivery details saved!");
           } else {
-            alert("Failed to save delivery details.");
+            showToast("error", "Failed to save delivery details.");
           }
         } catch (err) {
           console.error("Save delivery error:", err);
-          alert("Server error while saving delivery details.");
+          showToast("error", "Server error while saving delivery details.");
         }
       } else {
         deliveryPanel.classList.remove("active");
         enableScroll();
-        alert("Delivery details saved!");
+        showToast("success", "Delivery details saved!");
       }
     });
   }
@@ -611,7 +611,7 @@ document.addEventListener("DOMContentLoaded", () => {
     shippingForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const selected = shippingForm.querySelector("input[name='shipping']:checked");
-      if (!selected) return alert("Please select a shipping option!");
+      if (!selected) return showToast("error", "Please select a shipping option!");
 
       // Save to localStorage
       const shippingChoice = {
@@ -645,8 +645,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (placeOrderBtn) {
     placeOrderBtn.addEventListener("click", async () => {
-      if (!userId) return alert("Please log in to place your order.");
-       if (cart.length === 0) return alert("Your cart is empty. Please add items before placing an order.");
+      if (!userId) return showToast("error", "Please log in to place your order.");
+       if (cart.length === 0) return showToast("error", "Your cart is empty! Please add items before placing an order.");
        showSpinner();
 
       // Get delivery and shipping info
@@ -669,11 +669,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // ✅ Validation
       if (!deliveryDetails.firstName || !deliveryDetails.lastName || !deliveryDetails.address || !deliveryDetails.phone) {
-        return alert("Please fill in all delivery details before placing your order.");
+        return showToast("error", "Please fill in all delivery details before placing your order.");
       }
 
       if (!shipping || !shipping.name) {
-        return alert("Please select a shipping option before placing your order.");
+        return showToast("error", "Please select a shipping option before placing your order.");
       }
 
       const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -704,12 +704,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.success && data.paymentLink) {
           window.location.href = data.paymentLink;
         } else {
-          alert(data.message || "Failed to place order.");
+          showToast("error", data.message || "Failed to place order.");
         }
       } catch (err) {
         console.error("Place order error:", err);
-        showSpinner();
-        alert("Error placing order. Check console.");
+        hideSpinner();
+        showToast("error", "Error placing order. Check console.");
       }
     });
   }
@@ -728,8 +728,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const deliveryDetails = JSON.parse(localStorage.getItem("deliveryDetails")) || {};
       const shippingSelected = JSON.parse(localStorage.getItem("selectedShipping")) || { price: 0, name: "" };
 
-      if (cart.length === 0) return alert("Your cart is empty.");
-      if (!deliveryDetails.firstName) return alert("Please fill in delivery details.");
+      if (cart.length === 0) return showToast("error", "Your cart is empty.");
+      if (!deliveryDetails.firstName) return showToast("error", "Please fill in delivery details.");
 
       const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
       const total = subtotal + shippingSelected.price;
@@ -750,7 +750,7 @@ document.addEventListener("DOMContentLoaded", () => {
           })
         });
         const data = await res.json();
-        if (!data.success) return alert("Failed to create order. Try again.");
+        if (!data.success) return showToast("error", "Failed to create order. Try again.");
 
         const orderId = data.order._id; // backend returns created order with _id
 
@@ -758,7 +758,7 @@ document.addEventListener("DOMContentLoaded", () => {
         startPaymentGateway(orderId, total); // you implement this function
       } catch (err) {
         console.error("Create order error:", err);
-        alert("Server error while creating order.");
+        showToast("error", "Server error while creating order.");
       }
     });
   }

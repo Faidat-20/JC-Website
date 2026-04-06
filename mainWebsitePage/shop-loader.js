@@ -145,7 +145,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     document.querySelectorAll(".addToCart").forEach(button => {
       button.addEventListener("click", async () => {
-        if (!userId) return alert("Please log in to add items to cart.");
+        if (!userId) return showToast("error", "Please log in to add items to cart.");
 
         const cart = JSON.parse(localStorage.getItem("cart")) || [];
         const itemCard = button.closest(".item");

@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ─────────────────────────────────────────
   trackBtn.addEventListener("click", async () => {
     const trackingId = trackingInput.value.trim();
-    if (!trackingId) return alert("Please enter a tracking ID.");
+    if (!trackingId) return showToast("error", "Please enter a tracking ID.");
 
     trackResult.style.display = "none";
     trackError.style.display = "none";
@@ -293,7 +293,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const data = await res.json();
 
       if (data.success) {
-        alert("Thank you for confirming! We hope you enjoy your order.");
+        showToast("success", "Thank you for confirming! We hope you enjoy your order.");
         markReceivedSection.style.display = "none";
 
         // Update status badge
@@ -308,11 +308,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         showRatingsForm(data.order);
 
       } else {
-        alert("Failed to update order. Please try again.");
+        showToast("error", "Failed to update order. Please try again.");
       }
     } catch (err) {
       console.error("Mark as received error:", err);
-      alert("Server error. Please try again.");
+      showToast("error", "Server error. Please try again.");
     }
   }
 
@@ -492,11 +492,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       if (submitted === 0 && skipped > 0) {
-        alert("Please select at least one star rating before submitting.");
+        showToast("error", "Please select at least one star rating before submitting.");
         return;
       }
 
-      alert(`Thank you! ${submitted} rating${submitted !== 1 ? "s" : ""} submitted successfully.`);
+      showToast("success", `Thank you! ${submitted} rating${submitted !== 1 ? "s" : ""} submitted successfully.`);
 
       // Hide submit button and show thank you message permanently
       submitRatingsBtn.style.display = "none";
