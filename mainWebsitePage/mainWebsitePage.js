@@ -19,8 +19,16 @@ toastContainer.id = "toastContainer";
 document.body.appendChild(toastContainer);
 
 // TOAST FUNCTION
+let toastTimer;
 function showToast(type, message) {
   const container = document.getElementById("toastContainer");
+
+  // Remove any existing toast immediately
+  const existing = container.querySelector(".toast");
+  if (existing) {
+    existing.remove();
+  }
+  clearTimeout(toastTimer);
 
   const toast = document.createElement("div");
   toast.className = `toast ${type}`;
@@ -42,7 +50,7 @@ function showToast(type, message) {
   };
 
   close.addEventListener("click", dismiss);
-  setTimeout(dismiss, 3000);
+  toastTimer = setTimeout(dismiss, 2000);
 }
 
 // ✅ Persistent login check
