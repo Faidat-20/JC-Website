@@ -62,6 +62,19 @@
 .trackSearchRow button:hover {
   background: hsl(357, 45%, 66%);
 }
+.trackStep.refunded-step .trackStepDot {
+  background: #4CAF50;
+  border-color: #4CAF50;
+}
+
+.trackStep.refunded-step p {
+  color: #4CAF50;
+  font-weight: bold;
+}
+.statusBadge.refunded {
+  background: #e6f4ea;
+  color: #2d7a3a;
+}
 
 /* MY ORDERS SECTION */
 .myOrdersSection {

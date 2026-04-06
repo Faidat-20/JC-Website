@@ -37,12 +37,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           const item = document.createElement("div");
           item.className = "myOrderItem";
+          const listDisplayStatus = (order.status === "cancelled" && (order.paymentStatus === "paid" || order.paymentStatus === "refunded")) ? "refunded" : order.status;
           item.innerHTML = `
             <div>
               <h4>${order.trackingId}</h4>
               <p>${date} · ₦${order.total?.toLocaleString()}</p>
             </div>
-            <span class="statusBadge ${order.status}">${order.status}</span>
+            <span class="statusBadge ${order.status}">${listDisplayStatus}</span>
           `;
 
           item.addEventListener("click", () => {
@@ -110,8 +111,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Link to order confirmation page
     document.getElementById("viewConfirmationBtn").href = `order-success.html?orderId=${order._id}`;
     const statusBadge = document.getElementById("resultStatus");
-    statusBadge.textContent = order.status;
-    statusBadge.className = `statusBadge ${order.status}`;
+    const displayStatus = (order.status === "cancelled" && (order.paymentStatus === "paid" || order.paymentStatus === "refunded")) ? "refunded" : order.status;
+    statusBadge.textContent = displayStatus;
+    statusBadge.className = `statusBadge ${displayStatus}`;
 
     // Progress steps
     updateProgress(order);
@@ -215,8 +217,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     let steps = [];
 
     if (order.status === "cancelled") {
-      if (order.paymentStatus === "paid") {
-        // Paid then cancelled
+      if (order.paymentStatus === "refunded") {
+        // Paid, cancelled and refunded
+        steps = [
+          { label: "Order placed", state: "done" },
+          { label: "Payment confirmed", state: "done" },
+          { label: "Cancelled", state: "done", color: "red" },
+          { label: "Refunded", state: "active", color: "green" }
+        ];
+      } else if (order.paymentStatus === "paid") {
+        // Paid, cancelled but refund pending
         steps = [
           { label: "Order placed", state: "done" },
           { label: "Payment confirmed", state: "done" },
@@ -261,6 +271,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (step.state === "done") stepEl.classList.add("done");
       if (step.state === "active") stepEl.classList.add("active");
       if (step.color === "red") stepEl.classList.add("cancelled-step");
+      if (step.color === "green") stepEl.classList.add("refunded-step");
 
       stepEl.innerHTML = `
         <div class="trackStepDot"></div>
