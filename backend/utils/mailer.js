@@ -269,4 +269,54 @@ async function sendCancellationEmail(order) {
   await transporter.sendMail(mailOptions);
   console.log(`Cancellation email sent to ${order.deliveryDetails.email} ✅`);
 }
-module.exports = { sendOrderConfirmationEmail, sendOwnerNotificationEmail, sendShippedNotificationEmail, sendCancellationEmail  };
+
+// ─────────────────────────────────────────
+// SEND REFUND PROCESSED EMAIL TO CUSTOMER
+// ─────────────────────────────────────────
+async function sendRefundProcessedEmail(order) {
+  const mailOptions = {
+    from: `"Jikes Cosmetics" <${process.env.EMAIL_USER}>`,
+    to: order.deliveryDetails.email,
+    subject: `Your refund has been processed — ${order.trackingId}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+
+        <div style="background: #4CAF50; padding: 24px; text-align: center;">
+          <h1 style="color: white; margin: 0;">Jikes Cosmetics</h1>
+        </div>
+
+        <div style="padding: 24px;">
+          <h2>Your refund has been processed</h2>
+          <p>Hi ${order.deliveryDetails.firstName}, great news — your refund has been successfully processed and is on its way back to your account.</p>
+
+          <div style="background: #e6f4ea; border: 1.5px dashed #4CAF50; border-radius: 8px; padding: 16px; margin: 20px 0; text-align: center;">
+            <p style="margin: 0; color: #888; font-size: 13px;">Refund amount</p>
+            <p style="margin: 8px 0 0; font-size: 24px; font-weight: bold; color: #4CAF50;">₦${order.total.toLocaleString()}</p>
+          </div>
+
+          <p style="font-size: 13px; color: #555;">The refund should appear in your account within 1-3 business days depending on your bank.</p>
+
+          <p style="margin-top: 24px; color: #777; font-size: 13px;">
+            If you have any questions, reply to this email or contact us on WhatsApp.
+          </p>
+        </div>
+
+        <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999;">
+          © 2026 Jikes Cosmetics. All rights reserved.
+        </div>
+
+      </div>
+    `
+  };
+
+  await transporter.sendMail(mailOptions);
+  console.log(`Refund processed email sent to ${order.deliveryDetails.email} ✅`);
+}
+
+module.exports = { 
+  sendOrderConfirmationEmail, 
+  sendOwnerNotificationEmail, 
+  sendShippedNotificationEmail, 
+  sendCancellationEmail, 
+  sendRefundProcessedEmail
+};

@@ -135,8 +135,7 @@ router.put("/:orderId/status", async (req, res) => {
         const refundResult = await initiatePaystackRefund(order.paystackReference, order.total);
         if (refundResult.success) {
           console.log(`Refund initiated for order ${order.trackingId} ✅`);
-          // Update payment status to refunded
-          order.paymentStatus = "refunded";
+          order.paymentStatus = "refund_initiated"; // ← not refunded yet
           await order.save();
         } else {
           console.error(`Refund failed for order ${order.trackingId}:`, refundResult.message);

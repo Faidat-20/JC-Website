@@ -286,7 +286,19 @@
   border-top: 1px solid var(--secondaryColor);
   margin-top: 4px;
 }
+.trackStep.refund-pending-step .trackStepDot {
+  background: #f39c12;
+  border-color: #f39c12;
+}
 
+.trackStep.refund-pending-step p {
+  color: #f39c12;
+  font-weight: bold;
+}
+.statusBadge.refund-pending {
+  background: #fef3e2;
+  color: #f39c12;
+}
 /* MARK AS RECEIVED */
 .markReceivedSection {
   text-align: center;

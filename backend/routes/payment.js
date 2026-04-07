@@ -4,7 +4,11 @@ const axios = require("axios");
 const crypto = require("crypto");
 const Order = require("../models/Order");
 const PendingOrder = require("../models/PendingOrder");
-const { sendOrderConfirmationEmail, sendOwnerNotificationEmail } = require("../utils/mailer");
+const { 
+  sendOrderConfirmationEmail, 
+  sendOwnerNotificationEmail,
+  sendRefundProcessedEmail 
+} = require("../utils/mailer");
 
 // ─────────────────────────────────────────
 // INITIATE PAYMENT
@@ -82,6 +86,35 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
       return res.sendStatus(200);
     }
 
+    // Handle refund processed
+    if (event.event === "refund.processed") {
+      const paystackReference = event.data.transaction?.reference;
+
+      if (!paystackReference) {
+        console.warn("Webhook: no reference in refund.processed event");
+        return res.sendStatus(200);
+      }
+
+      try {
+        const order = await Order.findOne({ paystackReference });
+        if (!order) {
+          console.warn("Webhook: order not found for refund reference:", paystackReference);
+          return res.sendStatus(200);
+        }
+
+        // Update payment status to refunded
+        order.paymentStatus = "refunded";
+        await order.save();
+
+        console.log(`Order ${order.trackingId} refund completed ✅`);
+
+        // Send refund processed email to customer
+        await sendRefundProcessedEmail(order);
+
+      } catch (err) {
+        console.error("Refund processed webhook error:", err.message);
+      }
+    }
     try {
       // 3. Find the pending order
       const pending = await PendingOrder.findById(pendingOrderId);
