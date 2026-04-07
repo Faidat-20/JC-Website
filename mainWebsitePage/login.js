@@ -42,11 +42,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const dataCheck = await resCheck.json();
         console.log("User check response:", dataCheck);
-        if (!dataCheck.success) return showToast("error", dataCheck.message || "Error checking user.");
+        if (!dataCheck.success) {
+          setTimeout(() => hideSpinner(), 400);
+          return showToast("error", dataCheck.message || "Error checking user.");
+        }
 
         if (!dataCheck.subscribed) {
+          setTimeout(() => hideSpinner(), 400);
           showToast("info", "You must subscribe first before getting an OTP.");
-          return; // <--- important
+          return;
         }
         // 3️⃣ Request OTP from backend
         const resOtp = await fetch("http://localhost:5000/api/auth/request-otp", {
@@ -55,16 +59,18 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify({ email })
         });
         if (!resOtp.ok) {
+          hideSpinner();
           const dataErr = await resOtp.json();
           return showToast("error", dataErr.message || "Failed to request OTP.");
         }
 
         const dataOtp = await resOtp.json();
         if (dataOtp.success) {
-          hideSpinner();
+          setTimeout(() => hideSpinner(), 400);
           showToast("success", `OTP sent successfully to ${email}`);
           showOtpInput();
         } else {
+          setTimeout(() => hideSpinner(), 400);
           showToast("error", dataOtp.message || "Failed to send OTP.");
         }
 
@@ -153,13 +159,13 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("success", "Login successful!");
         window.location.href = "mainWebsitePage.html";
         } else {
-          hideSpinner();
+          setTimeout(() => hideSpinner(), 400);
           showToast("error", dataVerify.message || "Incorrect OTP");
         }
 
       } catch (err) {
         console.error("Error verifying OTP:", err);
-        hideSpinner();
+        setTimeout(() => hideSpinner(), 400);
         showToast("error", "Server error. Check console.");
       }
     });

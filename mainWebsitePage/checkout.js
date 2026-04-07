@@ -708,7 +708,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (err) {
         console.error("Place order error:", err);
-        hideSpinner();
+        setTimeout(() => hideSpinner(), 400);
         showToast("error", "Error placing order. Check console.");
       }
     });

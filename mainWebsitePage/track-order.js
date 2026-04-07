@@ -87,12 +87,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           displayOrder(data.order);
         }, 800);
       } else {
-        hideSpinner();
+        setTimeout(() => hideSpinner(), 400);
         trackError.style.display = "block";
       }
     } catch (err) {
       console.error("Track order error:", err);
-      hideSpinner();
+      setTimeout(() => hideSpinner(), 400);
       trackError.style.display = "block";
     }
   });

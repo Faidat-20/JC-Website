@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       } catch (err) {
         console.error("Logout error:", err);
-        hideSpinner();
+        setTimeout(() => hideSpinner(), 400);
         showToast("error", "Failed to log out.");
       }
     });
