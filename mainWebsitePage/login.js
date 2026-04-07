@@ -17,7 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginContainer = document.querySelector(".loginContainer");
   const newsletterForm = document.getElementById("newsletterForm");
 
-  let currentEmail = ""; // track email for OTP verification
+  let currentEmail = "";
+  let resendTimer = null;
+  let resendCountdown = 60;
 
   // -----------------------------
   // GET OTP
@@ -34,14 +36,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!emailPattern.test(email)) return showToast("error", "Please enter a valid email.");
       showSpinner();
       try {
-        // 1️⃣ Check or create user
         const resCheck = await fetch("http://localhost:5000/api/auth/check-or-create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email })
         });
         const dataCheck = await resCheck.json();
-        console.log("User check response:", dataCheck);
         if (!dataCheck.success) {
           setTimeout(() => hideSpinner(), 400);
           return showToast("error", dataCheck.message || "Error checking user.");
@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
           showToast("info", "You must subscribe first before getting an OTP.");
           return;
         }
-        // 3️⃣ Request OTP from backend
+
         const resOtp = await fetch("http://localhost:5000/api/auth/request-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -94,47 +94,116 @@ document.addEventListener("DOMContentLoaded", () => {
     const loginParagraph = loginContainer.querySelector("p");
     if (loginParagraph) loginParagraph.textContent = "Enter the OTP code sent to your email.";
 
+    // Back arrow
     const backArrow = document.createElement("button");
     backArrow.id = "backArrowBtn";
-    backArrow.textContent = "←Back";
-    backArrow.style.all = "unset";
-    backArrow.style.position = "absolute";
-    backArrow.style.top = "0.4cm";
-    backArrow.style.left = "0.4cm";
-    backArrow.style.cursor = "pointer";
-    backArrow.style.fontSize = "1rem";
-    backArrow.style.padding = "0";
-    backArrow.style.margin = "0";
-    backArrow.style.color = "inherit";
-    backArrow.style.font = "inherit";
+    backArrow.textContent = "← Back";
+    backArrow.style.cssText = `
+      all: unset;
+      position: absolute;
+      top: 0.4cm;
+      left: 0.4cm;
+      cursor: pointer;
+      font-size: 0.95rem;
+      color: inherit;
+      font: inherit;
+    `;
     loginContainer.style.position = "relative";
 
+    // OTP input
     const otpInput = document.createElement("input");
     otpInput.id = "otpInput";
     otpInput.placeholder = "Enter OTP";
-    otpInput.style.marginBottom = "1rem";
+    otpInput.style.marginBottom = "0.5rem";
 
+    // Verify button
     const verifyBtn = document.createElement("button");
     verifyBtn.id = "verifyOtpBtn";
     verifyBtn.textContent = "Verify OTP";
+    verifyBtn.style.marginBottom = "1rem";
+
+    // Resend OTP row
+    const resendRow = document.createElement("div");
+    resendRow.style.cssText = `
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+    `;
+
+    const resendLabel = document.createElement("span");
+    resendLabel.style.cssText = "font-size: 0.85rem; color: #666;";
+    resendLabel.textContent = "Didn't receive the code?";
+
+    const resendBtn = document.createElement("button");
+    resendBtn.id = "resendOtpBtn";
+    resendBtn.textContent = "Resend OTP";
+    resendBtn.style.cssText = `
+      all: unset;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: hsl(357, 45%, 69%);
+      text-decoration: underline;
+    `;
+
+    const timerSpan = document.createElement("span");
+    timerSpan.id = "resendTimer";
+    timerSpan.style.cssText = "font-size: 0.8rem; color: #999;";
+    timerSpan.textContent = "";
+
+    resendRow.appendChild(resendLabel);
+    resendRow.appendChild(resendBtn);
+    resendRow.appendChild(timerSpan);
 
     loginContainer.appendChild(backArrow);
     loginContainer.appendChild(otpInput);
     loginContainer.appendChild(verifyBtn);
+    loginContainer.appendChild(resendRow);
 
+    // Start cooldown immediately after first OTP send
+    startResendCooldown(resendBtn, timerSpan);
+
+    // Back button
     backArrow.addEventListener("click", () => {
+      clearInterval(resendTimer);
       otpInput.remove();
       verifyBtn.remove();
       backArrow.remove();
+      resendRow.remove();
 
       getOtpBtn.style.display = "block";
       userEmail.style.display = "block";
       if (loginParagraph) loginParagraph.textContent = "Enter your email below to receive an OTP.";
     });
 
-    // -----------------------------
-    // VERIFY OTP
-    // -----------------------------
+    // Resend button
+    resendBtn.addEventListener("click", async () => {
+      if (resendBtn.disabled) return;
+      showSpinner();
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/request-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: currentEmail })
+        });
+        const data = await res.json();
+        setTimeout(() => hideSpinner(), 400);
+        if (data.success) {
+          showToast("success", `OTP resent to ${currentEmail}`);
+          startResendCooldown(resendBtn, timerSpan);
+        } else {
+          showToast("error", data.message || "Failed to resend OTP.");
+        }
+      } catch (err) {
+        console.error("Resend OTP error:", err);
+        setTimeout(() => hideSpinner(), 400);
+        showToast("error", "Server error. Please try again.");
+      }
+    });
+
+    // Verify button
     verifyBtn.addEventListener("click", async () => {
       const enteredOTP = otpInput.value.trim();
       if (!enteredOTP) return showToast("error", "Please enter the OTP.");
@@ -154,10 +223,9 @@ document.addEventListener("DOMContentLoaded", () => {
             userId: dataVerify.userId,
             username: dataVerify.username || "User",
             email: currentEmail
-        }));
-
-        showToast("success", "Login successful!");
-        window.location.href = "mainWebsitePage.html";
+          }));
+          showToast("success", "Login successful!");
+          window.location.href = "mainWebsitePage.html";
         } else {
           setTimeout(() => hideSpinner(), 400);
           showToast("error", dataVerify.message || "Incorrect OTP");
@@ -169,6 +237,32 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("error", "Server error. Check console.");
       }
     });
+  }
+
+  // -----------------------------
+  // RESEND COOLDOWN TIMER
+  // -----------------------------
+  function startResendCooldown(resendBtn, timerSpan) {
+    resendBtn.style.opacity = "0.4";
+    resendBtn.style.cursor = "not-allowed";
+    resendBtn.disabled = true;
+
+    clearInterval(resendTimer);
+    resendCountdown = 60;
+    timerSpan.textContent = `(${resendCountdown}s)`;
+
+    resendTimer = setInterval(() => {
+      resendCountdown--;
+      timerSpan.textContent = `(${resendCountdown}s)`;
+
+      if (resendCountdown <= 0) {
+        clearInterval(resendTimer);
+        timerSpan.textContent = "";
+        resendBtn.style.opacity = "1";
+        resendBtn.style.cursor = "pointer";
+        resendBtn.disabled = false;
+      }
+    }, 1000);
   }
 
   // -----------------------------
@@ -198,10 +292,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!newsletterInput.value.trim()) return showToast("error", "Enter your email.");
 
-
       const email = newsletterInput.value.trim();
       const userId = sessionStorage.getItem("userId");
-
       const usernameInput = newsletterForm.querySelector("input[name='username']");
       const username = usernameInput ? usernameInput.value.trim() : "";
 
@@ -211,13 +303,12 @@ document.addEventListener("DOMContentLoaded", () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId, email, username })
         });
-        
         const data = await res.json();
         if (data.success) {
           if (data.message === "Subscription successful!") {
             showToast("info", data.message);
             newsletterInput.disabled = true;
-          } 
+          }
         } else {
           showToast("error", data.message || "Subscription failed.");
         }

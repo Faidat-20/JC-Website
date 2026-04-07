@@ -283,3 +283,107 @@ h1 {
     font-size: 22px;
   }
 }
+
+@media (max-width: 600px) {
+  .trackMain {
+    padding: 0 10px 40px;
+    margin-top: 20px;
+  }
+ 
+  .trackSearchBox {
+    padding: 16px;
+  }
+ 
+  .trackSearchRow {
+    flex-direction: column;
+    gap: 8px;
+  }
+ 
+  .trackSearchRow input {
+    width: 100%;
+    font-size: 13px;
+  }
+ 
+  .trackSearchRow button {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+ 
+  .myOrderItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+ 
+  .trackResult {
+    padding: 16px;
+  }
+ 
+  .trackResultHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+ 
+  .trackResultHeader h2 {
+    font-size: 15px;
+  }
+ 
+  .resultOrderId {
+    font-size: 11px;
+    word-break: break-all;
+  }
+ 
+  .viewConfirmationBtn {
+    margin-right: 0;
+    font-size: 12px;
+  }
+ 
+  /* Progress bar scrolls horizontally on tiny screens */
+  .trackProgress {
+    overflow-x: auto;
+    padding-bottom: 6px;
+    justify-content: flex-start;
+  }
+ 
+  .trackStep {
+    min-width: 56px;
+  }
+ 
+  .trackStep p {
+    font-size: 10px;
+  }
+ 
+  .trackLine {
+    min-width: 14px;
+  }
+ 
+  .trackSection h3 {
+    font-size: 11px;
+  }
+ 
+  .trackSection p,
+  .trackSummaryRow {
+    font-size: 13px;
+  }
+ 
+  .ratingItem {
+    padding: 12px;
+  }
+ 
+  .star {
+    font-size: 22px;
+  }
+ 
+  #submitRatingsBtn {
+    font-size: 13px;
+    padding: 10px;
+  }
+ 
+  /* Cancel section button full-width on mobile */
+  #cancelOrderBtn {
+    width: 100%;
+    text-align: center;
+  }
+}

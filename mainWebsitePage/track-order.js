@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       minute: "2-digit"
     });
   }
+
   // ─────────────────────────────────────────
   // LOAD USER'S OWN ORDERS (if logged in)
   // ─────────────────────────────────────────
@@ -97,7 +98,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // Also allow pressing Enter to search
   trackingInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") trackBtn.click();
   });
@@ -109,11 +109,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     trackError.style.display = "none";
     trackResult.style.display = "block";
 
-    // Tracking ID and status badge
     document.getElementById("resultTrackingId").textContent = order.trackingId;
     document.getElementById("resultOrderId").textContent = order._id;
-    // Link to order confirmation page
     document.getElementById("viewConfirmationBtn").href = `order-success.html?orderId=${order._id}`;
+
     const statusBadge = document.getElementById("resultStatus");
     let displayStatus = order.status;
     if (order.status === "cancelled") {
@@ -123,10 +122,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     statusBadge.textContent = displayStatus;
     statusBadge.className = `statusBadge ${displayStatus.replace(" ", "-")}`;
 
-    // Progress steps
     updateProgress(order);
 
-    // Delivery details
     document.getElementById("trackName").textContent =
       `${order.deliveryDetails.firstName} ${order.deliveryDetails.lastName}`;
     document.getElementById("trackPhone").textContent = order.deliveryDetails.phone;
@@ -136,17 +133,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       ${[d.state, d.country].filter(part => part && part.trim() !== "").join(", ")}
     `;
 
-    // Shipping option
     document.getElementById("trackShipping").textContent =
       order.shippingOption ? order.shippingOption.name : "Not specified";
 
-    // Order timeline
     document.getElementById("timeOrdered").textContent = formatDateTime(order.order_created_at);
 
     const shippedRow = document.getElementById("timeShippedRow");
     const deliveredRow = document.getElementById("timeDeliveredRow");
-
     const cancelledRow = document.getElementById("timeCancelledRow");
+
     if (order.status === "cancelled") {
       cancelledRow.style.display = "flex";
       document.getElementById("timeCancelled").textContent = formatDateTime(order.updatedAt);
@@ -161,7 +156,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       refundedRow.style.display = "none";
     }
-    
+
     if (order.order_shipped_at) {
       shippedRow.style.display = "flex";
       document.getElementById("timeShipped").textContent = formatDateTime(order.order_shipped_at);
@@ -175,7 +170,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       deliveredRow.style.display = "none";
     }
-    // Items
+
     const trackItems = document.getElementById("trackItems");
     trackItems.innerHTML = "";
     order.items.forEach(item => {
@@ -191,7 +186,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       trackItems.appendChild(div);
     });
 
-    // Order summary
     document.getElementById("trackSubtotal").textContent =
       `₦${order.subtotal ? order.subtotal.toLocaleString() : order.total.toLocaleString()}`;
     document.getElementById("trackShippingFee").textContent =
@@ -199,7 +193,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("trackTotal").textContent =
       `₦${order.total.toLocaleString()}`;
 
-    // Show Mark as Received button only if shipped
+    // Mark as received (shipped orders only)
     if (order.status === "shipped") {
       markReceivedSection.style.display = "block";
       markReceivedBtn.onclick = () => markAsReceived(order._id);
@@ -207,33 +201,210 @@ document.addEventListener("DOMContentLoaded", async () => {
       markReceivedSection.style.display = "none";
     }
 
-    // Show ratings form if already delivered
-    const ratingsSection = document.getElementById("ratingsSection");
+    // ─────────────────────────────────────────
+    // CANCEL ORDER BUTTON (user-facing)
+    // ─────────────────────────────────────────
+    renderCancelSection(order);
 
-    // Only show ratings for delivered orders
+    // Ratings (delivered only)
+    const ratingsSection = document.getElementById("ratingsSection");
     if (order.status === "delivered") {
       showRatingsForm(order);
     } else {
-      ratingsSection.style.display = "none"; // 🔥 THIS IS WHAT YOU WERE MISSING
+      ratingsSection.style.display = "none";
     }
-    // Scroll to result
+
     trackResult.scrollIntoView({ behavior: "smooth" });
+  }
+
+  // ─────────────────────────────────────────
+  // RENDER CANCEL SECTION
+  // ─────────────────────────────────────────
+  function renderCancelSection(order) {
+    // Remove existing cancel section if any
+    const existing = document.getElementById("cancelOrderSection");
+    if (existing) existing.remove();
+
+    // Only show if this order belongs to the logged-in user AND it can still be cancelled
+    const isMine = userId && String(order.userId) === String(userId);
+    const isCancellable = order.status === "pending" && order.paymentStatus === "paid";
+
+    if (!isMine || !isCancellable) return;
+
+    const cancelSection = document.createElement("div");
+    cancelSection.id = "cancelOrderSection";
+    cancelSection.className = "trackSection";
+    cancelSection.style.cssText = `
+      padding: 16px 0;
+      border-bottom: 1px solid #f0f0f0;
+    `;
+
+    cancelSection.innerHTML = `
+      <h3 style="font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:#999; margin-bottom:8px;">Cancel order</h3>
+      <p style="font-size:13px; color:#666; margin-bottom:12px;">
+        Changed your mind? You can cancel this order while it hasn't been shipped yet.
+        A full refund of <strong>₦${order.total.toLocaleString()}</strong> will be initiated automatically.
+      </p>
+      <button id="cancelOrderBtn" style="
+        padding: 10px 22px;
+        background: #fff;
+        color: #c0392b;
+        border: 1.5px solid #c0392b;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+      ">Cancel my order</button>
+    `;
+
+    // Insert before the order summary section (last trackSection)
+    const trackDetails = document.querySelector(".trackDetails");
+    trackDetails.appendChild(cancelSection);
+
+    const cancelBtn = document.getElementById("cancelOrderBtn");
+
+    cancelBtn.addEventListener("mouseenter", () => {
+      cancelBtn.style.background = "#c0392b";
+      cancelBtn.style.color = "#fff";
+    });
+    cancelBtn.addEventListener("mouseleave", () => {
+      cancelBtn.style.background = "#fff";
+      cancelBtn.style.color = "#c0392b";
+    });
+
+    cancelBtn.addEventListener("click", () => cancelOrder(order));
+  }
+
+  // ─────────────────────────────────────────
+  // CANCEL ORDER
+  // ─────────────────────────────────────────
+  async function cancelOrder(order) {
+    // Confirmation dialog
+    const confirmed = confirm(
+      `Are you sure you want to cancel order ${order.trackingId}?\n\n` +
+      `A full refund of ₦${order.total.toLocaleString()} will be initiated to your original payment method. ` +
+      `Refunds typically take 5–10 business days.`
+    );
+    if (!confirmed) return;
+
+    const cancelBtn = document.getElementById("cancelOrderBtn");
+    if (cancelBtn) {
+      cancelBtn.disabled = true;
+      cancelBtn.textContent = "Cancelling...";
+      cancelBtn.style.opacity = "0.6";
+    }
+
+    showSpinner();
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/orders/${order._id}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "cancelled", requestingUserId: userId })
+      });
+      const data = await res.json();
+
+      setTimeout(() => hideSpinner(), 400);
+
+      if (data.success) {
+        showToast("success", "Order cancelled. A refund has been initiated.");
+
+        // Update status badge
+        const statusBadge = document.getElementById("resultStatus");
+        statusBadge.textContent = "cancelled";
+        statusBadge.className = "statusBadge cancelled";
+
+        // Update progress bar
+        updateProgress(data.order);
+
+        // Remove cancel section
+        const cancelSection = document.getElementById("cancelOrderSection");
+        if (cancelSection) cancelSection.remove();
+
+        // Show cancelled timestamp
+        const cancelledRow = document.getElementById("timeCancelledRow");
+        if (cancelledRow) {
+          cancelledRow.style.display = "flex";
+          document.getElementById("timeCancelled").textContent = formatDateTime(new Date().toISOString());
+        }
+
+        // Hide mark as received
+        markReceivedSection.style.display = "none";
+
+        // Refresh the "My orders" list
+        refreshMyOrders();
+
+      } else {
+        if (cancelBtn) {
+          cancelBtn.disabled = false;
+          cancelBtn.textContent = "Cancel my order";
+          cancelBtn.style.opacity = "1";
+        }
+        showToast("error", data.message || "Failed to cancel order. Please try again.");
+      }
+    } catch (err) {
+      console.error("Cancel order error:", err);
+      setTimeout(() => hideSpinner(), 400);
+      if (cancelBtn) {
+        cancelBtn.disabled = false;
+        cancelBtn.textContent = "Cancel my order";
+        cancelBtn.style.opacity = "1";
+      }
+      showToast("error", "Server error. Please try again.");
+    }
+  }
+
+  // ─────────────────────────────────────────
+  // REFRESH MY ORDERS LIST
+  // ─────────────────────────────────────────
+  async function refreshMyOrders() {
+    if (!userId || !myOrdersList) return;
+    try {
+      const res = await fetch(`http://localhost:5000/api/orders/user/${userId}`);
+      const data = await res.json();
+      if (data.success) {
+        myOrdersList.innerHTML = "";
+        data.orders.forEach(order => {
+          const date = formatDateTime(order.order_created_at);
+          const item = document.createElement("div");
+          item.className = "myOrderItem";
+          let listDisplayStatus = order.status;
+          if (order.status === "cancelled") {
+            if (order.paymentStatus === "refunded") listDisplayStatus = "refunded";
+            else if (order.paymentStatus === "refund_initiated") listDisplayStatus = "refund pending";
+          }
+          item.innerHTML = `
+            <div>
+              <h4>${order.trackingId}</h4>
+              <p>${date} · ₦${order.total?.toLocaleString()}</p>
+            </div>
+            <span class="statusBadge ${listDisplayStatus.replace(" ", "-")}">${listDisplayStatus}</span>
+          `;
+          item.addEventListener("click", () => {
+            trackResult.style.display = "none";
+            showSpinner();
+            setTimeout(() => { hideSpinner(); displayOrder(order); }, 800);
+          });
+          myOrdersList.appendChild(item);
+        });
+      }
+    } catch (err) {
+      console.error("Refresh orders error:", err);
+    }
   }
 
   // ─────────────────────────────────────────
   // UPDATE PROGRESS BAR
   // ─────────────────────────────────────────
-  // AFTER
   function updateProgress(order) {
     const progressContainer = document.getElementById("trackProgress");
     progressContainer.innerHTML = "";
 
-    // Build steps based on order status
     let steps = [];
 
     if (order.status === "cancelled") {
       if (order.paymentStatus === "refunded") {
-        // Paid, cancelled and refunded
         steps = [
           { label: "Order placed", state: "done" },
           { label: "Payment confirmed", state: "done" },
@@ -241,15 +412,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           { label: "Refunded", state: "active", color: "green" }
         ];
       } else if (order.paymentStatus === "refund_initiated") {
-          // Refund requested but not yet processed
-          steps = [
-            { label: "Order placed", state: "done" },
-            { label: "Payment confirmed", state: "done" },
-            { label: "Cancelled", state: "done", color: "red" },
-            { label: "Refund pending", state: "active", color: "orange" }
-          ];
-        } else if (order.paymentStatus === "paid") {
-        // Paid, cancelled but refund pending
+        steps = [
+          { label: "Order placed", state: "done" },
+          { label: "Payment confirmed", state: "done" },
+          { label: "Cancelled", state: "done", color: "red" },
+          { label: "Refund pending", state: "active", color: "orange" }
+        ];
+      } else if (order.paymentStatus === "paid") {
         steps = [
           { label: "Order placed", state: "done" },
           { label: "Payment confirmed", state: "done" },
@@ -257,22 +426,19 @@ document.addEventListener("DOMContentLoaded", async () => {
           { label: "Refunded", state: "inactive" }
         ];
       } else {
-        // Not paid, cancelled
         steps = [
           { label: "Order placed", state: "done" },
           { label: "Cancelled", state: "active", color: "red" }
         ];
       }
     } else {
-      // Normal flow
       steps = [
         { label: "Order placed", state: "done" },
         { label: "Payment confirmed", state: order.paymentStatus === "paid" ? "done" : "inactive" },
-        { label: "Shipped", state: order.status === "shipped" || order.status === "delivered" ? "done" : order.paymentStatus === "paid" ? "inactive" : "inactive" },
+        { label: "Shipped", state: order.status === "shipped" || order.status === "delivered" ? "done" : "inactive" },
         { label: "Delivered", state: order.status === "delivered" ? "active" : "inactive" }
       ];
 
-      // Fix active step
       if (order.status === "delivered") {
         steps[3].state = "active";
         steps[2].state = "done";
@@ -285,12 +451,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
 
-    // Build the HTML
     steps.forEach((step, index) => {
-      // Add step dot
       const stepEl = document.createElement("div");
       stepEl.className = "trackStep";
-
       if (step.state === "done") stepEl.classList.add("done");
       if (step.state === "active") stepEl.classList.add("active");
       if (step.color === "red") stepEl.classList.add("cancelled-step");
@@ -303,7 +466,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       `;
       progressContainer.appendChild(stepEl);
 
-      // Add line between steps
       if (index < steps.length - 1) {
         const line = document.createElement("div");
         line.className = "trackLine";
@@ -331,17 +493,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         showToast("success", "Thank you for confirming! We hope you enjoy your order.");
         markReceivedSection.style.display = "none";
 
-        // Update status badge
         const statusBadge = document.getElementById("resultStatus");
         statusBadge.textContent = "delivered";
         statusBadge.className = "statusBadge delivered";
 
-        // Update progress bar
         updateProgress({ ...data.order, paymentStatus: "paid" });
-
-        // Show ratings form
         showRatingsForm(data.order);
-
       } else {
         showToast("error", "Failed to update order. Please try again.");
       }
@@ -355,29 +512,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   // SHOW RATINGS FORM
   // ─────────────────────────────────────────
   async function showRatingsForm(order) {
-
-    // Get username from backend
     let username = "Anonymous";
     if (userId) {
       try {
         const userRes = await fetch(`http://localhost:5000/api/auth/userdata/${userId}`);
         const userData = await userRes.json();
-        if (userData.success && userData.username) {
-          username = userData.username;
-        }
+        if (userData.success && userData.username) username = userData.username;
       } catch (err) {
         console.error("Get username error:", err);
       }
     }
+
     const ratingsSection = document.getElementById("ratingsSection");
     const ratingsList = document.getElementById("ratingsList");
     const submitRatingsBtn = document.getElementById("submitRatingsBtn");
 
     ratingsSection.style.display = "block";
     ratingsList.innerHTML = "";
-
-    // Hide submit button and remove any existing thank you message
     submitRatingsBtn.style.display = "none";
+
     const existingThankYou = ratingsSection.querySelector(".thankYouMsg");
     if (existingThankYou) existingThankYou.remove();
 
@@ -385,15 +538,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     let unratedCount = 0;
 
     for (const item of order.items) {
-      // Get product from DB by name
       const productRes = await fetch(`http://localhost:5000/api/products/byname/${encodeURIComponent(item.name)}`);
       const productData = await productRes.json();
-
       if (!productData.success) continue;
 
       const product = productData.product;
 
-      // Check if already rated
       const checkRes = await fetch(`http://localhost:5000/api/ratings/check/${order._id}/${product._id}/${userId}`);
       const checkData = await checkRes.json();
 
@@ -401,12 +551,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       div.className = "ratingItem";
 
       if (checkData.alreadyRated) {
-        // Fetch the existing rating to display it
         const existingRes = await fetch(`http://localhost:5000/api/ratings/get/${order._id}/${product._id}/${userId}`);
         const existingData = await existingRes.json();
         const existingRating = existingData.rating;
 
-        // Build filled stars based on their rating
         const starsHTML = [1, 2, 3, 4, 5].map(i => `
           <span class="star ${i <= existingRating.rating ? "selected" : ""}" style="cursor: default;">&#9733;</span>
         `).join("");
@@ -417,18 +565,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             <p>${item.name}</p>
           </div>
           <p class="alreadyRated">✓ Already rated</p>
-          <div class="starRow" style="pointer-events: none;">
-            ${starsHTML}
-          </div>
-          ${existingRating.review ? `
-            <div class="existingReview">
-              <p>"${existingRating.review}"</p>
-            </div>
-          ` : ""}
+          <div class="starRow" style="pointer-events: none;">${starsHTML}</div>
+          ${existingRating.review ? `<div class="existingReview"><p>"${existingRating.review}"</p></div>` : ""}
         `;
       } else {
         unratedCount++;
-
         div.innerHTML = `
           <div class="ratingItemHeader">
             <img src="${item.image}" alt="${item.name}">
@@ -444,33 +585,23 @@ document.addEventListener("DOMContentLoaded", async () => {
           <textarea class="ratingReview" placeholder="Write a review (optional)" data-product-id="${product._id}"></textarea>
         `;
 
-        // Star hover and click interactions
         const starRow = div.querySelector(".starRow");
         const stars = starRow.querySelectorAll(".star");
 
         stars.forEach(star => {
           star.addEventListener("mouseover", () => {
             const val = parseInt(star.dataset.value);
-            stars.forEach(s => {
-              s.classList.toggle("hovered", parseInt(s.dataset.value) <= val);
-            });
+            stars.forEach(s => s.classList.toggle("hovered", parseInt(s.dataset.value) <= val));
           });
-
-          star.addEventListener("mouseout", () => {
-            stars.forEach(s => s.classList.remove("hovered"));
-          });
-
+          star.addEventListener("mouseout", () => stars.forEach(s => s.classList.remove("hovered")));
           star.addEventListener("click", () => {
             const val = parseInt(star.dataset.value);
             ratings[product._id] = ratings[product._id] || {};
             ratings[product._id].rating = val;
-            stars.forEach(s => {
-              s.classList.toggle("selected", parseInt(s.dataset.value) <= val);
-            });
+            stars.forEach(s => s.classList.toggle("selected", parseInt(s.dataset.value) <= val));
           });
         });
 
-        // Capture review text
         const textarea = div.querySelector(".ratingReview");
         textarea.addEventListener("input", () => {
           ratings[product._id] = ratings[product._id] || {};
@@ -483,41 +614,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       ratingsList.appendChild(div);
     }
 
-    // If all products already rated show thank you, otherwise show submit button
     if (unratedCount === 0) {
       const thankYou = document.createElement("p");
       thankYou.className = "thankYouMsg";
-      thankYou.style.cssText = "text-align: center; color: #4CAF50; font-weight: bold; font-size: 14px; margin-top: 12px;";
+      thankYou.style.cssText = "text-align:center; color:#4CAF50; font-weight:bold; font-size:14px; margin-top:12px;";
       thankYou.textContent = "✓ Thank you for your ratings!";
       ratingsSection.appendChild(thankYou);
     } else {
       submitRatingsBtn.style.display = "block";
     }
 
-    // Submit all ratings
     submitRatingsBtn.onclick = async () => {
-      let submitted = 0;
-      let skipped = 0;
-
+      let submitted = 0, skipped = 0;
       for (const productId in ratings) {
         const r = ratings[productId];
-        if (!r.rating || r.rating === 0) {
-          skipped++;
-          continue;
-        }
-
+        if (!r.rating || r.rating === 0) { skipped++; continue; }
         try {
           const res = await fetch("http://localhost:5000/api/ratings", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              productId,
-              orderId: order._id,
-              userId,
-              username,
-              rating: r.rating,
-              review: r.review || ""
-            })
+            body: JSON.stringify({ productId, orderId: order._id, userId, username, rating: r.rating, review: r.review || "" })
           });
           const data = await res.json();
           if (data.success) submitted++;
@@ -532,19 +648,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       showToast("success", `Thank you! ${submitted} rating${submitted !== 1 ? "s" : ""} submitted successfully.`);
-
-      // Hide submit button and show thank you message permanently
       submitRatingsBtn.style.display = "none";
       const thankYou = document.createElement("p");
       thankYou.className = "thankYouMsg";
-      thankYou.style.cssText = "text-align: center; color: #4CAF50; font-weight: bold; font-size: 14px; margin-top: 12px;";
+      thankYou.style.cssText = "text-align:center; color:#4CAF50; font-weight:bold; font-size:14px; margin-top:12px;";
       thankYou.textContent = "✓ Thank you for your ratings!";
       ratingsSection.appendChild(thankYou);
-
-      // Reload the ratings form after 1 second to show filled stars
-      setTimeout(() => {
-        showRatingsForm(order);
-      }, 1000);
+      setTimeout(() => showRatingsForm(order), 1000);
     };
   }
 

@@ -1242,3 +1242,234 @@ a:hover {
 }
 
 .toast .toastClose:hover { opacity: 1; }
+
+/* ============================================================
+   PASTE THESE RULES INTO mainWebsitePage.css
+   (replace / extend the existing @media blocks)
+   ============================================================ */
+ 
+/* ── Navbar: mobile ── */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+ 
+  .businessName {
+    font-size: 8px;
+    white-space: nowrap;
+  }
+ 
+  /* hide greeting watermark text on small screens */
+  .greetingMessage::before {
+    display: none;
+  }
+ 
+  /* User info block in navbar */
+  #loggedInUser {
+    display: none !important; /* hide email/name on tiny screens to save space */
+  }
+ 
+  .navRight {
+    gap: 10px;
+  }
+ 
+  .login,
+  #logoutBtn {
+    font-size: 12px;
+  }
+ 
+  .search {
+    padding: 10px 12px;
+    width: 200px;
+  }
+ 
+  .searchInput {
+    font-size: 13px;
+  }
+ 
+  .greeting {
+    min-height: 22vh !important;
+  }
+ 
+  /* Footer stacked layout */
+  .footerContent {
+    flex-direction: column;
+    gap: 16px;
+  }
+ 
+  .footerContact,
+  .footerSubscribe {
+    flex: 1 1 100%;
+    min-width: unset;
+  }
+ 
+  /* Checkout page */
+  .checkoutContainer {
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 8px;
+  }
+ 
+  .checkoutLeft,
+  .checkout-cart {
+    flex: 1 1 100%;
+    min-width: unset;
+  }
+ 
+  /* Login page */
+  .loginSection {
+    padding: 30px 12px;
+    min-height: 60vh;
+  }
+ 
+  .loginContainer {
+    padding: 2rem 1.25rem;
+  }
+}
+ 
+/* ── Navbar: very small screens (≤ 400px) ── */
+@media (max-width: 400px) {
+  .navbar {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+ 
+  .businessName {
+    font-size: 7px;
+  }
+ 
+  .search {
+    width: 160px;
+    padding: 8px 10px;
+  }
+ 
+  .searchInput {
+    font-size: 12px;
+  }
+ 
+  .login,
+  #logoutBtn {
+    font-size: 11px;
+  }
+ 
+  #cart {
+    font-size: 15px;
+  }
+ 
+  .countCart {
+    width: 13px;
+    height: 13px;
+    font-size: 9px;
+  }
+}
+ 
+/* ── Cart overlay: full-width on small screens ── */
+@media (max-width: 600px) {
+  .cartOverlay {
+    width: 100vw;
+    max-width: 100vw;
+    right: 0;
+    left: 0;
+    border-radius: 0;
+  }
+ 
+  .cartHeader h3 {
+    font-size: 14px;
+  }
+ 
+  .cartItem {
+    grid-template-columns: 52px 1fr auto;
+    gap: 8px;
+    padding: 10px;
+  }
+ 
+  .cartItem img {
+    width: 52px;
+    height: 52px;
+  }
+ 
+  .cartItemDetails h4 {
+    font-size: 13px;
+  }
+ 
+  .checkoutBtn {
+    font-size: 14px;
+    padding: 13px;
+  }
+ 
+  /* Pagination tighter */
+  .pages {
+    gap: 6px;
+    padding: 5px;
+  }
+ 
+  .pages a {
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+  }
+ 
+  .backwardBtn,
+  .fowardBtn {
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+  }
+ 
+  /* Product grid: 2 columns on small phones */
+  .productList {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+ 
+  .productList .item {
+    padding: 10px;
+  }
+ 
+  .productList .item h2 {
+    font-size: 12px;
+  }
+ 
+  .productList .item .price {
+    font-size: 11px;
+  }
+ 
+  .productList .item button {
+    font-size: 11px;
+    padding: 10px 6px;
+    margin-top: 16px;
+    width: 100%;
+    max-width: none;
+  }
+}
+ 
+/* ── Search results section ── */
+@media (max-width: 600px) {
+  .searchResultsSection {
+    padding: 10px 8px;
+  }
+ 
+  .searchResultsSection h2 {
+    font-size: 18px;
+    text-align: center;
+  }
+}
+ 
+/* ── Newsletter modal ── */
+@media (max-width: 480px) {
+  .newsletterModal {
+    padding: 28px 16px;
+    width: 95%;
+  }
+ 
+  .newsletterModal h2 {
+    font-size: 18px;
+  }
+ 
+  .newsletterForm input,
+  .newsletterForm button {
+    font-size: 14px;
+    padding: 12px;
+  }
+}
