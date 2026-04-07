@@ -140,11 +140,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           ${order.order_shipped_at ? `<p><strong>Shipped:</strong> ${formatDateTime(order.order_shipped_at)}</p>` : ""}
           ${order.order_delivered_at ? `<p><strong>Delivered:</strong> ${formatDateTime(order.order_delivered_at)}</p>` : ""}
           ${order.status === "cancelled" ? `<p><strong>Cancelled:</strong> ${formatDateTime(order.updatedAt)}</p>` : ""}
+          ${order.paymentStatus === "refund_initiated" ? `<p><strong>Refund pending</strong></p>` : ""}
+          ${order.order_refunded_at ? `<p><strong>Refunded:</strong> ${formatDateTime(order.order_refunded_at)}</p>` : ""}
         </div>
 
         <div class="orderCardRight">
           <span class="statusBadge ${order.status}">${order.status}</span>
-          <span class="statusBadge ${order.paymentStatus}">${order.paymentStatus}</span>
+          <span class="statusBadge ${order.paymentStatus === "refund_initiated" ? "refund-pending" : order.paymentStatus}">${order.paymentStatus === "refund_initiated" ? "Refund pending" : order.paymentStatus}</span>
 
           <div class="orderCardActions">
             <select class="statusSelect" data-id="${order._id}" ${isLocked ? "disabled" : ""}>
@@ -223,10 +225,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         <p><strong>Tracking ID:</strong> ${order.trackingId}</p>
         <p><strong>Order ID:</strong> ${order._id}</p>
         <p><strong>Status:</strong> ${order.status}</p>
-        <p><strong>Payment:</strong> ${order.paymentStatus}</p>
+        <p><strong>Payment:</strong> ${order.paymentStatus === "refund_initiated" ? "Refund pending" : order.paymentStatus}</p>
         <p><strong>Order placed:</strong> ${formatDateTime(order.order_created_at)}</p>
         ${order.order_shipped_at ? `<p><strong>Shipped:</strong> ${formatDateTime(order.order_shipped_at)}</p>` : ""}
         ${order.order_delivered_at ? `<p><strong>Delivered:</strong> ${formatDateTime(order.order_delivered_at)}</p>` : ""}
+        ${order.status === "cancelled" ? `<p><strong>Cancelled:</strong> ${formatDateTime(order.updatedAt)}</p>` : ""}
+        ${order.paymentStatus === "refund_initiated" ? `<p><strong>Refund status:</strong> Pending (5-10 business days)</p>` : ""}
+        ${order.order_refunded_at ? `<p><strong>Refunded:</strong> ${formatDateTime(order.order_refunded_at)}</p>` : ""}
       </div>
 
       <div class="modalSection">

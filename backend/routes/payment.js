@@ -104,6 +104,7 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
 
         // Update payment status to refunded
         order.paymentStatus = "refunded";
+        order.order_refunded_at = new Date();
         await order.save();
 
         console.log(`Order ${order.trackingId} refund completed ✅`);

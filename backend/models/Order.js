@@ -42,16 +42,13 @@ const OrderSchema = new mongoose.Schema({
     enum: ["pending", "shipped", "delivered", "cancelled"],
     default: "pending"
   },
+
   paymentStatus: {
     type: String,
-    enum: ["pending", "paid", "failed", "refunded"],
+    enum: ["pending", "paid", "failed", "refund_initiated", "refunded"],
     default: "pending"
   },
-paymentStatus: {
-  type: String,
-  enum: ["pending", "paid", "failed", "refund_initiated", "refunded"],
-  default: "pending"
-},
+
   trackingId: {
     type: String,
     unique: true,
@@ -61,6 +58,7 @@ paymentStatus: {
   paystackReference: {
     type: String
   },
+
   order_created_at: {
     type: Date,
     default: Date.now
@@ -71,6 +69,11 @@ paymentStatus: {
   },
 
   order_delivered_at: {
+    type: Date
+  },
+
+  // ADD THIS
+  order_refunded_at: {
     type: Date
   }
 

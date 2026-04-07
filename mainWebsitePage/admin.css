@@ -324,3 +324,12 @@ body {
   background: #e8f0fe;
   color: #2d7a3a;
 }
+.statusBadge.refund-pending {
+  background: #fef3e2;
+  color: #f39c12;
+}
+
+.statusBadge.refunded {
+  background: #e6f4ea;
+  color: #2d7a3a;
+}

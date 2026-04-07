@@ -146,13 +146,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shippedRow = document.getElementById("timeShippedRow");
     const deliveredRow = document.getElementById("timeDeliveredRow");
 
-    // Add this after the deliveredRow block
     const cancelledRow = document.getElementById("timeCancelledRow");
     if (order.status === "cancelled") {
       cancelledRow.style.display = "flex";
       document.getElementById("timeCancelled").textContent = formatDateTime(order.updatedAt);
     } else {
       cancelledRow.style.display = "none";
+    }
+
+    const refundedRow = document.getElementById("timeRefundedRow");
+    if (order.order_refunded_at) {
+      refundedRow.style.display = "flex";
+      document.getElementById("timeRefunded").textContent = formatDateTime(order.order_refunded_at);
+    } else {
+      refundedRow.style.display = "none";
     }
     
     if (order.order_shipped_at) {
