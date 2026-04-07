@@ -34,20 +34,18 @@ router.post("/check-or-create", async (req, res) => {
   if (!email) return res.status(400).json({ message: "Email is required." });
 
   try {
-    let user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
     if (!user) {
-      user = new User({ email, isSubscribed: false, cart: [] });
-      await user.save();
+      return res.json({ success: true, userId: null, subscribed: false, username: null });
     }
 
-    res.json({ success: true, userId: user._id, subscribed: user.isSubscribed, username: user.username || null  });
+    res.json({ success: true, userId: user._id, subscribed: user.isSubscribed, username: user.username || null });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
-
 // ----------------------
 // REQUEST OTP
 // ----------------------
