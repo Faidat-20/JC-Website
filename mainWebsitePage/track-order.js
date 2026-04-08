@@ -88,14 +88,18 @@ document.addEventListener("DOMContentLoaded", async () => {
           displayOrder(data.order);
         }, 800);
       } else {
-        setTimeout(() => hideSpinner(), 400);
-        trackError.style.display = "block";
+        setTimeout(() => {
+          hideSpinner();
+          showToast("error", "Order not found. Please check your tracking ID and try again.");
+        }, 800);
       }
-    } catch (err) {
-      console.error("Track order error:", err);
-      setTimeout(() => hideSpinner(), 400);
-      trackError.style.display = "block";
-    }
+      } catch (err) {
+        console.error("Track order error:", err);
+        setTimeout(() => {
+          hideSpinner();
+          showToast("error", "Server error. Please try again.");
+        }, 800);
+      }
   });
 
   trackingInput.addEventListener("keypress", (e) => {
