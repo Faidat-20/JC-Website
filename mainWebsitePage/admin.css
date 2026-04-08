@@ -102,6 +102,7 @@ body {
 .orderCardLeft h3 {
   font-size: 0.95rem;
   margin-bottom: 5px;
+  word-break: break-all;
 }
 
 .orderCardLeft p {
@@ -571,4 +572,181 @@ body {
   border-radius: 6px;
   font-size: 12px;
   cursor: pointer;
+}
+
+/* ── Tablet: 768px and below ── */
+@media (max-width: 768px) {
+  .adminMain {
+    padding: 16px;
+  }
+
+  .adminFilters {
+    gap: 8px;
+  }
+
+  .filterBtn {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+
+  .orderCard {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .orderCardLeft h3 {
+    font-size: 0.88rem;
+  }
+
+  .orderCardLeft p {
+    font-size: 0.78rem;
+  }
+
+  .orderCardRight {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .orderCardActions {
+    justify-content: flex-start;
+  }
+
+  .statusSelect {
+    max-width: 160px;
+    font-size: 0.78rem;
+  }
+
+  .viewBtn {
+    font-size: 0.78rem;
+    padding: 7px 12px;
+  }
+}
+
+/* ── Small phones: 480px and below ── */
+@media (max-width: 480px) {
+  .adminMain {
+    padding: 10px;
+  }
+
+  .adminTopBar {
+    margin-bottom: 10px;
+  }
+
+  .orderCount {
+    font-size: 0.78rem;
+    padding: 4px 10px;
+  }
+
+  .adminFilters {
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .filterBtn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    border-width: 1.5px;
+  }
+
+  .orderCard {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .orderCardLeft h3 {
+    font-size: 0.82rem;
+    margin-bottom: 6px;
+  }
+
+  .orderCardLeft p {
+    font-size: 0.75rem;
+    margin-bottom: 2px;
+  }
+
+  .orderCardRight {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .orderCardActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .statusSelect {
+    flex: 1;
+    max-width: unset;
+    font-size: 0.75rem;
+    padding: 6px 8px;
+  }
+
+  .viewBtn {
+    font-size: 0.75rem;
+    padding: 7px 14px;
+  }
+
+  /* Modal slides up from bottom on small phones */
+  .modalOverlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modalContent {
+    border-radius: 16px 16px 0 0;
+    max-height: 90vh;
+    padding: 20px 16px;
+  }
+
+  .modalHeader h2 {
+    font-size: 1rem;
+  }
+
+  .modalSection p {
+    font-size: 0.82rem;
+  }
+
+  .modalOrderItem {
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .modalOrderItem img {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ── Ultra-thin: Galaxy Z Fold and similar (≤ 344px) ── */
+@media (max-width: 344px) {
+  .adminMain {
+    padding: 8px;
+  }
+
+  .filterBtn {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  .orderCardLeft h3 {
+    font-size: 0.76rem;
+  }
+
+  .orderCardLeft p {
+    font-size: 0.7rem;
+  }
+
+  .statusBadge {
+    font-size: 0.68rem;
+    padding: 3px 8px;
+  }
+
+  .statusSelect,
+  .viewBtn {
+    font-size: 0.7rem;
+  }
 }

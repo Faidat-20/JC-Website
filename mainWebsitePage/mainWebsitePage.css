@@ -417,6 +417,9 @@ body.cart-open {
     border-bottom: 1px solid var(--grey);
     background-color: var(--secondaryColor);
 }
+#closeCart{
+  cursor: pointer
+}
 .cartFooter {
     padding: 16px;
     border-top: 1px solid var(--grey);;
@@ -1277,16 +1280,29 @@ a:hover {
 /* ── Navbar: very small screens (≤ 400px) ── */
 @media (max-width: 400px) {
  #loggedInUser {
-    display: none !important;
+    font-size: 7px !important;
   }
   .search {
     width: 160px;
     padding: 8px 10px;
+    font-size: 10px;
+  }
+  .searchInput{
+    font-size: 10px;
+  }
+  .businessName{
+    white-space: wrap;
   }
  
   .login,
   #logoutBtn {
     font-size: 11px;
+  }
+}
+
+@media (max-width: 344px) {
+  .searchInput{
+    font-size: 7.5px;
   }
 }
  
@@ -1327,4 +1343,67 @@ a:hover {
     font-size: 14px;
     padding: 12px;
   }
+}
+
+/* ── Skeleton loader ── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+.skeletonCard {
+  pointer-events: none;
+  cursor: default !important;
+}
+
+.skeletonCard:hover {
+  transform: none !important;
+  background-color: var(--primaryColor) !important;
+}
+
+.skeletonImg,
+.skeletonLine {
+  background: linear-gradient(
+    90deg,
+    #e8e8e8 25%,
+    #f5f5f5 50%,
+    #e8e8e8 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 6px;
+}
+
+.skeletonImg {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.skeletonLine {
+  height: 14px;
+  margin: 8px auto;
+}
+
+.skeletonTitle {
+  width: 70%;
+  height: 16px;
+}
+
+.skeletonStars {
+  width: 50%;
+  height: 12px;
+}
+
+.skeletonPrice {
+  width: 40%;
+  height: 13px;
+}
+
+.skeletonBtn {
+  width: 60%;
+  height: 38px;
+  border-radius: 15px;
+  margin-top: 18px;
 }

@@ -10,10 +10,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await loadProducts(currentPage);
 
-  async function loadProducts(page) {
-    try {
-      productList.innerHTML = `<p style="color:#999; font-size:14px;">Loading products...</p>`;
-
+ async function loadProducts(page) {
+  try {
+    // Show skeleton cards while loading
+    productList.innerHTML = "";
+    for (let i = 0; i < 8; i++) {
+      const skeleton = document.createElement("div");
+      skeleton.className = "item skeletonCard";
+      skeleton.innerHTML = `
+        <div class="skeletonImg"></div>
+        <div class="skeletonLine skeletonTitle"></div>
+        <div class="skeletonLine skeletonStars"></div>
+        <div class="skeletonLine skeletonPrice"></div>
+        <div class="skeletonLine skeletonBtn"></div>
+      `;
+      productList.appendChild(skeleton);
+    }
       const res = await fetch(`http://localhost:5000/api/products/paginate?page=${page}&limit=8`);
       const data = await res.json();
 
@@ -62,7 +74,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     } catch (err) {
       console.error("Load products error:", err);
-      productList.innerHTML = `<p style="color:#e74c3c; font-size:14px;">Failed to load products. Make sure your server is running.</p>`;
+      productList.innerHTML = `
+        <div style="text-align:center; padding:40px 0; color:#e74c3c;">
+          <p style="font-size:14px; margin-bottom:8px;">Failed to load products.</p>
+          <button onclick="location.reload()" style="
+            padding:8px 20px; background:hsl(357,45%,69%); color:#fff;
+            border:none; border-radius:8px; cursor:pointer; font-size:13px;
+          ">Try again</button>
+        </div>
+      `;
     }
   }
 

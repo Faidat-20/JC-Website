@@ -1,6 +1,64 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
+// ─────────────────────────────────────────
+// SANITIZATION HELPERS
+// ─────────────────────────────────────────
+function sanitizeText(value, maxLength = 100) {
+  if (typeof value !== "string") return "";
+  return value
+    .trim()
+    .replace(/<[^>]*>/g, "")
+    .replace(/[<>"'`]/g, "")
+    .replace(/\s+/g, " ")
+    .substring(0, maxLength);
+}
+
+function sanitizeEmail(value) {
+  if (typeof value !== "string") return "";
+  const cleaned = value.trim().toLowerCase().substring(0, 254);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(cleaned) ? cleaned : null;
+}
+
+function sanitizeOTP(value) {
+  if (typeof value !== "string" && typeof value !== "number") return null;
+  const cleaned = String(value).trim().replace(/\D/g, "");
+  return cleaned.length === 6 ? cleaned : null;
+}
+
+// ─────────────────────────────────────────
+// OTP RATE LIMITER
+// Max 3 OTP requests per 10 minutes per email
+// ─────────────────────────────────────────
+const OTP_MAX_REQUESTS = 3;
+const OTP_WINDOW_MS = 10 * 60 * 1000;
+const otpRateLimitMap = new Map();
+
+function checkOtpRateLimit(email) {
+  const now = Date.now();
+  const entry = otpRateLimitMap.get(email);
+
+  if (!entry || now - entry.windowStart > OTP_WINDOW_MS) {
+    otpRateLimitMap.set(email, { count: 1, windowStart: now });
+    return { allowed: true, remaining: OTP_MAX_REQUESTS - 1 };
+  }
+  if (entry.count >= OTP_MAX_REQUESTS) {
+    const retryAfterMin = Math.ceil((OTP_WINDOW_MS - (now - entry.windowStart)) / 60000);
+    return { allowed: false, retryAfterMin };
+  }
+  entry.count++;
+  return { allowed: true, remaining: OTP_MAX_REQUESTS - entry.count };
+}
+
+// Clean up stale entries every 15 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [email, entry] of otpRateLimitMap.entries()) {
+    if (now - entry.windowStart > OTP_WINDOW_MS) otpRateLimitMap.delete(email);
+  }
+}, 15 * 60 * 1000);
+
 const nodemailer = require("nodemailer");
 
 // ----------------------
@@ -30,8 +88,8 @@ async function generateUniqueUsername(baseUsername) {
 // SIGNUP / CHECK USER
 // ----------------------
 router.post("/check-or-create", async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ message: "Email is required." });
+  const email = sanitizeEmail(req.body.email);
+  if (!email) return res.status(400).json({ success: false, message: "A valid email is required." });
 
   try {
     const user = await User.findOne({ email });
@@ -54,8 +112,16 @@ function generateOTP() {
 }
 
 router.post("/request-otp", async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ message: "Email is required" });
+  const email = sanitizeEmail(req.body.email);
+  if (!email) return res.status(400).json({ success: false, message: "A valid email is required." });
+
+  const limitResult = checkOtpRateLimit(email);
+  if (!limitResult.allowed) {
+    return res.status(429).json({
+      success: false,
+      message: `Too many OTP requests. Please wait ${limitResult.retryAfterMin} minute${limitResult.retryAfterMin !== 1 ? "s" : ""} before trying again.`
+    });
+  }
 
   try {
     const user = await User.findOne({ email });
@@ -102,8 +168,10 @@ router.post("/request-otp", async (req, res) => {
 // VERIFY OTP
 // ----------------------
 router.post("/verify-otp", async (req, res) => {
-  const { email, otp } = req.body;
-  if (!email || !otp) return res.status(400).json({ message: "Email and OTP are required" });
+  const email = sanitizeEmail(req.body.email);
+  const otp = sanitizeOTP(req.body.otp);
+  if (!email) return res.status(400).json({ success: false, message: "A valid email is required." });
+  if (!otp) return res.status(400).json({ success: false, message: "OTP must be a 6-digit number." });
 
   try {
     const user = await User.findOne({ email });
@@ -223,10 +291,15 @@ router.post("/logout", (req, res) => {
 // ----------------------
 router.post("/subscribe-newsletter", async (req, res) => {
   try {
-    const { userId, email, username } = req.body;
+    const { userId } = req.body;
+    const email = sanitizeEmail(req.body.email);
+    const username = sanitizeText(req.body.username || "", 50);
 
     if (!email && !userId) {
       return res.status(400).json({ success: false, message: "Email or User ID is required." });
+    }
+    if (req.body.email && !email) {
+      return res.status(400).json({ success: false, message: "Please enter a valid email address." });
     }
 
     let user;
@@ -281,8 +354,20 @@ router.post("/subscribe-newsletter", async (req, res) => {
 // SAVE DELIVERY DETAILS
 // ----------------------
 router.post("/save-delivery", async (req, res) => {
-  const { userId, deliveryDetails } = req.body;
+  const { userId } = req.body;
   if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
+
+  const raw = req.body.deliveryDetails || {};
+  const deliveryDetails = {
+    firstName: sanitizeText(raw.firstName, 50),
+    lastName:  sanitizeText(raw.lastName, 50),
+    phone:     sanitizeText(raw.phone, 20).replace(/[^0-9+\-\s()]/g, ""),
+    email:     sanitizeEmail(raw.email) || "",
+    address:   sanitizeText(raw.address, 300),
+    country:   sanitizeText(raw.country, 60),
+    state:     sanitizeText(raw.state, 60),
+    city:      sanitizeText(raw.city, 60)
+  };
 
   try {
     const user = await User.findById(userId);

@@ -600,7 +600,7 @@
  
   /* Cancel section button full-width on mobile */
   #cancelOrderBtn {
-    width: 100%;
-    text-align: center;
+    width: 50%;
+    white-space: nowrap;
   }
 }
