@@ -43,7 +43,7 @@ async function sendOrderConfirmationEmail(order) {
           <h3>Delivery details</h3>
           <p style="margin: 4px 0;">${order.deliveryDetails.firstName} ${order.deliveryDetails.lastName}</p>
           <p style="margin: 4px 0;">${order.deliveryDetails.phone}</p>
-          <p style="margin: 4px 0;">${order.deliveryDetails.address}, ${order.deliveryDetails.city}, ${order.deliveryDetails.state}</p>
+          <p style="margin: 4px 0;">${[order.deliveryDetails.address, order.deliveryDetails.city, order.deliveryDetails.state].filter(part => part && part.trim() !== "").join(", ")}</p>
 
           <h3 style="margin-top: 24px;">Shipping option</h3>
           <p style="margin: 4px 0;">${order.shippingOption ? order.shippingOption.name : "Not specified"}</p>
@@ -192,7 +192,7 @@ async function sendShippedNotificationEmail(order) {
           <h3>Delivery details</h3>
           <p style="margin: 4px 0;">${order.deliveryDetails.firstName} ${order.deliveryDetails.lastName}</p>
           <p style="margin: 4px 0;">${order.deliveryDetails.phone}</p>
-          <p style="margin: 4px 0;">${order.deliveryDetails.address}, ${order.deliveryDetails.city}, ${order.deliveryDetails.state}</p>
+          <p style="margin: 4px 0;">${[order.deliveryDetails.address, order.deliveryDetails.city, order.deliveryDetails.state].filter(part => part && part.trim() !== "").join(", ")}</p>
 
           <h3 style="margin-top: 24px;">Shipping option</h3>
           <p style="margin: 4px 0;">${order.shippingOption ? order.shippingOption.name : "Not specified"}</p>
