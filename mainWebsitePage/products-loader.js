@@ -41,7 +41,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           <span class="ratingCount">${ratingText}</span>
         </div>
         <div class="price">₦${product.price.toLocaleString()}</div>
-        <button class="addToCart">Add to Cart</button>
+        <button class="addToCart ${product.inStock === false ? 'outOfStock' : ''}" 
+          ${product.inStock === false ? 'disabled' : ''}>
+          ${product.inStock === false ? 'Out of stock' : 'Add to Cart'}
+        </button>
       `;
 
       // Click on rating to show reviews modal

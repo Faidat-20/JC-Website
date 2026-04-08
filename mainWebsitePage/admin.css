@@ -333,3 +333,242 @@ body {
   background: #e6f4ea;
   color: #2d7a3a;
 }
+
+/* PRODUCT MANAGEMENT */
+.adminProductSection {
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid #eee;
+}
+
+.adminProductHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.adminProductHeader h2 {
+  font-size: 18px;
+  color: #222;
+}
+
+.addProductBtn {
+  padding: 10px 20px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.addProductBtn:hover {
+  background: #43a047;
+}
+
+.addProductForm {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.addProductForm h3 {
+  font-size: 15px;
+  margin-bottom: 16px;
+  color: #222;
+}
+
+.productFormGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formField label {
+  font-size: 12px;
+  color: #777;
+  font-weight: bold;
+}
+
+.formField input,
+.formField select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+}
+
+.formField input:focus,
+.formField select:focus {
+  border-color: #4CAF50;
+}
+
+.productFormActions {
+  display: flex;
+  gap: 10px;
+}
+
+.saveProductBtn {
+  padding: 10px 20px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.cancelProductBtn {
+  padding: 10px 20px;
+  background: white;
+  color: #777;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* PRODUCTS LIST */
+.adminProductsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.adminProductCard {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.adminProductCard img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.adminProductCard h4 {
+  font-size: 14px;
+  color: #222;
+  margin: 0;
+}
+
+.adminProductCard .productPrice {
+  font-size: 13px;
+  color: #555;
+}
+
+.adminProductCard .productPage {
+  font-size: 11px;
+  color: #999;
+}
+
+.adminProductCardActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.editProductBtn {
+  flex: 1;
+  padding: 7px;
+  background: #e8f0fe;
+  color: #1a56db;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.deleteProductBtn {
+  flex: 1;
+  padding: 7px;
+  background: #fce8e8;
+  color: #c0392b;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.stockToggleBtn {
+  width: 100%;
+  padding: 7px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.stockToggleBtn.inStock {
+  background: #e6f4ea;
+  color: #2d7a3a;
+}
+
+.stockToggleBtn.outOfStock {
+  background: #fce8e8;
+  color: #c0392b;
+}
+
+/* EDIT FORM INLINE */
+.editProductForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.editProductForm input {
+  padding: 7px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 12px;
+  outline: none;
+}
+
+.editProductForm input:focus {
+  border-color: #4CAF50;
+}
+
+.saveEditBtn {
+  padding: 8px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.cancelEditBtn {
+  padding: 8px;
+  background: white;
+  color: #777;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}

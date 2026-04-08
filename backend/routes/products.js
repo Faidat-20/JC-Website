@@ -132,4 +132,89 @@ router.get("/paginate", async (req, res) => {
   }
 });
 
+// ----------------------
+// ADD NEW PRODUCT
+// ----------------------
+router.post("/add", async (req, res) => {
+  const { name, image, price, page } = req.body;
+
+  if (!name || !image || !price || !page) {
+    return res.status(400).json({ success: false, message: "All fields are required" });
+  }
+
+  try {
+    const existing = await Product.findOne({ name });
+    if (existing) {
+      return res.status(400).json({ success: false, message: "Product already exists" });
+    }
+
+    const product = new Product({ name, image, price, page, inStock: true });
+    await product.save();
+
+    res.json({ success: true, message: "Product added successfully!", product });
+  } catch (err) {
+    console.error("Add product error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// EDIT PRODUCT
+// ----------------------
+router.put("/:productId", async (req, res) => {
+  const { name, image, price, page, inStock } = req.body;
+
+  try {
+    const product = await Product.findById(req.params.productId);
+    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+
+    if (name) product.name = name;
+    if (image) product.image = image;
+    if (price) product.price = price;
+    if (page) product.page = page;
+    if (typeof inStock === "boolean") product.inStock = inStock;
+
+    await product.save();
+    res.json({ success: true, message: "Product updated!", product });
+  } catch (err) {
+    console.error("Edit product error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// DELETE PRODUCT
+// ----------------------
+router.delete("/:productId", async (req, res) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.productId);
+    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+
+    res.json({ success: true, message: "Product deleted!" });
+  } catch (err) {
+    console.error("Delete product error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// TOGGLE STOCK STATUS
+// ----------------------
+router.put("/:productId/stock", async (req, res) => {
+  const { inStock } = req.body;
+
+  try {
+    const product = await Product.findById(req.params.productId);
+    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+
+    product.inStock = inStock;
+    await product.save();
+
+    res.json({ success: true, message: `Product marked as ${inStock ? "in stock" : "out of stock"}!`, product });
+  } catch (err) {
+    console.error("Toggle stock error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 module.exports = router;

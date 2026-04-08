@@ -575,6 +575,18 @@ body.cart-open {
     gap: 8px;
 }
 
+.addToCart.outOfStock {
+  background: #ccc;
+  color: #888;
+  cursor: not-allowed;
+  border: 1px solid #bbb;
+  opacity: 0.7;
+}
+
+.addToCart.outOfStock:hover {
+  background: #ccc;
+}
+
 .quantityControl {
     display: flex;
     align-items: center;

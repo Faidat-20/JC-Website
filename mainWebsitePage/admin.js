@@ -304,4 +304,202 @@ document.addEventListener("DOMContentLoaded", async () => {
   // INITIAL LOAD
   // -----------------------------
   fetchOrders();
+
+  // -----------------------------
+  // PRODUCT MANAGEMENT
+  // -----------------------------
+  const addProductBtn = document.getElementById("addProductBtn");
+  const addProductForm = document.getElementById("addProductForm");
+  const cancelAddProductBtn = document.getElementById("cancelAddProductBtn");
+  const saveNewProductBtn = document.getElementById("saveNewProductBtn");
+  const adminProductsList = document.getElementById("adminProductsList");
+
+  let allProducts = [];
+
+  // Load all products
+  async function fetchProducts() {
+    try {
+      const res = await fetch("http://localhost:5000/api/products");
+      const data = await res.json();
+      if (data.success) {
+        allProducts = data.products;
+        renderProducts(allProducts);
+      }
+    } catch (err) {
+      console.error("Fetch products error:", err);
+    }
+  }
+
+  // Render product cards
+  function renderProducts(products) {
+    adminProductsList.innerHTML = "";
+
+    if (products.length === 0) {
+      adminProductsList.innerHTML = `<p class="noOrders">No products found.</p>`;
+      return;
+    }
+
+    products.forEach(product => {
+      const card = document.createElement("div");
+      card.className = "adminProductCard";
+      card.innerHTML = `
+        <img src="${product.image}" alt="${product.name}"
+          onerror="this.src='https://via.placeholder.com/260x140?text=No+Image'">
+        <h4>${product.name}</h4>
+        <p class="productPrice">₦${product.price.toLocaleString()}</p>
+        <p class="productPage">${product.page}</p>
+
+        <button class="stockToggleBtn ${product.inStock !== false ? "inStock" : "outOfStock"}"
+          data-id="${product._id}" data-stock="${product.inStock !== false}">
+          ${product.inStock !== false ? "✓ In Stock" : "✗ Out of Stock"}
+        </button>
+
+        <div class="adminProductCardActions">
+          <button class="editProductBtn" data-id="${product._id}">Edit</button>
+          <button class="deleteProductBtn" data-id="${product._id}">Delete</button>
+        </div>
+
+        <div class="editProductForm" id="editForm-${product._id}" style="display:none;">
+          <input type="text" id="editName-${product._id}" value="${product.name}" placeholder="Product name">
+          <input type="text" id="editImage-${product._id}" value="${product.image}" placeholder="Image URL">
+          <input type="number" id="editPrice-${product._id}" value="${product.price}" placeholder="Price">
+          <button class="saveEditBtn" data-id="${product._id}">Save</button>
+          <button class="cancelEditBtn" data-id="${product._id}">Cancel</button>
+        </div>
+      `;
+
+      // Toggle stock
+      const stockBtn = card.querySelector(".stockToggleBtn");
+      stockBtn.addEventListener("click", async () => {
+        const currentStock = stockBtn.dataset.stock === "true";
+        const newStock = !currentStock;
+
+        try {
+          const res = await fetch(`http://localhost:5000/api/products/${product._id}/stock`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ inStock: newStock })
+          });
+          const data = await res.json();
+          if (data.success) {
+            product.inStock = newStock;
+            stockBtn.dataset.stock = newStock;
+            stockBtn.textContent = newStock ? "✓ In Stock" : "✗ Out of Stock";
+            stockBtn.className = `stockToggleBtn ${newStock ? "inStock" : "outOfStock"}`;
+          }
+        } catch (err) {
+          console.error("Toggle stock error:", err);
+        }
+      });
+
+      // Edit product
+      const editBtn = card.querySelector(".editProductBtn");
+      const editForm = card.querySelector(`#editForm-${product._id}`);
+      editBtn.addEventListener("click", () => {
+        editForm.style.display = editForm.style.display === "none" ? "flex" : "none";
+      });
+
+      // Save edit
+      const saveEditBtn = card.querySelector(".saveEditBtn");
+      saveEditBtn.addEventListener("click", async () => {
+        const name = document.getElementById(`editName-${product._id}`).value.trim();
+        const image = document.getElementById(`editImage-${product._id}`).value.trim();
+        const price = Number(document.getElementById(`editPrice-${product._id}`).value);
+
+        if (!name || !image || !price) return alert("All fields are required.");
+
+        try {
+          const res = await fetch(`http://localhost:5000/api/products/${product._id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, image, price })
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert("Product updated!");
+            fetchProducts();
+          } else {
+            alert(data.message || "Failed to update product.");
+          }
+        } catch (err) {
+          console.error("Edit product error:", err);
+        }
+      });
+
+      // Cancel edit
+      const cancelEditBtn = card.querySelector(".cancelEditBtn");
+      cancelEditBtn.addEventListener("click", () => {
+        editForm.style.display = "none";
+      });
+
+      // Delete product
+      const deleteBtn = card.querySelector(".deleteProductBtn");
+      deleteBtn.addEventListener("click", async () => {
+        if (!confirm(`Are you sure you want to delete "${product.name}"?`)) return;
+
+        try {
+          const res = await fetch(`http://localhost:5000/api/products/${product._id}`, {
+            method: "DELETE"
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert("Product deleted!");
+            fetchProducts();
+          } else {
+            alert(data.message || "Failed to delete product.");
+          }
+        } catch (err) {
+          console.error("Delete product error:", err);
+        }
+      });
+
+      adminProductsList.appendChild(card);
+    });
+  }
+
+  // Show/hide add product form
+  addProductBtn.addEventListener("click", () => {
+    addProductForm.style.display =
+      addProductForm.style.display === "none" ? "block" : "none";
+  });
+
+  cancelAddProductBtn.addEventListener("click", () => {
+    addProductForm.style.display = "none";
+  });
+
+  // Save new product
+  saveNewProductBtn.addEventListener("click", async () => {
+    const name = document.getElementById("newProductName").value.trim();
+    const image = document.getElementById("newProductImage").value.trim();
+    const price = Number(document.getElementById("newProductPrice").value);
+    const page = document.getElementById("newProductPage").value;
+
+    if (!name || !image || !price || !page) {
+      return alert("Please fill in all fields.");
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/products/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, image, price, page })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Product added successfully!");
+        addProductForm.style.display = "none";
+        document.getElementById("newProductName").value = "";
+        document.getElementById("newProductImage").value = "";
+        document.getElementById("newProductPrice").value = "";
+        fetchProducts();
+      } else {
+        alert(data.message || "Failed to add product.");
+      }
+    } catch (err) {
+      console.error("Add product error:", err);
+    }
+  });
+
+  // Initial load
+  fetchProducts();
 });

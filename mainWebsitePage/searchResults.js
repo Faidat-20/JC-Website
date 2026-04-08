@@ -95,7 +95,10 @@ function renderSearchResults(products) {
         <span class="ratingCount" style="font-size:12px; color:#999;">${ratingText}</span>
       </div>
       <div class="price">₦${product.price.toLocaleString()}</div>
-      <button class="addToCart">Add to Cart</button>
+      <button class="addToCart ${product.inStock === false ? 'outOfStock' : ''}" 
+        ${product.inStock === false ? 'disabled' : ''}>
+        ${product.inStock === false ? 'Out of stock' : 'Add to Cart'}
+      </button>
     `;
 
     // Click rating to show reviews

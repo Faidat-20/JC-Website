@@ -17,6 +17,10 @@ const ProductSchema = new mongoose.Schema({
   page: {
     type: String
   },
+  inStock: {
+    type: Boolean,
+    default: true
+  },
   averageRating: {
     type: Number,
     default: 0
