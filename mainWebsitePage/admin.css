@@ -356,7 +356,7 @@ body {
 
 .addProductBtn {
   padding: 10px 20px;
-  background: #4CAF50;
+  background: hsl(357, 45%, 69%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -366,7 +366,7 @@ body {
 }
 
 .addProductBtn:hover {
-  background: #43a047;
+  background: hsl(357, 32%, 63%);
 }
 
 .addProductForm {
@@ -388,6 +388,49 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 14px;
   margin-bottom: 16px;
+}
+.productSearchBar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.productSearchBar input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  min-width: 200px;
+}
+
+.productSearchBar input:focus {
+  border-color: hsl(357, 45%, 69%);
+}
+
+.productFilterBtns {
+  display: flex;
+  gap: 6px;
+}
+
+.productFilterBtn {
+  padding: 8px 14px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  background: white;
+  color: #555;
+  transition: all 0.2s;
+}
+
+.productFilterBtn.active {
+  background: hsl(357, 45%, 69%);
+  color: white;
+  border-color: hsl(357, 45%, 69%);
 }
 
 .formField {
@@ -413,7 +456,7 @@ body {
 
 .formField input:focus,
 .formField select:focus {
-  border-color: #4CAF50;
+  border-color: hsl(357, 45%, 69%);
 }
 
 .productFormActions {
@@ -423,7 +466,7 @@ body {
 
 .saveProductBtn {
   padding: 10px 20px;
-  background: #4CAF50;
+  background: hsl(357, 45%, 69%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -550,12 +593,12 @@ body {
 }
 
 .editProductForm input:focus {
-  border-color: #4CAF50;
+  border-color: hsl(357, 45%, 69%);
 }
 
 .saveEditBtn {
   padding: 8px;
-  background: #4CAF50;
+  background: hsl(357, 45%, 69%);
   color: white;
   border: none;
   border-radius: 6px;

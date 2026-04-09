@@ -323,7 +323,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const data = await res.json();
       if (data.success) {
         allProducts = data.products;
-        renderProducts(allProducts);
+        filterAndRenderProducts();
       }
     } catch (err) {
       console.error("Fetch products error:", err);
@@ -569,6 +569,48 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (statusEl) statusEl.textContent = "Upload failed";
       return null;
     }
+  }
+
+  // -----------------------------
+  // PRODUCT SEARCH AND FILTER
+  // -----------------------------
+  const productSearchInput = document.getElementById("productSearchInput");
+  const productFilterBtns = document.querySelectorAll(".productFilterBtn");
+  let currentProductFilter = "all";
+
+  productSearchInput.addEventListener("input", () => {
+    filterAndRenderProducts();
+  });
+
+  productFilterBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      productFilterBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentProductFilter = btn.dataset.filter;
+      filterAndRenderProducts();
+    });
+  });
+
+  function filterAndRenderProducts() {
+    const searchTerm = productSearchInput.value.toLowerCase().trim();
+
+    let filtered = allProducts;
+
+    // Apply stock filter
+    if (currentProductFilter === "inStock") {
+      filtered = filtered.filter(p => p.inStock !== false);
+    } else if (currentProductFilter === "outOfStock") {
+      filtered = filtered.filter(p => p.inStock === false);
+    }
+
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(p =>
+        p.name.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    renderProducts(filtered);
   }
 
   // Initial load
