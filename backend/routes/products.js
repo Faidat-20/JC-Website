@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../models/Product");
+const { upload } = require("../utils/cloudinary");
 
 // ----------------------
 // SEED PRODUCTS (run once)
@@ -217,4 +218,22 @@ router.put("/:productId/stock", async (req, res) => {
   }
 });
 
+// ----------------------
+// UPLOAD PRODUCT IMAGE
+// ----------------------
+router.post("/upload-image", upload.single("image"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No image uploaded" });
+    }
+
+    res.json({
+      success: true,
+      imageUrl: req.file.path
+    });
+  } catch (err) {
+    console.error("Image upload error:", err);
+    res.status(500).json({ success: false, message: "Image upload failed" });
+  }
+});
 module.exports = router;

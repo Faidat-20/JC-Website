@@ -361,7 +361,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         <div class="editProductForm" id="editForm-${product._id}" style="display:none;">
           <input type="text" id="editName-${product._id}" value="${product.name}" placeholder="Product name">
-          <input type="text" id="editImage-${product._id}" value="${product.image}" placeholder="Image URL">
+          <img id="editPreview-${product._id}" src="${product.image}" 
+            style="width:100%; height:80px; object-fit:cover; border-radius:6px; border:1px solid #eee; margin-bottom:4px;"
+            onerror="this.style.display='none'">
+          <input type="file" id="editImageFile-${product._id}" accept="image/*" style="margin-bottom:4px;">
+          <input type="hidden" id="editImage-${product._id}" value="${product.image}">
+          <p id="editUploadStatus-${product._id}" style="font-size:11px; color:#4CAF50; margin:0;"></p>
           <input type="number" id="editPrice-${product._id}" value="${product.price}" placeholder="Price">
           <button class="saveEditBtn" data-id="${product._id}">Save</button>
           <button class="cancelEditBtn" data-id="${product._id}">Cancel</button>
@@ -403,10 +408,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       const saveEditBtn = card.querySelector(".saveEditBtn");
       saveEditBtn.addEventListener("click", async () => {
         const name = document.getElementById(`editName-${product._id}`).value.trim();
-        const image = document.getElementById(`editImage-${product._id}`).value.trim();
         const price = Number(document.getElementById(`editPrice-${product._id}`).value);
+        const fileInput = document.getElementById(`editImageFile-${product._id}`);
 
-        if (!name || !image || !price) return alert("All fields are required.");
+        if (!name || !price) return alert("Name and price are required.");
+
+        let image = document.getElementById(`editImage-${product._id}`).value;
+
+        // Upload new image if selected
+        if (fileInput.files[0]) {
+          const uploaded = await uploadImage(fileInput.files[0], `editUploadStatus-${product._id}`);
+          if (!uploaded) return alert("Image upload failed. Please try again.");
+          image = uploaded;
+        }
 
         try {
           const res = await fetch(`http://localhost:5000/api/products/${product._id}`, {
@@ -430,6 +444,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       const cancelEditBtn = card.querySelector(".cancelEditBtn");
       cancelEditBtn.addEventListener("click", () => {
         editForm.style.display = "none";
+      });
+
+      // Image preview for edit form
+      const editFileInput = card.querySelector(`#editImageFile-${product._id}`);
+      editFileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const preview = card.querySelector(`#editPreview-${product._id}`);
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
       });
 
       // Delete product
@@ -467,30 +491,49 @@ document.addEventListener("DOMContentLoaded", async () => {
     addProductForm.style.display = "none";
   });
 
+  // Image preview for add form
+  document.getElementById("newProductImageFile").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const preview = document.getElementById("newProductImagePreview");
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+  });
+
   // Save new product
   saveNewProductBtn.addEventListener("click", async () => {
     const name = document.getElementById("newProductName").value.trim();
-    const image = document.getElementById("newProductImage").value.trim();
     const price = Number(document.getElementById("newProductPrice").value);
     const page = document.getElementById("newProductPage").value;
+    const fileInput = document.getElementById("newProductImageFile");
 
-    if (!name || !image || !price || !page) {
+    if (!name || !price || !page) {
       return alert("Please fill in all fields.");
     }
+
+    if (!fileInput.files[0]) {
+      return alert("Please select an image.");
+    }
+
+    // Upload image first
+    const imageUrl = await uploadImage(fileInput.files[0], "uploadStatus");
+    if (!imageUrl) return alert("Image upload failed. Please try again.");
 
     try {
       const res = await fetch("http://localhost:5000/api/products/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, image, price, page })
+        body: JSON.stringify({ name, image: imageUrl, price, page })
       });
       const data = await res.json();
       if (data.success) {
         alert("Product added successfully!");
         addProductForm.style.display = "none";
         document.getElementById("newProductName").value = "";
-        document.getElementById("newProductImage").value = "";
+        document.getElementById("newProductImageFile").value = "";
+        document.getElementById("newProductImagePreview").style.display = "none";
         document.getElementById("newProductPrice").value = "";
+        document.getElementById("uploadStatus").textContent = "";
         fetchProducts();
       } else {
         alert(data.message || "Failed to add product.");
@@ -499,6 +542,34 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.error("Add product error:", err);
     }
   });
+
+  // Upload image to Cloudinary
+  async function uploadImage(file, statusElId) {
+    const statusEl = document.getElementById(statusElId);
+    if (statusEl) statusEl.textContent = "Uploading...";
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/products/upload-image", {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (statusEl) statusEl.textContent = "Image uploaded ✅";
+        return data.imageUrl;
+      } else {
+        if (statusEl) statusEl.textContent = "Upload failed";
+        return null;
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      if (statusEl) statusEl.textContent = "Upload failed";
+      return null;
+    }
+  }
 
   // Initial load
   fetchProducts();
