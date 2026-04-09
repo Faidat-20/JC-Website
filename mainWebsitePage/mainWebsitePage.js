@@ -616,12 +616,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
         if (data.success) {
 
-          // Merge guest cart into backend cart after login
-          const guestCart = JSON.parse(localStorage.getItem("cart")) || [];
           const backendCart = Array.isArray(data.cart) ? data.cart : [];
 
-          if (guestCart.length > 0) {
-            // Merge: add guest items that aren't already in backend cart
+          // Only merge guest cart if this is a fresh login (flag set by login.js)
+          const justLoggedIn = sessionStorage.getItem("justLoggedIn");
+          const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+
+          if (justLoggedIn && guestCart.length > 0) {
+            sessionStorage.removeItem("justLoggedIn");
+            localStorage.removeItem("guestCart");
+
             for (const guestItem of guestCart) {
               const existing = backendCart.find(i => i.name === guestItem.name);
               if (existing) {
@@ -629,7 +633,6 @@ document.addEventListener("DOMContentLoaded", () => {
               } else {
                 backendCart.push(guestItem);
               }
-              // Sync each merged item to backend
               await updateCartBackend(userId, guestItem.name, guestItem.image, guestItem.price, "add", guestItem.quantity);
             }
             cart = backendCart;

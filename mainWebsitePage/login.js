@@ -282,6 +282,12 @@ document.addEventListener("DOMContentLoaded", () => {
             username: dataVerify.username || "User",
             email: currentEmail
           }));
+          // Save guest cart separately before merging, and flag this as a fresh login
+          const currentGuestCart = JSON.parse(localStorage.getItem("cart")) || [];
+          if (currentGuestCart.length > 0) {
+            localStorage.setItem("guestCart", JSON.stringify(currentGuestCart));
+          }
+          sessionStorage.setItem("justLoggedIn", "true");
           showToast("success", "Login successful!");
           // If user came from checkout flow, send them to checkout
           const params = new URLSearchParams(window.location.search);
