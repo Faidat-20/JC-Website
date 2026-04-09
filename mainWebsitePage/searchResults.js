@@ -113,17 +113,18 @@ function renderSearchResults(products) {
   addToCartButtons.forEach(button => {
     button.addEventListener("click", async () => {
       const userId = sessionStorage.getItem("userId");
-      if (!userId) return showToast("error", "Please log in to add items to cart.");
 
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-
+      // Declare variables first so both guest and logged-in paths can use them
       const itemCard = button.closest(".item");
       const name = itemCard.querySelector("h2").textContent;
       const image = itemCard.querySelector("img").src;
       const priceAmount = itemCard.querySelector(".price").textContent;
       const price = Number(priceAmount.replace(/[₦,]/g, ""));
+      const addCartMessage = document.querySelector(".addCartMessage");
 
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
       const existingItem = cart.find(item => item.name === name);
+
       if (existingItem) {
         existingItem.quantity++;
       } else {
@@ -132,30 +133,31 @@ function renderSearchResults(products) {
 
       localStorage.setItem("cart", JSON.stringify(cart));
       window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
-      
-      const addCartMessage = document.querySelector(".addCartMessage");
+
       if (addCartMessage) {
         addCartMessage.textContent = existingItem ? "Product quantity updated in cart!" : "Added to cart!";
         addCartMessage.classList.add("show");
         setTimeout(() => addCartMessage.classList.remove("show"), 1200);
       }
 
-      if (userId) {
-        try {
-          await fetch("http://localhost:5000/api/auth/update-cart", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({userId,
-              name,
-              image,
-              price,
-              action: existingItem ? "update" : "add",
-              quantity: existingItem ? existingItem.quantity : 1
-            })
-          });
-        } catch (err) {
-          console.error("Cart backend sync error:", err);
-        }
+      // Skip backend sync for guests
+      if (!userId) return;
+
+      try {
+        await fetch("http://localhost:5000/api/auth/update-cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            name,
+            image,
+            price,
+            action: existingItem ? "update" : "add",
+            quantity: existingItem ? existingItem.quantity : 1
+          })
+        });
+      } catch (err) {
+        console.error("Cart backend sync error:", err);
       }
     });
   });

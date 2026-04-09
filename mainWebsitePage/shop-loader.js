@@ -168,16 +168,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     document.querySelectorAll(".addToCart").forEach(button => {
       button.addEventListener("click", async () => {
-        if (!userId) return showToast("error", "Please log in to add items to cart.");
-
-        const cart = JSON.parse(localStorage.getItem("cart")) || [];
         const itemCard = button.closest(".item");
         const name = itemCard.querySelector("h2").textContent;
         const image = itemCard.querySelector("img").src;
         const priceText = itemCard.querySelector(".price").textContent;
         const price = Number(priceText.replace(/[₦,]/g, ""));
-        const existingItem = cart.find(item => item.name === name);
         const addCartMessage = document.querySelector(".addCartMessage");
+
+        if (!userId) {
+          const cart = JSON.parse(localStorage.getItem("cart")) || [];
+          const existingItem = cart.find(item => item.name === name);
+          if (existingItem) {
+            existingItem.quantity++;
+            if (addCartMessage) addCartMessage.textContent = "Product quantity updated in cart!";
+          } else {
+            cart.push({ name, image, price, quantity: 1 });
+            if (addCartMessage) addCartMessage.textContent = "Added to cart!";
+          }
+          localStorage.setItem("cart", JSON.stringify(cart));
+          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+          if (addCartMessage) {
+            addCartMessage.classList.add("show");
+            setTimeout(() => addCartMessage.classList.remove("show"), 1200);
+          }
+          return;
+        }
+
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const existingItem = cart.find(item => item.name === name);
 
         if (existingItem) {
           existingItem.quantity++;

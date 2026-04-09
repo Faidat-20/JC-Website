@@ -53,18 +53,12 @@ function showToast(type, message) {
   toastTimer = setTimeout(dismiss, 2000);
 }
 
-// ✅ Persistent login check
 const storedUser = JSON.parse(localStorage.getItem("currentUser"));
 
 if (storedUser) {
     // Sync with sessionStorage if not already set
     if (!sessionStorage.getItem("userId")) {
         sessionStorage.setItem("userId", storedUser.userId);
-    }
-} else {
-    // No user logged in, redirect to login page
-    if (!window.location.pathname.endsWith("login.html")) {
-        window.location.href = "login.html";
     }
 }
 function clickme() {
@@ -341,13 +335,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   addToCartButtons.forEach(button => {
     button.addEventListener("click", async () => {
-      if (!userId) return showToast("error", "Please log in to add items to cart.");
       const itemCard = button.closest(".item");
       const name = itemCard.querySelector("h2").textContent;
       const image = itemCard.querySelector("img").src;
       const priceAmount = itemCard.querySelector(".price").textContent;
       const price = Number(priceAmount.replace(/[₦,]/g, ""));
       const existingItem = cart.find(item => item.name === name);
+
+      // Guest users can add to cart — saved in localStorage only
+      if (!userId) {
+        if (existingItem) {
+          existingItem.quantity++;
+          addCartMessage.textContent = "Product quantity updated in cart!";
+        } else {
+          cart.push({ name, image, price, quantity: 1 });
+          addCartMessage.textContent = "Added to cart!";
+        }
+        showAddCartMessage();
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+        return; // skip backend sync
+      }
 
       if (existingItem) {
         existingItem.quantity++; 
@@ -450,11 +458,12 @@ document.addEventListener("DOMContentLoaded", () => {
         item.quantity++;
         renderCart();
         showCartOverlayMessage("Product quantity updated!");
+        localStorage.setItem("cart", JSON.stringify(cart));
         window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
 
+        if (!userId) return; // guest — localStorage already updated
         const success = await updateCartBackend(userId, item.name, item.image, item.price, "update", item.quantity);
         if (!success) {
-          // rollback if backend fails
           item.quantity--;
           renderCart();
         }
@@ -466,11 +475,12 @@ document.addEventListener("DOMContentLoaded", () => {
           item.quantity--;
           renderCart();
           showCartOverlayMessage("Product quantity updated!");
+          localStorage.setItem("cart", JSON.stringify(cart));
           window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
 
+          if (!userId) return; // guest — localStorage already updated
           const success = await updateCartBackend(userId, item.name, item.image, item.price, "update", item.quantity);
           if (!success) {
-            // rollback if backend fails
             item.quantity++;
             renderCart();
           }
@@ -482,6 +492,7 @@ document.addEventListener("DOMContentLoaded", () => {
           localStorage.setItem("cart", JSON.stringify(cart));
           window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
 
+          if (!userId) return; // guest — localStorage already updated
           const success = await updateCartBackend(userId, removedItem.name, removedItem.image, removedItem.price, "remove", 0);
           if (!success) {
             cart.splice(index, 0, removedItem);
@@ -495,22 +506,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // REMOVE ITEM
       removeBtn.addEventListener("click", async () => {
-        const removedItem = { ...item }; // backup for rollback
+        const removedItem = { ...item };
         cart.splice(index, 1);
         renderCart();
         showCartOverlayMessage("Product removed from cart!");
         localStorage.setItem("cart", JSON.stringify(cart));
         window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
 
+        if (!userId) return; // guest — localStorage already updated
         const success = await updateCartBackend(userId, removedItem.name, removedItem.image, removedItem.price, "remove", 0);
         if (!success) {
-          cart.splice(index, 0, removedItem); // rollback
+          cart.splice(index, 0, removedItem);
           renderCart();
           localStorage.setItem("cart", JSON.stringify(cart));
           window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
           showCartOverlayMessage("Failed to remove product, rollback applied.");
-        }else {
-          localStorage.setItem("cart", JSON.stringify(cart)); // sync storage
         }
       });
       cartItemsContainer.appendChild(cartItem);
@@ -530,6 +540,14 @@ document.addEventListener("DOMContentLoaded", () => {
     checkoutBtn.addEventListener("click", () => {
       if (cart.length === 0) return;
       localStorage.setItem("cart", JSON.stringify(cart));
+
+      // If not logged in, save cart and send to login first
+      const userId = sessionStorage.getItem("userId");
+      if (!userId) {
+        window.location.href = "login.html?redirect=checkout";
+        return;
+      }
+
       checkoutBtn.disabled = true;
       checkoutBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing...`;
       setTimeout(() => {
@@ -559,7 +577,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ENABLE CLEAR CART 
   clearCartBtn.addEventListener("click", async () => {
-    if (!userId) return showToast("error", "Please log in to clear your cart.");
+    if (!userId) {
+      cart = [];
+      showEmptyCart();
+      localStorage.setItem("cart", JSON.stringify(cart));
+      showCartOverlayMessage("Cart cleared!");
+      return;
+    }
   
     try {
       const res = await fetch("http://localhost:5000/api/auth/clear-cart", {
@@ -591,8 +615,27 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await fetch(`http://localhost:5000/api/auth/userdata/${userId}`);
         const data = await res.json();
         if (data.success) {
-          if (Array.isArray(data.cart) && data.cart.length > 0) {
-            cart = data.cart;
+
+          // Merge guest cart into backend cart after login
+          const guestCart = JSON.parse(localStorage.getItem("cart")) || [];
+          const backendCart = Array.isArray(data.cart) ? data.cart : [];
+
+          if (guestCart.length > 0) {
+            // Merge: add guest items that aren't already in backend cart
+            for (const guestItem of guestCart) {
+              const existing = backendCart.find(i => i.name === guestItem.name);
+              if (existing) {
+                existing.quantity += guestItem.quantity;
+              } else {
+                backendCart.push(guestItem);
+              }
+              // Sync each merged item to backend
+              await updateCartBackend(userId, guestItem.name, guestItem.image, guestItem.price, "add", guestItem.quantity);
+            }
+            cart = backendCart;
+            renderCart();
+          } else if (backendCart.length > 0) {
+            cart = backendCart;
             renderCart();
           }
           checkNewsletterStatus(data);

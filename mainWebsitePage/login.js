@@ -49,7 +49,60 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!dataCheck.subscribed) {
           setTimeout(() => hideSpinner(), 400);
-          showToast("info", "You must subscribe first before getting an OTP.");
+
+          // Show inline subscribe prompt inside the login box
+          if (!document.getElementById("subscribePrompt")) {
+            const loginParagraph = loginContainer.querySelector("p");
+            if (loginParagraph) loginParagraph.textContent = "You need to subscribe before you can log in.";
+
+            const prompt = document.createElement("div");
+            prompt.id = "subscribePrompt";
+            prompt.style.cssText = `
+              background: #fff8f0;
+              border: 1.5px solid hsl(357, 45%, 69%);
+              border-radius: 10px;
+              padding: 16px;
+              margin-bottom: 1rem;
+              text-align: center;
+              font-size: 14px;
+              color: #555;
+            `;
+            prompt.innerHTML = `
+              <p style="margin-bottom: 12px;">
+                You're not subscribed yet. Subscribe first with the email 
+                <strong>${userEmail.value.trim()}</strong> to create your account, 
+                then come back to log in.
+              </p>
+              <button id="openSubscribeBtn" style="
+                width: 100%;
+                padding: 12px;
+                background: hsl(357, 45%, 69%);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-size: 15px;
+                font-weight: bold;
+                cursor: pointer;
+              ">Subscribe now</button>
+            `;
+
+            // Insert prompt above the Get OTP button
+            loginContainer.insertBefore(prompt, getOtpBtn);
+
+            // Open the newsletter overlay when they click Subscribe now
+            document.getElementById("openSubscribeBtn").addEventListener("click", () => {
+              const newsletterOverlay = document.getElementById("newsletterOverlay");
+              const newsletterEmailInput = document.querySelector("#newsletterForm input[name='user_email']");
+              if (newsletterOverlay) {
+                // Pre-fill the email they already typed
+                if (newsletterEmailInput) {
+                  newsletterEmailInput.value = userEmail.value.trim();
+                }
+                newsletterOverlay.classList.add("show");
+                document.body.style.overflow = "hidden";
+              }
+            });
+          }
           return;
         }
 
@@ -225,7 +278,14 @@ document.addEventListener("DOMContentLoaded", () => {
             email: currentEmail
           }));
           showToast("success", "Login successful!");
-          window.location.href = "mainWebsitePage.html";
+          // If user came from checkout flow, send them to checkout
+          const params = new URLSearchParams(window.location.search);
+          const redirect = params.get("redirect");
+          if (redirect === "checkout") {
+            window.location.href = "checkout.html";
+          } else {
+            window.location.href = "mainWebsitePage.html";
+          }
         } else {
           setTimeout(() => hideSpinner(), 400);
           showToast("error", dataVerify.message || "Incorrect OTP");
