@@ -46,7 +46,6 @@
   </div>
 
   <main class="trackMain">
-
     <!-- SEARCH BOX -->
     <div class="trackSearchBox">
       <p class="trackSearchLabel">Enter your tracking ID to check your order status</p>
@@ -64,7 +63,6 @@
 
     <!-- TRACKING RESULT -->
     <div class="trackResult" id="trackResult" style="display: none;">
-
       <div class="trackResultHeader">
         <h2>Order <span id="resultTrackingId"></span></h2>
         <p class="resultOrderId">Order ID: <span id="resultOrderId"></span></p>
@@ -74,30 +72,11 @@
 
       <!-- PROGRESS BAR -->
       <div class="trackProgress" id="trackProgress">
-        <!-- <div class="trackStep" id="step-pending">
-          <div class="trackStepDot"></div>
-          <p>Order placed</p>
-        </div>
-        <div class="trackLine" id="line-1"></div>
-        <div class="trackStep" id="step-paid">
-          <div class="trackStepDot"></div>
-          <p>Payment confirmed</p>
-        </div>
-        <div class="trackLine" id="line-2"></div>
-        <div class="trackStep" id="step-shipped">
-          <div class="trackStepDot"></div>
-          <p>Shipped</p>
-        </div>
-        <div class="trackLine" id="line-3"></div>
-        <div class="trackStep" id="step-delivered">
-          <div class="trackStepDot"></div>
-          <p>Delivered</p>
-        </div> -->
+
       </div>
 
       <!-- ORDER DETAILS -->
       <div class="trackDetails">
-
         <div class="trackSection">
           <h3>Delivery details</h3>
           <p id="trackName"></p>
@@ -169,16 +148,13 @@
         <div id="ratingsList"></div>
         <button id="submitRatingsBtn">Submit ratings</button>
         </div>
-
       </div>
-
     </div>
 
     <!-- ERROR MESSAGE -->
     <div class="trackError" id="trackError" style="display: none;">
       <p>Order not found. Please check your tracking ID and try again.</p>
     </div>
-
   </main>
 
   <div class="pageOverlay" id="pageOverlay"></div>
@@ -221,6 +197,21 @@
     </div>
   </footer>
 
+  <!-- Newsletter Popup -->
+    <div class="newsletterOverlay" id="newsletterOverlay">
+      <div class="newsletterModal">
+        <span class="closeNewsletter" id="closeNewsletter">&times;</span>
+        <h2>GET EXCLUSIVE OFFERS</h2>
+        <p>Subscribe to receive updates, exclusive deals, and be the first to know about our latest offers.!</p>
+
+        <form id="newsletterForm" class="newsletterForm">
+          <input type="text" name="username" placeholder="Enter your full name" required>
+          <input type="email" name="user_email" placeholder="Enter your email address" required>
+          <button type="submit">Sign up</button>
+        </form>
+      </div>
+    </div>
+    
   <script src="./mainWebsitePage/mainWebsitePage.js"></script>
   <script src="mainWebsitePage/track-order.js"></script>
 </body>
