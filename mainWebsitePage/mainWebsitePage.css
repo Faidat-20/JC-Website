@@ -323,11 +323,13 @@ body{
     padding: 10px;
 }
 .productList{
-    margin: auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap:20px;
-    background-color: var(--secondaryColor);
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 280px));
+  gap: 20px;
+  background-color: var(--secondaryColor);
+  justify-content: start;
+
 }
 .productList .item {
     background-color: var(--primaryColor);
@@ -1025,16 +1027,18 @@ a:hover {
 }
 
 @media (max-width: 900px) {
-    .productList {
-        grid-template-columns: repeat(2, 1fr);
-    }
+  .productList {
+    grid-template-columns: repeat(2, minmax(0, 280px));
+    justify-content: start;
+  }
 }
 
 @media (max-width: 480px) {
-    .productList {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-    }
+  .productList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    justify-content: start;
+  }
 
     .productList .item {
         padding: 12px;
