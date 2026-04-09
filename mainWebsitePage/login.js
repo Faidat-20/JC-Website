@@ -34,6 +34,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!email) return showToast("error", "Please enter your email.");
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(email)) return showToast("error", "Please enter a valid email.");
+      
+      // Remove subscribe prompt if user is retrying after subscribing
+      const existingPrompt = document.getElementById("subscribePrompt");
+      if (existingPrompt) existingPrompt.remove();
+
       showSpinner();
       try {
         const resCheck = await fetch("http://localhost:5000/api/auth/check-or-create", {
@@ -338,6 +343,20 @@ document.addEventListener("DOMContentLoaded", () => {
       closeBtn.addEventListener("click", () => {
         overlay.classList.remove("show");
         document.body.style.overflow = "auto";
+
+        // If on login page, restore the email input and Get OTP button
+        // so user can proceed to login after subscribing
+        const getOtpBtn = document.getElementById("getOtpBtn");
+        const userEmail = document.getElementById("userEmail");
+        const subscribePrompt = document.getElementById("subscribePrompt");
+        const loginParagraph = document.querySelector(".loginContainer p");
+
+        if (getOtpBtn && userEmail) {
+          if (subscribePrompt) subscribePrompt.remove();
+          getOtpBtn.style.display = "block";
+          userEmail.style.display = "block";
+          if (loginParagraph) loginParagraph.textContent = "Enter your email below to receive an OTP.";
+        }
       });
     }
   }

@@ -310,9 +310,12 @@ router.post("/subscribe-newsletter", async (req, res) => {
       console.log("Found by userId:", user ? user.email : "not found");
     }
 
-    // Then try by email
+    // Then try by email (case-insensitive fallback)
     if (!user && email) {
-      user = await User.findOne({ email });
+      user = await User.findOne({ email: email });
+      if (!user) {
+        user = await User.findOne({ email: new RegExp(`^${email}$`, "i") });
+      }
       console.log("Found by email:", user ? user.email : "not found");
     }
 
@@ -339,10 +342,30 @@ router.post("/subscribe-newsletter", async (req, res) => {
     }
 
     // User doesn't exist at all — create them
-    const uniqueUsername = await generateUniqueUsername(username);
-    user = new User({ email, username: uniqueUsername, isSubscribed: true, cart: [] });
-    await user.save();
-    return res.json({ success: true, message: "Subscription successful!" });
+    // User doesn't exist at all — create them
+    try {
+      const uniqueUsername = await generateUniqueUsername(username);
+      user = new User({ email, username: uniqueUsername, isSubscribed: true, cart: [] });
+      await user.save();
+      return res.json({ success: true, message: "Subscription successful!" });
+    } catch (createErr) {
+      if (createErr.code === 11000) {
+        // Race condition — user was created between our check and insert
+        user = await User.findOne({ email: new RegExp(`^${email}$`, "i") });
+        if (user) {
+          if (!user.isSubscribed) {
+            user.isSubscribed = true;
+            if (username && !user.username) {
+              user.username = await generateUniqueUsername(username);
+            }
+            await user.save();
+            return res.json({ success: true, message: "Subscription successful!" });
+          }
+          return res.json({ success: true, message: "You are already subscribed! Login." });
+        }
+      }
+      throw createErr;
+    }
 
   } catch (err) {
     console.error("Newsletter subscription error:", err);
