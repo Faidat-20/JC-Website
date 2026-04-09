@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             showSpinner();
             setTimeout(() => {
               hideSpinner();
-              displayOrder(order);
+              displayOrder(order, true); // always owner from My Orders list
             }, 800);
           });
 
@@ -79,13 +79,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     trackError.style.display = "none";
     showSpinner();
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/track/${trackingId}`);
+      const res = await fetch(`http://localhost:5000/api/orders/track/${trackingId}?userId=${userId || ""}`);
       const data = await res.json();
 
       if (data.success) {
         setTimeout(() => {
           hideSpinner();
-          displayOrder(data.order);
+          displayOrder(data.order, data.isOwner !== false);
         }, 800);
       } else {
         setTimeout(() => {
@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ─────────────────────────────────────────
   // DISPLAY ORDER DETAILS
   // ─────────────────────────────────────────
-  function displayOrder(order) {
+  function displayOrder(order, isOwner = true) {
     trackError.style.display = "none";
     trackResult.style.display = "block";
 
@@ -128,17 +128,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     updateProgress(order);
 
-    document.getElementById("trackName").textContent =
-      `${order.deliveryDetails.firstName} ${order.deliveryDetails.lastName}`;
-    document.getElementById("trackPhone").textContent = order.deliveryDetails.phone;
-    const d = order.deliveryDetails;
-    document.getElementById("trackAddress").innerHTML = `
-      ${d.address}<br>
-      ${[d.state, d.country].filter(part => part && part.trim() !== "").join(", ")}
-    `;
-
-    document.getElementById("trackShipping").textContent =
-      order.shippingOption ? order.shippingOption.name : "Not specified";
+    // Non-owners only see status and timeline — no personal details
+    if (!isOwner) {
+      document.getElementById("trackName").textContent = "—";
+      document.getElementById("trackPhone").textContent = "—";
+      document.getElementById("trackAddress").textContent = "—";
+      document.getElementById("trackShipping").textContent = "—";
+      document.getElementById("trackItems").innerHTML = `
+        <p style="font-size:13px; color:#999;">
+          Item details are only visible to the order owner.
+        </p>`;
+      document.getElementById("trackSubtotal").textContent = "—";
+      document.getElementById("trackShippingFee").textContent = "—";
+      document.getElementById("trackTotal").textContent = "—";
+      document.getElementById("viewConfirmationBtn").style.display = "none";
+      markReceivedSection.style.display = "none";
+      document.getElementById("ratingsSection").style.display = "none";
+      renderCancelSection({ status: "" }); // pass fake order so cancel section doesn't show
+    } else {
+      document.getElementById("trackName").textContent =
+        `${order.deliveryDetails.firstName} ${order.deliveryDetails.lastName}`;
+      document.getElementById("trackPhone").textContent = order.deliveryDetails.phone;
+      const d = order.deliveryDetails;
+      document.getElementById("trackAddress").innerHTML = `
+        ${d.address}<br>
+        ${[d.state, d.country].filter(part => part && part.trim() !== "").join(", ")}
+      `;
+      document.getElementById("trackShipping").textContent =
+        order.shippingOption ? order.shippingOption.name : "Not specified";
+    }
 
     document.getElementById("timeOrdered").textContent = formatDateTime(order.order_created_at);
 

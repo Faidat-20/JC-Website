@@ -98,7 +98,32 @@ router.get("/track/:trackingId", async (req, res) => {
   try {
     const order = await Order.findOne({ trackingId: req.params.trackingId });
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
-    res.json({ success: true, order });
+
+    // Check if requestingUserId was passed (logged-in user)
+    const requestingUserId = req.query.userId || null;
+    const isOwner = requestingUserId && String(order.userId) === String(requestingUserId);
+
+    // If not the owner, return only basic public info — no personal details
+    if (!isOwner) {
+      return res.json({
+        success: true,
+        isOwner: false,
+        order: {
+          _id: order._id,
+          trackingId: order.trackingId,
+          status: order.status,
+          paymentStatus: order.paymentStatus,
+          order_created_at: order.order_created_at,
+          order_shipped_at: order.order_shipped_at,
+          order_delivered_at: order.order_delivered_at,
+          updatedAt: order.updatedAt,
+          order_refunded_at: order.order_refunded_at
+          // NO: deliveryDetails, items, pricing, userId
+        }
+      });
+    }
+
+    res.json({ success: true, isOwner: true, order });
   } catch (err) {
     console.error("Track order error:", err);
     res.status(500).json({ success: false, message: "Server error" });
