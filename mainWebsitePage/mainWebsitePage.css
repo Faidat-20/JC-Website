@@ -1321,9 +1321,9 @@ a:hover {
  
   .backwardBtn,
   .fowardBtn {
-    width: 26px;
-    height: 26px;
-    font-size: 13px;
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
   }
 }
 

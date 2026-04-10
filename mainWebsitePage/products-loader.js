@@ -126,13 +126,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Helper: ellipsis
     function createEllipsis() {
-      const span = document.createElement("span");
+      const span = document.createElement("a");
       span.textContent = "...";
-      span.style.cssText = `
-        display: flex; align-items: center; justify-content: center;
-        width: 34px; height: 34px; font-size: 16px;
-        color: #aaa; cursor: default; user-select: none;
-      `;
+      span.style.pointerEvents = "none";
+      span.style.color = "rgb(41, 39, 39);";
+      span.style.cursor = "default";
       return span;
     }
 
