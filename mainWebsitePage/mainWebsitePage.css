@@ -384,7 +384,7 @@ body{
     transform: translateY(-1px) scale(1.03);
 }
 
-/* Cart Signout Styles */
+/* Cart Overlay Styles */
 .cartOverlay {
     width: 400px;
     height: 100vh;
@@ -476,6 +476,14 @@ body.cart-open {
     transform: none;
 }
 
+.cartFooterActions {
+  display: flex;
+  align-items: center;  
+  gap: 12px;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
 .continueShopping {
     font-size: 14px;
     text-align: center;
@@ -486,14 +494,6 @@ body.cart-open {
 
 .continueShopping:hover {
     color: var(--navColor); 
-}
-
-.cartFooterActions {
-  display: flex;
-  align-items: center;  
-  gap: 12px;
-  margin-top: 15px;
-  font-size: 14px;
 }
 
 .clearCart {
@@ -539,7 +539,7 @@ body.cart-open {
 }
 
 
-/* Cart overlay style */
+/* Cart overlay item style */
 .cartItem {
     display: grid;
     grid-template-columns: 60px 1fr auto;
@@ -628,7 +628,6 @@ body.cart-open {
   justify-content: center;
   margin: 60px 0;
 }
-
 
 .pagination {
   display: flex;
@@ -842,20 +841,17 @@ a:hover {
     padding-top: 10px; 
     border-top: 1px solid #333;
 }
-/* hover */
 .footerTrackBtn:hover {
   background-color: hsl(357, 45%, 66%);
   transform: translateY(-2px);
   box-shadow: 0 5px 0 hsl(357, 43%, 63%);
 }
 
-/* click */
 .footerTrackBtn:active {
   transform: translateY(2px);
   box-shadow: 0 2px 0 hsl(357, 43%, 63%);
 }
 
-/* icon movement (optional but nice) */
 .footerTrackBtn i {
   transition: transform 0.2s ease;
 }
@@ -863,7 +859,7 @@ a:hover {
 .footerTrackBtn:hover i {
   transform: translateX(3px);
 }
-/* SUBTLE SHINE EFFECT */
+
 .footerTrackBtn::after {
   content: "";
   position: absolute;
@@ -929,12 +925,10 @@ a:hover {
   border: 5px dotted var(--navColor);
 }
 
-
 @keyframes popup{
   from{transform:scale(0.7); opacity:0;}
   to{transform:scale(1); opacity:1;}
 }
-
 
 .closeNewsletter{
   position:absolute;
@@ -944,7 +938,6 @@ a:hover {
   cursor:pointer;
 }
 
-
 .newsletterModal h2{
   margin-bottom:10px;
 }
@@ -953,7 +946,6 @@ a:hover {
   margin-bottom:25px;
   color:#555;
 }
-
 
 .newsletterForm input{
   width:100%;
@@ -985,157 +977,41 @@ a:hover {
   font-weight: 550;
 }
 
-@media (max-width: 768px) {
-
-    .navbar {
-        padding: 12px 16px;
-        gap: 10px;
-        flex: 1;
-        min-width: 0;
-    }
-
-    .businessName {
-        font-size: 9px;
-        white-space: nowrap;
-    }
-
-    .search {
-        max-width: 100%;
-        padding: 12px;
-    }
-
-    .searchInput {
-        font-size: 14px;
-    }
-
-    .navRight {
-        gap: 12px;
-    }
-
-    .login {
-        font-size: 13px;
-    }
-    .greeting{
-        min-height: 25vh !important;
-    }
-    .greetingMessage::before {
-        font-size: clamp(30px, 8vw, 50px);
-        letter-spacing: 4px;
-    }
-}
-
-@media (max-width: 900px) {
-    .productList {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 480px) {
-    .productList {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-    }
-
-    .productList .item {
-        padding: 12px;
-    }
-
-    .productList .item img {
-        aspect-ratio: 1 / 1;
-    }
-
-    .productList .item h2 {
-        font-size: 14px;
-    }
-
-    .productList .item button {
-        width: 100%;
-        font-size: 14px;
-        padding: 12px;
-        white-space: normal;
-    }
-
-    .productList .item button:hover {
-        transform: none;
-    }
-    .continueShopping, .clearCart{
-    margin-top: 0px;
-    margin-bottom: 40px;
-    }
-    .greeting{
-        min-height: 20vh !important;
-    }
-    .greetingMessage::before {
-        font-size: clamp(40px, 8vw, 60px);
-        letter-spacing: 4px;
-    }
-}
-
-
-@media (max-width: 600px) {
-
-  .cartOverlay {
-    width: 90vw;
-    height: 100vh;
-    max-width: 90vw;
-    max-height: 100vh;
-
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: auto;
-
-  }
-
-  .cartFooter {
-    padding-bottom: calc(
-      16px + env(safe-area-inset-bottom) + constant(safe-area-inset-bottom)
-    );
-  }
-
-  .cartFooterActions {
-    padding-bottom: calc(
-      env(safe-area-inset-bottom) + constant(safe-area-inset-bottom)
-    );
-  }
-}
-
-/* Greeting container for shop page like home page */
 .greeting.shopPage {
-    position: relative;
-    min-height: 35vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+  position: relative;
+  min-height: 35vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 @keyframes shopFadeUp {
-    0% {
-        opacity: 0;
-        transform: translateY(40px) scale(0.8);
-    }
-    60% {
-        opacity: 1;
-        transform: translateY(-10px) scale(1.05);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.8);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 
 /* Shop heading overlay */
 .greeting.shopPage h1 {
-    position: relative;
-    z-index: 2;
-    font-size: clamp(32px, 6vw, 64px);
-    font-weight: 700;
-    color: white;
-    letter-spacing: 1px;
-    text-align: center;
-    animation: shopFadeUp 1s ease-out forwards;
+  position: relative;
+  z-index: 2;
+  font-size: clamp(32px, 6vw, 64px);
+  font-weight: 700;
+  color: white;
+  letter-spacing: 1px;
+  text-align: center;
+  animation: shopFadeUp 1s ease-out forwards;
 }
 
 .productRating {
@@ -1156,7 +1032,7 @@ a:hover {
   color: #999;
 }
 
-/* PAGE TRANSITION SPINNER */
+/* SPINNER */
 .pageSpinner {
   position: fixed;
   inset: 0;
@@ -1188,6 +1064,7 @@ a:hover {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
 /* TOAST NOTIFICATION */
 .toastContainer {
   position: fixed;
@@ -1240,110 +1117,6 @@ a:hover {
 }
 
 .toast .toastClose:hover { opacity: 1; }
- 
-/* ── Navbar: mobile ── */
-@media (max-width: 768px) {
-
-  .businessName {
-    font-size: 8px;
-    white-space: nowrap;
-  }
- 
-  .navRight {
-    gap: 5px;
-  }
-
-  #loggedInUser {
-    font-size: 7px !important;
-  }
-
-  .search {
-    padding: 10px 12px;
-    width: 200px;
-  }
- 
-  .searchInput {
-    font-size: 13px;
-  }
- 
-  /* Login page */
-  .loginSection {
-    padding: 30px 12px;
-    min-height: 60vh;
-  }
- 
-  .loginContainer {
-    padding: 2rem 1.25rem;
-  }
-}
-
-/* ── Navbar: very small screens (≤ 400px) ── */
-@media (max-width: 400px) {
- #loggedInUser {
-    font-size: 7px !important;
-  }
-  .search {
-    width: 160px;
-    padding: 8px 10px;
-    font-size: 10px;
-  }
-  .searchInput{
-    font-size: 10px;
-  }
-  .businessName{
-    white-space: wrap;
-  }
- 
-  .login,
-  #logoutBtn {
-    font-size: 11px;
-  }
-}
-
-@media (max-width: 344px) {
-  .searchInput{
-    font-size: 7.5px;
-  }
-}
- 
-@media (max-width: 600px) {
-  /* Pagination tighter */
-  .pages {
-    gap: 6px;
-    padding: 5px;
-  }
- 
-  .pages a {
-    width: 26px;
-    height: 26px;
-    font-size: 13px;
-  }
- 
-  .backwardBtn,
-  .fowardBtn {
-    width: 30px;
-    height: 30px;
-    font-size: 15px;
-  }
-}
-
-/* ── Newsletter modal ── */
-@media (max-width: 480px) {
-  .newsletterModal {
-    padding: 28px 16px;
-    width: 95%;
-  }
- 
-  .newsletterModal h2 {
-    font-size: 18px;
-  }
- 
-  .newsletterForm input,
-  .newsletterForm button {
-    font-size: 14px;
-    padding: 12px;
-  }
-}
 
 /* ── Skeleton loader ── */
 @keyframes shimmer {
@@ -1406,4 +1179,196 @@ a:hover {
   height: 38px;
   border-radius: 15px;
   margin-top: 18px;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 12px 16px;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .businessName {
+    font-size: 9px;
+    white-space: nowrap;
+  }
+
+  .search {
+    max-width: 100%;
+    padding: 10px 12px;
+    width: 200px;
+  }
+
+  .searchInput {
+    font-size: 14px;
+  }
+
+  .navRight {
+    gap: 10px;
+  }
+
+  .login {
+    font-size: 13px;
+  }
+  .greeting{
+      min-height: 25vh !important;
+  }
+  .greetingMessage::before {
+      font-size: clamp(30px, 8vw, 50px);
+      letter-spacing: 4px;
+  }
+
+  #loggedInUser {
+    font-size: 7px !important;
+  }
+  
+  /* Login page */
+  .loginSection {
+    padding: 30px 12px;
+    min-height: 60vh;
+  }
+ 
+  .loginContainer {
+    padding: 2rem 1.25rem;
+  }
+}
+
+@media (max-width: 900px) {
+    .productList {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+  .productList {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+  }
+
+  .productList .item {
+      padding: 12px;
+  }
+
+  .productList .item img {
+      aspect-ratio: 1 / 1;
+  }
+
+  .productList .item h2 {
+      font-size: 14px;
+  }
+
+  .productList .item button {
+    width: 100%;
+    font-size: 14px;
+    padding: 12px;
+    white-space: normal;
+  }
+
+  .productList .item button:hover {
+    transform: none;
+  }
+  .continueShopping, .clearCart{
+    margin-top: 0px;
+    margin-bottom: 40px;
+  }
+  .greeting{
+    min-height: 20vh !important;
+  }
+  .greetingMessage::before {
+    font-size: clamp(40px, 8vw, 60px);
+    letter-spacing: 4px;
+  }
+
+  /* ── Newsletter modal ── */
+  .newsletterModal {
+    padding: 28px 16px;
+    width: 95%;
+  }
+
+  .newsletterModal h2 {
+    font-size: 18px;
+  }
+ 
+  .newsletterForm input,
+  .newsletterForm button {
+    font-size: 14px;
+    padding: 12px;
+  }
+}
+@media (max-width: 600px) {
+  .cartOverlay {
+    width: 90vw;
+    height: 100vh;
+    max-width: 90vw;
+    max-height: 100vh;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: auto;
+  }
+
+  .cartFooter {
+    padding-bottom: calc(
+      16px + env(safe-area-inset-bottom) + constant(safe-area-inset-bottom)
+    );
+  }
+
+  .cartFooterActions {
+    padding-bottom: calc(
+      env(safe-area-inset-bottom) + constant(safe-area-inset-bottom)
+    );
+  }
+
+  /* Pagination tighter */
+  .pages {
+    gap: 6px;
+    padding: 5px;
+  }
+ 
+  .pages a {
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+  }
+ 
+  .backwardBtn,
+  .fowardBtn {
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+  }
+}
+@media (max-width: 344px) {
+  .searchInput{
+    font-size: 7.5px;
+  }
+}
+ 
+/* ── Navbar: very small screens (≤ 400px) ── */
+@media (max-width: 400px) {
+ #loggedInUser {
+    font-size: 7px !important;
+  }
+  .search {
+    width: 160px;
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+  .searchInput{
+    font-size: 9px;
+    font-weight: 500;
+  }
+  .businessName{
+    font-size: 7px;
+    white-space: wrap;
+  }
+ 
+  .login,
+  #logoutBtn {
+    font-size: 10px;
+  }
+  .navRight {
+    gap: 2px;
+  }
 }

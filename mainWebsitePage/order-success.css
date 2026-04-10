@@ -56,7 +56,6 @@ body {
   text-align: center;
 }
 
-/* ─── SUCCESS ICON ─── */
 .success-icon {
   width: 72px;
   height: 72px;
@@ -108,7 +107,6 @@ h1 {
   letter-spacing: 2px;
 }
 
-/* ─── ORDER CARD ─── */
 .order-card {
   background: white;
   border-radius: 14px;
