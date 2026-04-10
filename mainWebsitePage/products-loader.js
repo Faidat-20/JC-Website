@@ -4,11 +4,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!productList) return;
 
   // Get current page name e.g. "mainWebsitePage.html"
-  const currentPage = window.location.pathname.split("/").pop();
+  const paginationContainer = document.querySelector(".paginationContainer");
+  const paginationDiv = paginationContainer ? paginationContainer.querySelector(".pagination") : null;
 
   try {
-    // Fetch products for this page from MongoDB
-    const res = await fetch(`http://localhost:5000/api/products/page/${currentPage}`);
+    // Show skeletons while loading
+    productList.innerHTML = "";
+    for (let i = 0; i < 8; i++) {
+      const skeleton = document.createElement("div");
+      skeleton.className = "item skeletonCard";
+      skeleton.innerHTML = `
+        <div class="skeletonImg"></div>
+        <div class="skeletonLine skeletonTitle"></div>
+        <div class="skeletonLine skeletonStars"></div>
+        <div class="skeletonLine skeletonPrice"></div>
+        <div class="skeletonLine skeletonBtn"></div>
+      `;
+      productList.appendChild(skeleton);
+    }
+
+    // Use paginate endpoint — page 1 is always mainWebsitePage.html
+    const res = await fetch(`http://localhost:5000/api/products/paginate?page=1&limit=8`);
     const data = await res.json();
 
     if (!data.success || data.products.length === 0) {
@@ -16,7 +32,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    // Clear any existing content
     productList.innerHTML = "";
 
     // Build each product card
@@ -60,10 +75,95 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Re-attach addToCart event listeners after products load
     reattachCartListeners();
+    renderHomePagination(data.totalPages);
 
   } catch (err) {
     console.error("Load products error:", err);
-    productList.innerHTML = `<p style="color: #e74c3c; font-size: 14px;">Failed to load products. Make sure your server is running.</p>`;
+    productList.innerHTML = `
+      <div style="text-align:center; padding:40px 0; color:#e74c3c;">
+        <p style="font-size:14px; margin-bottom:8px;">Failed to load products.</p>
+        <button onclick="location.reload()" style="
+          padding:8px 20px; background:hsl(357,45%,69%); color:#fff;
+          border:none; border-radius:8px; cursor:pointer; font-size:13px;
+        ">Try again</button>
+      </div>
+    `;
+  }
+
+  // ─────────────────────────────────────────
+  // RENDER PAGINATION FOR HOME PAGE (page 1)
+  // ─────────────────────────────────────────
+  function renderHomePagination(totalPages) {
+    if (!paginationDiv || totalPages <= 1) return;
+
+    paginationDiv.innerHTML = "";
+    const currentPage = 1;
+
+    // Back button (disabled on page 1)
+    const backBtn = document.createElement("button");
+    backBtn.className = "backwardBtn";
+    backBtn.textContent = "←";
+    backBtn.style.opacity = "0.4";
+    backBtn.style.cursor = "not-allowed";
+    paginationDiv.appendChild(backBtn);
+
+    const pagesDiv = document.createElement("div");
+    pagesDiv.className = "pages";
+
+    // Helper: create page link
+    function createPageLink(pageNum) {
+      const pageLink = document.createElement("a");
+      pageLink.href = pageNum === 1 ? "mainWebsitePage.html" : `shop.html?page=${pageNum}`;
+      pageLink.textContent = pageNum;
+      if (pageNum === currentPage) pageLink.classList.add("active");
+      pageLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        showSpinner();
+        setTimeout(() => { window.location.href = pageLink.href; }, 600);
+      });
+      return pageLink;
+    }
+
+    // Helper: ellipsis
+    function createEllipsis() {
+      const span = document.createElement("span");
+      span.textContent = "...";
+      span.style.cssText = `
+        display: flex; align-items: center; justify-content: center;
+        width: 34px; height: 34px; font-size: 16px;
+        color: #aaa; cursor: default; user-select: none;
+      `;
+      return span;
+    }
+
+    // Build smart page set
+    const pagesToShow = new Set();
+    pagesToShow.add(1);
+    pagesToShow.add(totalPages);
+    pagesToShow.add(currentPage);
+    if (currentPage - 1 >= 1) pagesToShow.add(currentPage - 1);
+    if (currentPage + 1 <= totalPages) pagesToShow.add(currentPage + 1);
+
+    const sortedPages = Array.from(pagesToShow).sort((a, b) => a - b);
+
+    sortedPages.forEach((pageNum, index) => {
+      if (index > 0 && pageNum - sortedPages[index - 1] > 1) {
+        pagesDiv.appendChild(createEllipsis());
+      }
+      pagesDiv.appendChild(createPageLink(pageNum));
+    });
+
+    paginationDiv.appendChild(pagesDiv);
+
+    // Forward button
+    const forwardBtn = document.createElement("button");
+    forwardBtn.className = "fowardBtn";
+    forwardBtn.textContent = "→";
+    forwardBtn.addEventListener("click", () => {
+      showSpinner();
+      setTimeout(() => { window.location.href = "shop.html?page=2"; }, 600);
+    });
+    paginationDiv.appendChild(forwardBtn);
   }
 });
 

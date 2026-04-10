@@ -112,25 +112,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const pagesDiv = document.createElement("div");
     pagesDiv.className = "pages";
 
-    // Page 1 always links to mainWebsitePage.html
-    const page1 = document.createElement("a");
-    page1.href = "mainWebsitePage.html";
-    page1.textContent = "1";
-    page1.addEventListener("click", (e) => {
-      e.preventDefault();
-      showSpinner();
-      setTimeout(() => {
-        window.location.href = "mainWebsitePage.html";
-      }, 600);
-    });
-    pagesDiv.appendChild(page1);
-
-    // Pages 2 onwards link to shop.html?page=X
-    for (let i = 2; i <= totalPages; i++) {
+    // Helper: create a page link
+    function createPageLink(pageNum) {
       const pageLink = document.createElement("a");
-      pageLink.href = `shop.html?page=${i}`;
-      pageLink.textContent = i;
-      if (i === currentPage) pageLink.classList.add("active");
+      if (pageNum === 1) {
+        pageLink.href = "mainWebsitePage.html";
+      } else {
+        pageLink.href = `shop.html?page=${pageNum}`;
+      }
+      pageLink.textContent = pageNum;
+      if (pageNum === currentPage) pageLink.classList.add("active");
       pageLink.addEventListener("click", (e) => {
         e.preventDefault();
         showSpinner();
@@ -138,8 +129,46 @@ document.addEventListener("DOMContentLoaded", async () => {
           window.location.href = pageLink.href;
         }, 600);
       });
-      pagesDiv.appendChild(pageLink);
+      return pageLink;
     }
+
+    // Helper: create a "..." ellipsis element
+    function createEllipsis() {
+      const span = document.createElement("span");
+      span.textContent = "...";
+      span.style.cssText = `
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+        color: #aaa;
+        cursor: default;
+        user-select: none;
+      `;
+      return span;
+    }
+
+    // Build the page numbers to show
+    // Always show: first, last, current, and 1 page either side of current
+    const pagesToShow = new Set();
+    pagesToShow.add(1);
+    pagesToShow.add(totalPages);
+    pagesToShow.add(currentPage);
+    if (currentPage - 1 >= 1) pagesToShow.add(currentPage - 1);
+    if (currentPage + 1 <= totalPages) pagesToShow.add(currentPage + 1);
+
+    const sortedPages = Array.from(pagesToShow).sort((a, b) => a - b);
+
+    // Render with ellipsis between gaps
+    sortedPages.forEach((pageNum, index) => {
+      // Add ellipsis if there's a gap
+      if (index > 0 && pageNum - sortedPages[index - 1] > 1) {
+        pagesDiv.appendChild(createEllipsis());
+      }
+      pagesDiv.appendChild(createPageLink(pageNum));
+    });
 
     paginationDiv.appendChild(pagesDiv);
 
