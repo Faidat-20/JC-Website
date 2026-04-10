@@ -1,3 +1,25 @@
+// -----------------------------
+// TAB SWITCHING
+// -----------------------------
+const adminTabs = document.querySelectorAll(".adminTab");
+const ordersSection = document.getElementById("ordersSection");
+const productsSection = document.getElementById("productsSection");
+
+adminTabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    adminTabs.forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+
+    if (tab.dataset.tab === "orders") {
+      ordersSection.style.display = "block";
+      productsSection.style.display = "none";
+    } else {
+      ordersSection.style.display = "none";
+      productsSection.style.display = "block";
+    }
+  });
+});
+
 // ADMIN PROTECTION
 (async () => {
   const userId = sessionStorage.getItem("userId");
@@ -323,6 +345,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const data = await res.json();
       if (data.success) {
         allProducts = data.products;
+        populatePageSelector("newProductPage");
         filterAndRenderProducts();
       }
     } catch (err) {
@@ -376,11 +399,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Toggle stock
       const stockBtn = card.querySelector(".stockToggleBtn");
       stockBtn.addEventListener("click", async () => {
-        const currentStock = stockBtn.dataset.stock === "true";
-        const newStock = !currentStock;
+      const currentStock = stockBtn.dataset.stock === "true";
+      const newStock = !currentStock;
 
-        try {
-          const res = await fetch(`http://localhost:5000/api/products/${product._id}/stock`, {
+      // Confirmation before toggling
+      const confirmMsg = newStock
+        ? `Mark "${product.name}" as IN STOCK?`
+        : `Mark "${product.name}" as OUT OF STOCK?`;
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/products/${product._id}/stock`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ inStock: newStock })
@@ -401,7 +430,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       const editBtn = card.querySelector(".editProductBtn");
       const editForm = card.querySelector(`#editForm-${product._id}`);
       editBtn.addEventListener("click", () => {
-        editForm.style.display = editForm.style.display === "none" ? "flex" : "none";
+        const isHidden = editForm.style.display === "none";
+        editForm.style.display = isHidden ? "flex" : "none";
+        editForm.style.flexDirection = "column";
+
+        // Show current image preview when form opens
+        if (isHidden) {
+          const preview = card.querySelector(`#editPreview-${product._id}`);
+          if (preview && product.image) {
+            preview.src = product.image;
+            preview.style.display = "block";
+          }
+        }
       });
 
       // Save edit
@@ -611,6 +651,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     renderProducts(filtered);
+  }
+
+  // Populate page selector dynamically
+  function populatePageSelector(selectId, currentValue = null) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+
+    const totalProducts = allProducts.length;
+    const productsPerPage = 8;
+    const totalPages = Math.max(Math.ceil(totalProducts / productsPerPage) + 1, 5);
+
+    select.innerHTML = "";
+
+    for (let i = 1; i <= totalPages; i++) {
+      const option = document.createElement("option");
+      if (i === 1) {
+        option.value = "mainWebsitePage.html";
+        option.textContent = "Page 1 (Home)";
+      } else {
+        option.value = `shop.html`;
+        option.textContent = `Page ${i} (Shop)`;
+      }
+      if (currentValue && option.value === currentValue) {
+        option.selected = true;
+      }
+      select.appendChild(option);
+    }
   }
 
   // Initial load
