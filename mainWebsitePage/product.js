@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           <option value="">-- Select ${product.variantType || "option"} --</option>
           ${product.variants.map((v, i) => `
             <option value="${i}" data-price="${v.price}" ${v.inStock === false ? "disabled" : ""}>
-              ${v.label} — ₦${v.price.toLocaleString()} ${v.inStock === false ? "(Out of stock)" : ""}
+              ${v.label} ${v.inStock === false ? "(Out of stock)" : ""}
             </option>
           `).join("")}
         </select>
@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const addCartMessage = document.querySelector(".addCartMessage");
       if (addCartMessage) {
-        addCartMessage.textContent = existingItem ? "Quantity updated!" : "Added to cart!";
+        addCartMessage.textContent = existingItem ? "Product quantity updated in cart!" : "Added to cart!";
         addCartMessage.classList.add("show");
         setTimeout(() => addCartMessage.classList.remove("show"), 1200);
       }

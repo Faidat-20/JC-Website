@@ -56,9 +56,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           </div>
           <div class="price">₦${product.price.toLocaleString()}</div>
           ${product.hasVariants
-            ? `<button class="addToCart viewOptions" onclick="window.location.href='product.html?id=${product._id}'">
-                View options
-              </button>`
+            ? product.inStock === false
+              ? `<button class="addToCart outOfStock" disabled>Out of stock</button>`
+              : `<button class="addToCart viewOptions" onclick="window.location.href='product.html?id=${product._id}'">View options</button>`
             : `<button class="addToCart ${product.inStock === false ? 'outOfStock' : ''}" 
                 ${product.inStock === false ? 'disabled' : ''}>
                 ${product.inStock === false ? 'Out of stock' : 'Add to Cart'}
@@ -191,7 +191,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function reattachCartListeners() {
     const userId = sessionStorage.getItem("userId");
     
-    document.querySelectorAll(".addToCart").forEach(button => {
+    document.querySelectorAll(".addToCart:not(.viewOptions)").forEach(button => {
       button.addEventListener("click", async () => {
         const itemCard = button.closest(".item");
         const name = itemCard.querySelector("h2").textContent;

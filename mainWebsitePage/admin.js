@@ -355,84 +355,45 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Render product cards
   function renderProducts(products) {
-    adminProductsList.innerHTML = "";
+  adminProductsList.innerHTML = "";
 
-    if (products.length === 0) {
-      adminProductsList.innerHTML = `<p class="noOrders">No products found.</p>`;
-      return;
-    }
+  if (products.length === 0) {
+    adminProductsList.innerHTML = `<p class="noOrders">No products found.</p>`;
+    return;
+  }
 
-    products.forEach(product => {
-      const card = document.createElement("div");
-      card.className = "adminProductCard";
-      card.innerHTML = `
-        <img src="${product.image}" alt="${product.name}"
-          onerror="this.src='https://via.placeholder.com/260x140?text=No+Image'">
-        <h4>${product.name}</h4>
-        <p class="productPrice">₦${product.price.toLocaleString()}</p>
-        <p class="productPage">${product.page}</p>
-        ${product.hasVariants ? `
-          <p style="font-size:11px; color: hsl(357,45%,69%); font-weight:bold;">
-            Has variants (${product.variantType}) — ${product.variants?.length || 0} options
-          </p>
-        ` : ""}
+  products.forEach(product => {
+    const card = document.createElement("div");
+    card.className = "adminProductCard";
+    card.innerHTML = `
+      <img src="${product.image}" alt="${product.name}"
+        onerror="this.src='https://via.placeholder.com/260x140?text=No+Image'">
+      <h4>${product.name}</h4>
+      <p class="productPrice">₦${product.price.toLocaleString()}</p>
+      <p class="productPage">${product.page}</p>
+      ${product.hasVariants ? `
+        <p style="font-size:11px; color: hsl(357,45%,69%); font-weight:bold;">
+          Has variants (${product.variantType}) — ${product.variants?.length || 0} options
+        </p>
+      ` : ""}
 
-        <button class="stockToggleBtn ${product.inStock !== false ? "inStock" : "outOfStock"}"
-          data-id="${product._id}" data-stock="${product.inStock !== false}">
-          ${product.inStock !== false ? "✓ In Stock" : "✗ Out of Stock"}
-        </button>
+      <button class="stockToggleBtn ${product.inStock !== false ? "inStock" : "outOfStock"}"
+        data-id="${product._id}" data-stock="${product.inStock !== false}">
+        ${product.inStock !== false ? "✓ In Stock" : "✗ Out of Stock"}
+      </button>
 
-        <div class="adminProductCardActions">
-          <button class="editProductBtn" data-id="${product._id}">Edit</button>
-          <button class="deleteProductBtn" data-id="${product._id}">Delete</button>
-        </div>
+      <div class="adminProductCardActions">
+        <button class="editProductBtn" data-id="${product._id}">Edit</button>
+        <button class="deleteProductBtn" data-id="${product._id}">Delete</button>
+      </div>
+    `;
 
-        <div class="editProductForm" id="editForm-${product._id}" style="display:none;">
-          <input type="text" id="editName-${product._id}" value="${product.name}" placeholder="Product name">
-          <img id="editPreview-${product._id}" src="${product.image}" 
-            style="width:100%; height:80px; object-fit:cover; border-radius:6px; border:1px solid #eee; margin-bottom:4px;"
-            onerror="this.style.display='none'">
-          <input type="file" id="editImageFile-${product._id}" accept="image/*" style="margin-bottom:4px;">
-          <input type="hidden" id="editImage-${product._id}" value="${product.image}">
-          <p id="editUploadStatus-${product._id}" style="font-size:11px; color:#4CAF50; margin:0;"></p>
-          <input type="number" id="editPrice-${product._id}" value="${product.price}" placeholder="Price">
-          
-          <label style="font-size:11px; color:#777; margin-top:6px; display:flex; align-items:center; gap:6px;">
-            <input type="checkbox" id="editHasVariants-${product._id}" ${product.hasVariants ? "checked" : ""}> 
-            Has variants
-          </label>
-
-          <div id="editVariantsSection-${product._id}" style="display:${product.hasVariants ? 'block' : 'none'}; margin-top:8px;">
-            <select id="editVariantType-${product._id}" style="width:100%; padding:6px; border:1px solid #ddd; border-radius:6px; font-size:12px; margin-bottom:8px;">
-              <option value="size" ${product.variantType === "size" ? "selected" : ""}>Size</option>
-              <option value="color" ${product.variantType === "color" ? "selected" : ""}>Color</option>
-              <option value="quantity" ${product.variantType === "quantity" ? "selected" : ""}>Quantity</option>
-              <option value="custom" ${product.variantType === "custom" ? "selected" : ""}>Custom</option>
-            </select>
-            <div id="editVariantsList-${product._id}">
-              ${(product.variants || []).map(v => `
-                <div class="variantRow">
-                  <input type="text" placeholder="Label" value="${v.label}" class="variantLabel">
-                  <input type="number" placeholder="Price" value="${v.price}" class="variantPrice">
-                  <button type="button" class="removeVariantBtn">✕</button>
-                </div>
-              `).join("")}
-            </div>
-            <button type="button" class="addVariantBtn editAddVariantBtn" data-id="${product._id}">+ Add Variant</button>
-          </div>
-
-          <button class="saveEditBtn" data-id="${product._id}">Save</button>
-          <button class="cancelEditBtn" data-id="${product._id}">Cancel</button>
-        </div>
-      `;
-
-      // Toggle stock
-      const stockBtn = card.querySelector(".stockToggleBtn");
-      stockBtn.addEventListener("click", async () => {
+    // Toggle stock
+    const stockBtn = card.querySelector(".stockToggleBtn");
+    stockBtn.addEventListener("click", async () => {
       const currentStock = stockBtn.dataset.stock === "true";
       const newStock = !currentStock;
 
-      // Confirmation before toggling
       const confirmMsg = newStock
         ? `Mark "${product.name}" as IN STOCK?`
         : `Mark "${product.name}" as OUT OF STOCK?`;
@@ -440,160 +401,55 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       try {
         const res = await fetch(`http://localhost:5000/api/products/${product._id}/stock`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ inStock: newStock })
-          });
-          const data = await res.json();
-          if (data.success) {
-            product.inStock = newStock;
-            stockBtn.dataset.stock = newStock;
-            stockBtn.textContent = newStock ? "✓ In Stock" : "✗ Out of Stock";
-            stockBtn.className = `stockToggleBtn ${newStock ? "inStock" : "outOfStock"}`;
-          }
-        } catch (err) {
-          console.error("Toggle stock error:", err);
-        }
-      });
-
-      // Edit product
-      const editBtn = card.querySelector(".editProductBtn");
-      const editForm = card.querySelector(`#editForm-${product._id}`);
-      editBtn.addEventListener("click", () => {
-        const isHidden = editForm.style.display === "none";
-        editForm.style.display = isHidden ? "flex" : "none";
-        editForm.style.flexDirection = "column";
-
-        // Show current image preview when form opens
-        if (isHidden) {
-          const preview = card.querySelector(`#editPreview-${product._id}`);
-          if (preview && product.image) {
-            preview.src = product.image;
-            preview.style.display = "block";
-          }
-        }
-      });
-
-      // Save edit
-      const saveEditBtn = card.querySelector(".saveEditBtn");
-      saveEditBtn.addEventListener("click", async () => {
-        const name = document.getElementById(`editName-${product._id}`).value.trim();
-        const price = Number(document.getElementById(`editPrice-${product._id}`).value);
-        const fileInput = document.getElementById(`editImageFile-${product._id}`);
-        const hasVariants = card.querySelector(`#editHasVariants-${product._id}`).checked;
-        const variantType = card.querySelector(`#editVariantType-${product._id}`).value;
-
-        if (!name || !price) return alert("Name and price are required.");
-
-        // Get variants from edit form
-        const variantRows = card.querySelectorAll(`#editVariantsList-${product._id} .variantRow`);
-        const variants = [];
-        variantRows.forEach(row => {
-          const label = row.querySelector(".variantLabel").value.trim();
-          const vPrice = Number(row.querySelector(".variantPrice").value);
-          if (label && vPrice) variants.push({ label, price: vPrice });
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ inStock: newStock })
         });
-
-        if (hasVariants && variants.length === 0) return alert("Please add at least one variant.");
-
-        let image = document.getElementById(`editImage-${product._id}`).value;
-        if (fileInput.files[0]) {
-          const uploaded = await uploadImage(fileInput.files[0], `editUploadStatus-${product._id}`);
-          if (!uploaded) return alert("Image upload failed. Please try again.");
-          image = uploaded;
+        const data = await res.json();
+        if (data.success) {
+          product.inStock = newStock;
+          stockBtn.dataset.stock = newStock;
+          stockBtn.textContent = newStock ? "✓ In Stock" : "✗ Out of Stock";
+          stockBtn.className = `stockToggleBtn ${newStock ? "inStock" : "outOfStock"}`;
         }
-
-        try {
-          const res = await fetch(`http://localhost:5000/api/products/${product._id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name,
-              image,
-              price,
-              hasVariants,
-              variantType: hasVariants ? variantType : null,
-              variants: hasVariants ? variants : []
-            })
-          });
-          const data = await res.json();
-          if (data.success) {
-            alert("Product updated!");
-            fetchProducts();
-          } else {
-            alert(data.message || "Failed to update product.");
-          }
-        } catch (err) {
-          console.error("Edit product error:", err);
-        }
-      });
-      // Cancel edit
-      const cancelEditBtn = card.querySelector(".cancelEditBtn");
-      cancelEditBtn.addEventListener("click", () => {
-        editForm.style.display = "none";
-      });
-
-      // Image preview for edit form
-      const editFileInput = card.querySelector(`#editImageFile-${product._id}`);
-      editFileInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const preview = card.querySelector(`#editPreview-${product._id}`);
-        preview.src = URL.createObjectURL(file);
-        preview.style.display = "block";
-      });
-
-      // Has variants toggle for edit form
-      const editHasVariantsCheckbox = card.querySelector(`#editHasVariants-${product._id}`);
-      const editVariantsSection = card.querySelector(`#editVariantsSection-${product._id}`);
-      editHasVariantsCheckbox.addEventListener("change", () => {
-        editVariantsSection.style.display = editHasVariantsCheckbox.checked ? "block" : "none";
-      });
-
-      // Add variant row for edit form
-      const editAddVariantBtn = card.querySelector(".editAddVariantBtn");
-      editAddVariantBtn.addEventListener("click", () => {
-        const editVariantsList = card.querySelector(`#editVariantsList-${product._id}`);
-        const row = document.createElement("div");
-        row.className = "variantRow";
-        row.innerHTML = `
-          <input type="text" placeholder="Label (e.g. 12pcs, Red)" class="variantLabel">
-          <input type="number" placeholder="Price (₦)" class="variantPrice">
-          <button type="button" class="removeVariantBtn">✕</button>
-        `;
-        row.querySelector(".removeVariantBtn").addEventListener("click", () => row.remove());
-        editVariantsList.appendChild(row);
-      });
-
-      // Remove variant rows in edit form
-      card.querySelectorAll(`#editVariantsList-${product._id} .removeVariantBtn`).forEach(btn => {
-        btn.addEventListener("click", () => btn.closest(".variantRow").remove());
-      });
-
-      // Delete product
-      const deleteBtn = card.querySelector(".deleteProductBtn");
-      deleteBtn.addEventListener("click", async () => {
-        if (!confirm(`Are you sure you want to delete "${product.name}"?`)) return;
-
-        try {
-          const res = await fetch(`http://localhost:5000/api/products/${product._id}`, {
-            method: "DELETE"
-          });
-          const data = await res.json();
-          if (data.success) {
-            alert("Product deleted!");
-            fetchProducts();
-          } else {
-            alert(data.message || "Failed to delete product.");
-          }
-        } catch (err) {
-          console.error("Delete product error:", err);
-        }
-      });
-
-      adminProductsList.appendChild(card);
+      } catch (err) {
+        console.error("Toggle stock error:", err);
+      }
     });
-  }
+
+    // Edit product — open modal
+
+    const editBtn = card.querySelector(".editProductBtn");
+    editBtn.addEventListener("click", () => {
+      console.log("Edit clicked for:", product.name);
+      console.log("Modal element:", document.getElementById("editProductModal"));
+      openEditModal(product);
+    });
+
+    // Delete product
+    const deleteBtn = card.querySelector(".deleteProductBtn");
+    deleteBtn.addEventListener("click", async () => {
+      if (!confirm(`Are you sure you want to delete "${product.name}"?`)) return;
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/products/${product._id}`, {
+          method: "DELETE"
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("Product deleted!");
+          fetchProducts();
+        } else {
+          alert(data.message || "Failed to delete product.");
+        }
+      } catch (err) {
+        console.error("Delete product error:", err);
+      }
+    });
+
+    adminProductsList.appendChild(card);
+  });
+}
 
   // Show/hide add product form
   addProductBtn.addEventListener("click", () => {
@@ -700,6 +556,144 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // -----------------------------
+  // EDIT PRODUCT MODAL
+  // -----------------------------
+  const editProductModal = document.getElementById("editProductModal");
+  const closeEditProductModal = document.getElementById("closeEditProductModal");
+  const cancelEditProductBtn = document.getElementById("cancelEditProductBtn");
+  const saveEditProductBtn = document.getElementById("saveEditProductBtn");
+  const editProductHasVariants = document.getElementById("editProductHasVariants");
+  const editProductVariantsSection = document.getElementById("editProductVariantsSection");
+  const editProductAddVariantBtn = document.getElementById("editProductAddVariantBtn");
+  const editProductVariantsList = document.getElementById("editProductVariantsList");
+
+  function openEditModal(product) {
+    // Populate fields
+    document.getElementById("editProductId").value = product._id;
+    document.getElementById("editProductName").value = product.name;
+    document.getElementById("editProductPrice").value = product.price;
+    document.getElementById("editProductImage").value = product.image;
+    document.getElementById("editProductImageFile").value = "";
+    document.getElementById("editProductUploadStatus").textContent = "";
+
+    // Image preview
+    const preview = document.getElementById("editProductPreview");
+    preview.src = product.image;
+
+    // Variants
+    editProductHasVariants.checked = product.hasVariants || false;
+    editProductVariantsSection.style.display = product.hasVariants ? "block" : "none";
+    document.getElementById("editProductVariantType").value = product.variantType || "size";
+
+    // Populate existing variants
+    editProductVariantsList.innerHTML = "";
+    (product.variants || []).forEach(v => {
+      addEditVariantRow(v.label, v.price);
+    });
+
+    // Show modal
+    editProductModal.style.display = "flex";
+    document.body.style.overflow = "hidden";
+  }
+
+  // Close modal
+  closeEditProductModal.addEventListener("click", () => {
+    editProductModal.style.display = "none";
+    document.body.style.overflow = "auto";
+  });
+
+  cancelEditProductBtn.addEventListener("click", () => {
+    editProductModal.style.display = "none";
+    document.body.style.overflow = "auto";
+  });
+
+  editProductModal.addEventListener("click", (e) => {
+    if (e.target === editProductModal) {
+      editProductModal.style.display = "none";
+      document.body.style.overflow = "auto";
+    }
+  });
+
+  // Has variants toggle
+  editProductHasVariants.addEventListener("change", () => {
+    editProductVariantsSection.style.display = editProductHasVariants.checked ? "block" : "none";
+  });
+
+  // Add variant row
+  function addEditVariantRow(label = "", price = "") {
+    const row = document.createElement("div");
+    row.className = "variantRow";
+    row.innerHTML = `
+      <input type="text" placeholder="Label (e.g. 12pcs, Red)" value="${label}" class="variantLabel">
+      <input type="number" placeholder="Price (₦)" value="${price}" class="variantPrice">
+      <button type="button" class="removeVariantBtn">✕</button>
+    `;
+    row.querySelector(".removeVariantBtn").addEventListener("click", () => row.remove());
+    editProductVariantsList.appendChild(row);
+  }
+
+  editProductAddVariantBtn.addEventListener("click", () => addEditVariantRow());
+
+  // Image preview
+  document.getElementById("editProductImageFile").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    document.getElementById("editProductPreview").src = URL.createObjectURL(file);
+  });
+
+  // Save edit
+  saveEditProductBtn.addEventListener("click", async () => {
+    const productId = document.getElementById("editProductId").value;
+    const name = document.getElementById("editProductName").value.trim();
+    const price = Number(document.getElementById("editProductPrice").value);
+    const hasVariants = editProductHasVariants.checked;
+    const variantType = document.getElementById("editProductVariantType").value;
+    const fileInput = document.getElementById("editProductImageFile");
+
+    if (!name || !price) return alert("Name and price are required.");
+
+    // Get variants
+    const variantRows = editProductVariantsList.querySelectorAll(".variantRow");
+    const variants = [];
+    variantRows.forEach(row => {
+      const label = row.querySelector(".variantLabel").value.trim();
+      const vPrice = Number(row.querySelector(".variantPrice").value);
+      if (label && vPrice) variants.push({ label, price: vPrice });
+    });
+
+    if (hasVariants && variants.length === 0) return alert("Please add at least one variant.");
+
+    let image = document.getElementById("editProductImage").value;
+    if (fileInput.files[0]) {
+      const uploaded = await uploadImage(fileInput.files[0], "editProductUploadStatus");
+      if (!uploaded) return alert("Image upload failed. Please try again.");
+      image = uploaded;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/products/${productId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name, image, price,
+          hasVariants,
+          variantType: hasVariants ? variantType : null,
+          variants: hasVariants ? variants : []
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        editProductModal.style.display = "none";
+        document.body.style.overflow = "auto";
+        fetchProducts();
+      } else {
+        alert(data.message || "Failed to update product.");
+      }
+    } catch (err) {
+      console.error("Edit product error:", err);
+    }
+  });
   // -----------------------------
   // PRODUCT SEARCH AND FILTER
   // -----------------------------

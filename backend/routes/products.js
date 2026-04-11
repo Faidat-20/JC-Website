@@ -137,7 +137,7 @@ router.get("/paginate", async (req, res) => {
 // ADD NEW PRODUCT
 // ----------------------
 router.post("/add", async (req, res) => {
-  const { name, image, price, page } = req.body;
+  const { name, image, price, page, hasVariants, variantType, variants } = req.body;
 
   if (!name || !image || !price || !page) {
     return res.status(400).json({ success: false, message: "All fields are required" });
@@ -149,7 +149,12 @@ router.post("/add", async (req, res) => {
       return res.status(400).json({ success: false, message: "Product already exists" });
     }
 
-    const product = new Product({ name, image, price, page, inStock: true });
+    const product = new Product({
+      name, image, price, page, inStock: true,
+      hasVariants: hasVariants || false,
+      variantType: hasVariants ? variantType : null,
+      variants: hasVariants ? variants : []
+    });
     await product.save();
 
     res.json({ success: true, message: "Product added successfully!", product });
@@ -163,7 +168,7 @@ router.post("/add", async (req, res) => {
 // EDIT PRODUCT
 // ----------------------
 router.put("/:productId", async (req, res) => {
-  const { name, image, price, page, inStock } = req.body;
+  const { name, image, price, page, inStock, hasVariants, variantType, variants } = req.body;
 
   try {
     const product = await Product.findById(req.params.productId);
@@ -174,6 +179,11 @@ router.put("/:productId", async (req, res) => {
     if (price) product.price = price;
     if (page) product.page = page;
     if (typeof inStock === "boolean") product.inStock = inStock;
+    if (typeof hasVariants === "boolean") {
+      product.hasVariants = hasVariants;
+      product.variantType = hasVariants ? variantType : null;
+      product.variants = hasVariants ? (variants || []) : [];
+    }
 
     await product.save();
     res.json({ success: true, message: "Product updated!", product });

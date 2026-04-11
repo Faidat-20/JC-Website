@@ -225,6 +225,62 @@
       </div>
     </footer>
 
+    <!-- EDIT PRODUCT MODAL -->
+    <div class="modalOverlay" id="editProductModal" style="display:none;">
+      <div class="modalContent" style="max-width: 500px;">
+        <div class="modalHeader">
+          <h2>Edit Product</h2>
+          <span class="closeModal" id="closeEditProductModal">&times;</span>
+        </div>
+        <div class="modalBody">
+          <input type="hidden" id="editProductId">
+
+          <div class="formField" style="margin-bottom:12px;">
+            <label>Product Name</label>
+            <input type="text" id="editProductName" placeholder="Product name">
+          </div>
+
+          <div class="formField" style="margin-bottom:12px;">
+            <label>Current Image</label>
+            <img id="editProductPreview" src="" alt="Preview"
+              style="width:100%; height:120px; object-fit:cover; border-radius:8px; border:1px solid #eee; margin-top:6px;">
+            <input type="file" id="editProductImageFile" accept="image/*" style="margin-top:8px;">
+            <input type="hidden" id="editProductImage">
+            <p id="editProductUploadStatus" style="font-size:11px; color:#4CAF50; margin:4px 0 0;"></p>
+          </div>
+
+          <div class="formField" style="margin-bottom:12px;">
+            <label>Price (₦)</label>
+            <input type="number" id="editProductPrice" placeholder="Price">
+          </div>
+
+          <div class="formField" style="margin-bottom:12px;">
+            <label>
+              <input type="checkbox" id="editProductHasVariants"> This product has variants
+            </label>
+          </div>
+
+          <div id="editProductVariantsSection" style="display:none; margin-bottom:12px;">
+            <div class="formField" style="margin-bottom:8px;">
+              <label>Variant Type</label>
+              <select id="editProductVariantType" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-size:13px; width:100%;">
+                <option value="size">Size</option>
+                <option value="color">Color</option>
+                <option value="quantity">Quantity</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            <div id="editProductVariantsList"></div>
+            <button type="button" id="editProductAddVariantBtn" class="addVariantBtn">+ Add Variant</button>
+          </div>
+
+          <div class="productFormActions" style="margin-top:16px;">
+            <button id="saveEditProductBtn" class="saveProductBtn">Save Changes</button>
+            <button id="cancelEditProductBtn" class="cancelProductBtn">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <script src="./mainWebsitePage/mainWebsitePage.js"></script>
     <script src="mainWebsitePage/admin.js"></script>
   </body>
