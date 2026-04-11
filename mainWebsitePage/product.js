@@ -1,17 +1,17 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
   const params = new URLSearchParams(window.location.search);
-  const productId = params.get("id");
+  const productSlug = params.get("name");
   const container = document.getElementById("productDetailCard");
 
-  if (!productId) {
+  if (!productSlug) {
     container.innerHTML = `<p style="color:#e74c3c; text-align:center; padding:40px;">Product not found.</p>`;
     return;
   }
 
   try {
-    // Fetch product by ID
-    const res = await fetch(`http://localhost:5000/api/products/${productId}`);
+    // Fetch product by slug name
+    const res = await fetch(`http://localhost:5000/api/products/slug/${encodeURIComponent(productSlug)}`);
     const data = await res.json();
 
     if (!data.success || !data.product) {
@@ -21,8 +21,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const product = data.product;
 
+    // Update page title
+    document.title = `${product.name} — Jikes Cosmetics`;
+
     // Fetch ratings
-    const ratingsRes = await fetch(`http://localhost:5000/api/ratings/${productId}`);
+    const ratingsRes = await fetch(`http://localhost:5000/api/ratings/${product._id}`);
     const ratingsData = await ratingsRes.json();
     const ratings = ratingsData.success ? ratingsData.ratings : [];
 
@@ -31,11 +34,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const filled = Math.round(avg);
     const starsHTML = "★".repeat(filled) + "☆".repeat(5 - filled);
 
-    // Build initial price display
     let currentPrice = product.price;
     let selectedVariant = null;
+    let quantity = 1;
 
-    // Build variant options if product has variants
+    // Build variant options
     const variantHTML = product.hasVariants && product.variants?.length > 0 ? `
       <div class="variantSection">
         <p class="variantLabel">${product.variantType || "Option"}:</p>
@@ -50,31 +53,75 @@ document.addEventListener("DOMContentLoaded", async () => {
       </div>
     ` : "";
 
+    // Share URL
+    const shareUrl = encodeURIComponent(window.location.href);
+    const shareTitle = encodeURIComponent(product.name);
+
     container.innerHTML = `
+
       <div class="productDetailTop">
+
         <img src="${product.image}" alt="${product.name}" class="productDetailImage">
+
         <div class="productDetailInfo">
+
           <h1 class="productDetailName">${product.name}</h1>
+
           <p class="productDetailPrice" id="detailPrice">₦${currentPrice.toLocaleString()}</p>
+
           <div class="productDetailRating">
             <span class="stars">${starsHTML}</span>
             <span>${total > 0 ? `${avg.toFixed(1)} (${total} ${total === 1 ? "review" : "reviews"})` : "No ratings yet"}</span>
           </div>
+
           <p class="productDetailStock ${product.inStock !== false ? "inStock" : "outOfStock"}">
             ${product.inStock !== false ? "✓ Available" : "✗ Out of stock"}
           </p>
+
           ${variantHTML}
+
+          <div class="quantitySection">
+            <p class="quantityLabel">Quantity:</p>
+            <div class="quantityControl">
+              <button class="qtyBtn" id="qtyMinus">−</button>
+              <span class="qtyDisplay" id="qtyDisplay">1</span>
+              <button class="qtyBtn" id="qtyPlus">+</button>
+            </div>
+          </div>
+
           <button class="productDetailAddBtn" id="detailAddBtn"
             ${product.inStock === false || (product.hasVariants && product.variants?.length > 0) ? "disabled" : ""}>
             ${product.inStock === false ? "Out of stock" : product.hasVariants ? "Select an option" : "Add to cart"}
           </button>
+
+          <div class="productDetailShare">
+            <p class="shareLabel">Share this product:</p>
+            <div class="shareButtons">
+              <a href="https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}" target="_blank" class="shareBtn shareX">
+                <i class="fa-brands fa-x-twitter"></i>
+              </a>
+              <a href="https://www.facebook.com/sharer/sharer.php?u=${shareUrl}" target="_blank" class="shareBtn shareFb">
+                <i class="fa-brands fa-facebook-f"></i>
+              </a>
+              <a href="https://wa.me/?text=${shareTitle}%20${shareUrl}" target="_blank" class="shareBtn shareWa">
+                <i class="fa-brands fa-whatsapp"></i>
+              </a>
+            </div>
+          </div>
+
         </div>
+      </div>
+
+      <div class="productDetailDescription">
+        <h3>Product Details</h3>
+        <p>Explore our <strong>${product.name}</strong> — a premium quality cosmetic product from Jikes Cosmetics. Perfect for professional use and personal beauty routines. Order now and enjoy fast delivery across Nigeria.</p>
       </div>
 
       <div class="productDetailReviews">
         <h3>Reviews</h3>
-        ${ratings.length === 0 ? `<p class="noReviews">No reviews yet for this product.</p>` :
-          ratings.map(r => `
+        ${ratings.length === 0
+          ? `<p class="noReviews">No reviews yet for this product.</p>`
+          : ratings.map(r => `
             <div class="reviewItem">
               <div class="reviewItemTop">
                 <span class="username">${r.username || "Anonymous"}</span>
@@ -90,7 +137,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       </div>
     `;
 
-    // Handle variant selection
+    // Quantity controls
+    const qtyDisplay = document.getElementById("qtyDisplay");
+    document.getElementById("qtyMinus").addEventListener("click", () => {
+      if (quantity > 1) {
+        quantity--;
+        qtyDisplay.textContent = quantity;
+      }
+    });
+    document.getElementById("qtyPlus").addEventListener("click", () => {
+      quantity++;
+      qtyDisplay.textContent = quantity;
+    });
+
+    // Variant selection
     if (product.hasVariants && product.variants?.length > 0) {
       const variantSelect = document.getElementById("variantSelect");
       const detailAddBtn = document.getElementById("detailAddBtn");
@@ -105,7 +165,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           detailAddBtn.textContent = "Select an option";
           return;
         }
-
         selectedVariant = product.variants[parseInt(selectedIndex)];
         currentPrice = selectedVariant.price;
         detailPrice.textContent = `₦${currentPrice.toLocaleString()}`;
@@ -122,7 +181,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-      // Build cart item name — include variant label if selected
       const cartName = selectedVariant
         ? `${product.name} (${selectedVariant.label})`
         : product.name;
@@ -131,9 +189,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       const existingItem = cart.find(item => item.name === cartName);
 
       if (existingItem) {
-        existingItem.quantity++;
+        existingItem.quantity += quantity;
       } else {
-        cart.push({ name: cartName, image: product.image, price: cartPrice, quantity: 1 });
+        cart.push({ name: cartName, image: product.image, price: cartPrice, quantity });
       }
 
       localStorage.setItem("cart", JSON.stringify(cart));
@@ -148,7 +206,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Sync with backend
       try {
-        const res = await fetch("http://localhost:5000/api/auth/update-cart", {
+        const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -157,13 +215,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             image: product.image,
             price: cartPrice,
             action: existingItem ? "update" : "add",
-            quantity: existingItem ? existingItem.quantity : 1
+            quantity: existingItem ? existingItem.quantity : quantity
           })
         });
-        const resData = await res.json();
-        if (resData.success) {
-          localStorage.setItem("cart", JSON.stringify(resData.cart));
-          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(resData.cart) }));
+        const syncData = await syncRes.json();
+        if (syncData.success) {
+          localStorage.setItem("cart", JSON.stringify(syncData.cart));
+          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
         }
       } catch (err) {
         console.error("Cart sync error:", err);

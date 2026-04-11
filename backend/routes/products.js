@@ -260,4 +260,21 @@ router.get("/:productId", async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
+// ----------------------
+// GET SINGLE PRODUCT BY SLUG NAME
+// ----------------------
+router.get("/slug/:slug", async (req, res) => {
+  try {
+    const name = req.params.slug.replace(/-/g, " ");
+    const product = await Product.findOne({
+      name: { $regex: new RegExp(`^${name}$`, "i") }
+    });
+    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+    res.json({ success: true, product });
+  } catch (err) {
+    console.error("Get product by slug error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 module.exports = router;
