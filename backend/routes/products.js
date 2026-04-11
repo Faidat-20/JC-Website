@@ -236,4 +236,18 @@ router.post("/upload-image", upload.single("image"), async (req, res) => {
     res.status(500).json({ success: false, message: "Image upload failed" });
   }
 });
+
+// ----------------------
+// GET SINGLE PRODUCT BY ID
+// ----------------------
+router.get("/:productId", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.productId);
+    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+    res.json({ success: true, product });
+  } catch (err) {
+    console.error("Get product by ID error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 module.exports = router;

@@ -388,7 +388,13 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 14px;
   margin-bottom: 16px;
+  align-items: start;
 }
+
+.productFormGrid .formField {
+  align-self: start;
+}
+
 .productSearchBar {
   display: flex;
   gap: 12px;
@@ -458,6 +464,55 @@ body {
 .formField select:focus {
   border-color: hsl(357, 45%, 69%);
 }
+/* VARIANTS */
+.addVariantBtn {
+  padding: 7px 14px;
+  background: white;
+  color: #555;
+  border: 1px dashed #ddd;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.addVariantBtn:hover {
+  border-color: hsl(357, 45%, 69%);
+  color: hsl(357, 45%, 69%);
+}
+
+.variantRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.variantRow input {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 12px;
+  outline: none;
+}
+
+.variantRow input:focus {
+  border-color: hsl(357, 45%, 69%);
+}
+
+.removeVariantBtn {
+  padding: 7px 10px;
+  background: #fce8e8;
+  color: #c0392b;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  flex-shrink: 0;
+}
 
 .productFormActions {
   display: flex;
@@ -490,12 +545,14 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
+  align-items: start;
 }
 
 @media (max-width: 600px) {
   .adminProductsList {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+    align-items: start;
   }
 
   .adminProductCard img {
@@ -522,6 +579,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  align-self: start; /* ← ADD THIS */
 }
 
 .adminProductCard img {

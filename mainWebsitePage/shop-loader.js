@@ -55,10 +55,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             <span class="ratingCount">${ratingText}</span>
           </div>
           <div class="price">₦${product.price.toLocaleString()}</div>
-          <button class="addToCart ${product.inStock === false ? 'outOfStock' : ''}" 
-            ${product.inStock === false ? 'disabled' : ''}>
-            ${product.inStock === false ? 'Out of stock' : 'Add to Cart'}
-          </button>
+          ${product.hasVariants
+            ? `<button class="addToCart viewOptions" onclick="window.location.href='product.html?id=${product._id}'">
+                View options
+              </button>`
+            : `<button class="addToCart ${product.inStock === false ? 'outOfStock' : ''}" 
+                ${product.inStock === false ? 'disabled' : ''}>
+                ${product.inStock === false ? 'Out of stock' : 'Add to Cart'}
+              </button>`
+          }
         `;
 
         const ratingDiv = div.querySelector(".productRating");

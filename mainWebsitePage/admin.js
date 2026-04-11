@@ -371,6 +371,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         <h4>${product.name}</h4>
         <p class="productPrice">₦${product.price.toLocaleString()}</p>
         <p class="productPage">${product.page}</p>
+        ${product.hasVariants ? `
+          <p style="font-size:11px; color: hsl(357,45%,69%); font-weight:bold;">
+            Has variants (${product.variantType}) — ${product.variants?.length || 0} options
+          </p>
+        ` : ""}
 
         <button class="stockToggleBtn ${product.inStock !== false ? "inStock" : "outOfStock"}"
           data-id="${product._id}" data-stock="${product.inStock !== false}">
@@ -391,6 +396,31 @@ document.addEventListener("DOMContentLoaded", async () => {
           <input type="hidden" id="editImage-${product._id}" value="${product.image}">
           <p id="editUploadStatus-${product._id}" style="font-size:11px; color:#4CAF50; margin:0;"></p>
           <input type="number" id="editPrice-${product._id}" value="${product.price}" placeholder="Price">
+          
+          <label style="font-size:11px; color:#777; margin-top:6px; display:flex; align-items:center; gap:6px;">
+            <input type="checkbox" id="editHasVariants-${product._id}" ${product.hasVariants ? "checked" : ""}> 
+            Has variants
+          </label>
+
+          <div id="editVariantsSection-${product._id}" style="display:${product.hasVariants ? 'block' : 'none'}; margin-top:8px;">
+            <select id="editVariantType-${product._id}" style="width:100%; padding:6px; border:1px solid #ddd; border-radius:6px; font-size:12px; margin-bottom:8px;">
+              <option value="size" ${product.variantType === "size" ? "selected" : ""}>Size</option>
+              <option value="color" ${product.variantType === "color" ? "selected" : ""}>Color</option>
+              <option value="quantity" ${product.variantType === "quantity" ? "selected" : ""}>Quantity</option>
+              <option value="custom" ${product.variantType === "custom" ? "selected" : ""}>Custom</option>
+            </select>
+            <div id="editVariantsList-${product._id}">
+              ${(product.variants || []).map(v => `
+                <div class="variantRow">
+                  <input type="text" placeholder="Label" value="${v.label}" class="variantLabel">
+                  <input type="number" placeholder="Price" value="${v.price}" class="variantPrice">
+                  <button type="button" class="removeVariantBtn">✕</button>
+                </div>
+              `).join("")}
+            </div>
+            <button type="button" class="addVariantBtn editAddVariantBtn" data-id="${product._id}">+ Add Variant</button>
+          </div>
+
           <button class="saveEditBtn" data-id="${product._id}">Save</button>
           <button class="cancelEditBtn" data-id="${product._id}">Cancel</button>
         </div>
@@ -450,12 +480,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         const name = document.getElementById(`editName-${product._id}`).value.trim();
         const price = Number(document.getElementById(`editPrice-${product._id}`).value);
         const fileInput = document.getElementById(`editImageFile-${product._id}`);
+        const hasVariants = card.querySelector(`#editHasVariants-${product._id}`).checked;
+        const variantType = card.querySelector(`#editVariantType-${product._id}`).value;
 
         if (!name || !price) return alert("Name and price are required.");
 
-        let image = document.getElementById(`editImage-${product._id}`).value;
+        // Get variants from edit form
+        const variantRows = card.querySelectorAll(`#editVariantsList-${product._id} .variantRow`);
+        const variants = [];
+        variantRows.forEach(row => {
+          const label = row.querySelector(".variantLabel").value.trim();
+          const vPrice = Number(row.querySelector(".variantPrice").value);
+          if (label && vPrice) variants.push({ label, price: vPrice });
+        });
 
-        // Upload new image if selected
+        if (hasVariants && variants.length === 0) return alert("Please add at least one variant.");
+
+        let image = document.getElementById(`editImage-${product._id}`).value;
         if (fileInput.files[0]) {
           const uploaded = await uploadImage(fileInput.files[0], `editUploadStatus-${product._id}`);
           if (!uploaded) return alert("Image upload failed. Please try again.");
@@ -466,7 +507,14 @@ document.addEventListener("DOMContentLoaded", async () => {
           const res = await fetch(`http://localhost:5000/api/products/${product._id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, image, price })
+            body: JSON.stringify({
+              name,
+              image,
+              price,
+              hasVariants,
+              variantType: hasVariants ? variantType : null,
+              variants: hasVariants ? variants : []
+            })
           });
           const data = await res.json();
           if (data.success) {
@@ -479,7 +527,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           console.error("Edit product error:", err);
         }
       });
-
       // Cancel edit
       const cancelEditBtn = card.querySelector(".cancelEditBtn");
       cancelEditBtn.addEventListener("click", () => {
@@ -494,6 +541,33 @@ document.addEventListener("DOMContentLoaded", async () => {
         const preview = card.querySelector(`#editPreview-${product._id}`);
         preview.src = URL.createObjectURL(file);
         preview.style.display = "block";
+      });
+
+      // Has variants toggle for edit form
+      const editHasVariantsCheckbox = card.querySelector(`#editHasVariants-${product._id}`);
+      const editVariantsSection = card.querySelector(`#editVariantsSection-${product._id}`);
+      editHasVariantsCheckbox.addEventListener("change", () => {
+        editVariantsSection.style.display = editHasVariantsCheckbox.checked ? "block" : "none";
+      });
+
+      // Add variant row for edit form
+      const editAddVariantBtn = card.querySelector(".editAddVariantBtn");
+      editAddVariantBtn.addEventListener("click", () => {
+        const editVariantsList = card.querySelector(`#editVariantsList-${product._id}`);
+        const row = document.createElement("div");
+        row.className = "variantRow";
+        row.innerHTML = `
+          <input type="text" placeholder="Label (e.g. 12pcs, Red)" class="variantLabel">
+          <input type="number" placeholder="Price (₦)" class="variantPrice">
+          <button type="button" class="removeVariantBtn">✕</button>
+        `;
+        row.querySelector(".removeVariantBtn").addEventListener("click", () => row.remove());
+        editVariantsList.appendChild(row);
+      });
+
+      // Remove variant rows in edit form
+      card.querySelectorAll(`#editVariantsList-${product._id} .removeVariantBtn`).forEach(btn => {
+        btn.addEventListener("click", () => btn.closest(".variantRow").remove());
       });
 
       // Delete product
@@ -540,22 +614,54 @@ document.addEventListener("DOMContentLoaded", async () => {
     preview.style.display = "block";
   });
 
+  // VARIANTS
+  const hasVariantsCheckbox = document.getElementById("hasVariants");
+  const variantsSection = document.getElementById("variantsSection");
+  const variantsList = document.getElementById("variantsList");
+  const addVariantBtn = document.getElementById("addVariantBtn");
+
+  hasVariantsCheckbox.addEventListener("change", () => {
+    variantsSection.style.display = hasVariantsCheckbox.checked ? "block" : "none";
+  });
+
+  function addVariantRow(label = "", price = "") {
+    const row = document.createElement("div");
+    row.className = "variantRow";
+    row.innerHTML = `
+      <input type="text" placeholder="Label (e.g. 12pcs, Red, Small)" value="${label}" class="variantLabel">
+      <input type="number" placeholder="Price (₦)" value="${price}" class="variantPrice">
+      <button type="button" class="removeVariantBtn">✕</button>
+    `;
+    row.querySelector(".removeVariantBtn").addEventListener("click", () => row.remove());
+    variantsList.appendChild(row);
+  }
+
+  addVariantBtn.addEventListener("click", () => addVariantRow());
+
+  function getVariants() {
+    const rows = variantsList.querySelectorAll(".variantRow");
+    const variants = [];
+    rows.forEach(row => {
+      const label = row.querySelector(".variantLabel").value.trim();
+      const price = Number(row.querySelector(".variantPrice").value);
+      if (label && price) variants.push({ label, price });
+    });
+    return variants;
+  }
   // Save new product
   saveNewProductBtn.addEventListener("click", async () => {
     const name = document.getElementById("newProductName").value.trim();
     const price = Number(document.getElementById("newProductPrice").value);
     const page = document.getElementById("newProductPage").value;
     const fileInput = document.getElementById("newProductImageFile");
+    const hasVariants = document.getElementById("hasVariants").checked;
+    const variantType = document.getElementById("variantType").value;
+    const variants = hasVariants ? getVariants() : [];
 
-    if (!name || !price || !page) {
-      return alert("Please fill in all fields.");
-    }
+    if (!name || !price || !page) return alert("Please fill in all fields.");
+    if (!fileInput.files[0]) return alert("Please select an image.");
+    if (hasVariants && variants.length === 0) return alert("Please add at least one variant.");
 
-    if (!fileInput.files[0]) {
-      return alert("Please select an image.");
-    }
-
-    // Upload image first
     const imageUrl = await uploadImage(fileInput.files[0], "uploadStatus");
     if (!imageUrl) return alert("Image upload failed. Please try again.");
 
@@ -563,7 +669,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       const res = await fetch("http://localhost:5000/api/products/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, image: imageUrl, price, page })
+        body: JSON.stringify({
+          name,
+          image: imageUrl,
+          price,
+          page,
+          hasVariants,
+          variantType: hasVariants ? variantType : null,
+          variants
+        })
       });
       const data = await res.json();
       if (data.success) {
@@ -574,6 +688,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("newProductImagePreview").style.display = "none";
         document.getElementById("newProductPrice").value = "";
         document.getElementById("uploadStatus").textContent = "";
+        document.getElementById("hasVariants").checked = false;
+        variantsSection.style.display = "none";
+        variantsList.innerHTML = "";
         fetchProducts();
       } else {
         alert(data.message || "Failed to add product.");
@@ -582,34 +699,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.error("Add product error:", err);
     }
   });
-
-  // Upload image to Cloudinary
-  async function uploadImage(file, statusElId) {
-    const statusEl = document.getElementById(statusElId);
-    if (statusEl) statusEl.textContent = "Uploading...";
-
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-      const res = await fetch("http://localhost:5000/api/products/upload-image", {
-        method: "POST",
-        body: formData
-      });
-      const data = await res.json();
-      if (data.success) {
-        if (statusEl) statusEl.textContent = "Image uploaded ✅";
-        return data.imageUrl;
-      } else {
-        if (statusEl) statusEl.textContent = "Upload failed";
-        return null;
-      }
-    } catch (err) {
-      console.error("Upload error:", err);
-      if (statusEl) statusEl.textContent = "Upload failed";
-      return null;
-    }
-  }
 
   // -----------------------------
   // PRODUCT SEARCH AND FILTER
@@ -680,6 +769,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  // Upload image to Cloudinary
+  async function uploadImage(file, statusElId) {
+    const statusEl = document.getElementById(statusElId);
+    if (statusEl) statusEl.textContent = "Uploading...";
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/products/upload-image", {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (statusEl) statusEl.textContent = "Image uploaded ✅";
+        return data.imageUrl;
+      } else {
+        if (statusEl) statusEl.textContent = "Upload failed";
+        return null;
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      if (statusEl) statusEl.textContent = "Upload failed";
+      return null;
+    }
+  }
   // Initial load
   fetchProducts();
 });

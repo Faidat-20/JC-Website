@@ -21,6 +21,22 @@ const ProductSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  hasVariants: {
+    type: Boolean,
+    default: false
+  },
+  variantType: {
+    type: String,
+    enum: ["size", "color", "quantity", "custom"],
+    default: null
+  },
+  variants: [
+    {
+      label: String,
+      price: Number,
+      inStock: { type: Boolean, default: true }
+    }
+  ],
   averageRating: {
     type: Number,
     default: 0

@@ -590,6 +590,17 @@ body.cart-open {
   background: #ccc;
 }
 
+.addToCart.viewOptions {
+  background: #222;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.addToCart.viewOptions:hover {
+  background: #444;
+}
+
 .quantityControl {
     display: flex;
     align-items: center;
