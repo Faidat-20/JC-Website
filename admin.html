@@ -136,6 +136,12 @@
                   <!-- populated dynamically -->
                 </select>
               </div>
+
+              <div class="formField" style="grid-column: 1 / -1;">
+                <label>Product Description</label>
+                <textarea id="newProductDescription" placeholder="e.g. Premium quality lip gloss tubes available in multiple sizes. Perfect for DIY cosmetic making." 
+                  style="padding:8px 12px; border:1px solid #ddd; border-radius:8px; font-size:13px; outline:none; resize:vertical; min-height:80px; width:100%;"></textarea>
+              </div>
             </div>
 
             <!-- VARIANTS SECTION -->
@@ -157,6 +163,8 @@
               <div id="variantsList" style="margin-top: 12px;"></div>
               <button type="button" id="addVariantBtn" class="addVariantBtn">+ Add Variant</button>
             </div>
+
+
             <div class="productFormActions">
               <button id="saveNewProductBtn" class="saveProductBtn">Save Product</button>
               <button id="cancelAddProductBtn" class="cancelProductBtn">Cancel</button>
@@ -272,6 +280,12 @@
             </div>
             <div id="editProductVariantsList"></div>
             <button type="button" id="editProductAddVariantBtn" class="addVariantBtn">+ Add Variant</button>
+          </div>
+
+          <div class="formField" style="margin-bottom:12px;">
+            <label>Product Description (optional)</label>
+            <textarea id="editProductDescription" placeholder="Product description..." 
+              style="padding:8px 12px; border:1px solid #ddd; border-radius:8px; font-size:13px; outline:none; resize:vertical; min-height:80px; width:100%; box-sizing:border-box;"></textarea>
           </div>
 
           <div class="productFormActions" style="margin-top:16px;">

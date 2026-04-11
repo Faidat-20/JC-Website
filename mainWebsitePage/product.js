@@ -114,7 +114,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       <div class="productDetailDescription">
         <h3>Product Details</h3>
-        <p>Explore our <strong>${product.name}</strong> — a premium quality cosmetic product from Jikes Cosmetics. Perfect for professional use and personal beauty routines. Order now and enjoy fast delivery across Nigeria.</p>
+        <p>${product.description && product.description.trim() !== ""
+          ? product.description
+          : `Explore our <strong>${product.name}</strong> from Jikes Cosmetics. ${product.hasVariants
+              ? `Available in ${product.variants.length} ${product.variantType} options. Select your preferred ${product.variantType} above and add to cart.`
+              : `Add to cart and enjoy fast delivery across Nigeria.`}`
+        }</p>
       </div>
 
       <div class="productDetailReviews">

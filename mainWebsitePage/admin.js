@@ -513,6 +513,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const hasVariants = document.getElementById("hasVariants").checked;
     const variantType = document.getElementById("variantType").value;
     const variants = hasVariants ? getVariants() : [];
+    const description = document.getElementById("newProductDescription").value.trim();
 
     if (!name || !price || !page) return alert("Please fill in all fields.");
     if (!fileInput.files[0]) return alert("Please select an image.");
@@ -532,7 +533,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           page,
           hasVariants,
           variantType: hasVariants ? variantType : null,
-          variants
+          variants,
+          description: document.getElementById("newProductDescription").value.trim()
         })
       });
       const data = await res.json();
@@ -545,6 +547,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("newProductPrice").value = "";
         document.getElementById("uploadStatus").textContent = "";
         document.getElementById("hasVariants").checked = false;
+        document.getElementById("newProductDescription").value = "";
         variantsSection.style.display = "none";
         variantsList.innerHTML = "";
         fetchProducts();
@@ -582,6 +585,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     preview.src = product.image;
 
     // Variants
+    document.getElementById("editProductDescription").value = product.description || "";
     editProductHasVariants.checked = product.hasVariants || false;
     editProductVariantsSection.style.display = product.hasVariants ? "block" : "none";
     document.getElementById("editProductVariantType").value = product.variantType || "size";
@@ -591,6 +595,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     (product.variants || []).forEach(v => {
       addEditVariantRow(v.label, v.price);
     });
+
+    // Description
+    document.getElementById("editProductDescription").value = product.description || "";
 
     // Show modal
     editProductModal.style.display = "flex";
@@ -650,6 +657,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const hasVariants = editProductHasVariants.checked;
     const variantType = document.getElementById("editProductVariantType").value;
     const fileInput = document.getElementById("editProductImageFile");
+    const description = document.getElementById("editProductDescription").value.trim();
 
     if (!name || !price) return alert("Name and price are required.");
 
@@ -679,7 +687,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           name, image, price,
           hasVariants,
           variantType: hasVariants ? variantType : null,
-          variants: hasVariants ? variants : []
+          variants: hasVariants ? variants : [],
+          description: document.getElementById("editProductDescription").value.trim()  
         })
       });
       const data = await res.json();

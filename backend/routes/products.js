@@ -137,7 +137,7 @@ router.get("/paginate", async (req, res) => {
 // ADD NEW PRODUCT
 // ----------------------
 router.post("/add", async (req, res) => {
-  const { name, image, price, page, hasVariants, variantType, variants } = req.body;
+  const { name, image, price, page, hasVariants, variantType, variants, description  } = req.body;
 
   if (!name || !image || !price || !page) {
     return res.status(400).json({ success: false, message: "All fields are required" });
@@ -153,7 +153,8 @@ router.post("/add", async (req, res) => {
       name, image, price, page, inStock: true,
       hasVariants: hasVariants || false,
       variantType: hasVariants ? variantType : null,
-      variants: hasVariants ? variants : []
+      variants: hasVariants ? variants : [],
+      description: description || ""
     });
     await product.save();
 
@@ -168,7 +169,7 @@ router.post("/add", async (req, res) => {
 // EDIT PRODUCT
 // ----------------------
 router.put("/:productId", async (req, res) => {
-  const { name, image, price, page, inStock, hasVariants, variantType, variants } = req.body;
+  const { name, image, price, page, inStock, hasVariants, variantType, variants, description } = req.body;
 
   try {
     const product = await Product.findById(req.params.productId);
@@ -184,6 +185,7 @@ router.put("/:productId", async (req, res) => {
       product.variantType = hasVariants ? variantType : null;
       product.variants = hasVariants ? (variants || []) : [];
     }
+    if (typeof description === "string") product.description = description;
 
     await product.save();
     res.json({ success: true, message: "Product updated!", product });
@@ -248,20 +250,6 @@ router.post("/upload-image", upload.single("image"), async (req, res) => {
 });
 
 // ----------------------
-// GET SINGLE PRODUCT BY ID
-// ----------------------
-router.get("/:productId", async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.productId);
-    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
-    res.json({ success: true, product });
-  } catch (err) {
-    console.error("Get product by ID error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-});
-
-// ----------------------
 // GET SINGLE PRODUCT BY SLUG NAME
 // ----------------------
 router.get("/slug/:slug", async (req, res) => {
@@ -274,6 +262,20 @@ router.get("/slug/:slug", async (req, res) => {
     res.json({ success: true, product });
   } catch (err) {
     console.error("Get product by slug error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// GET SINGLE PRODUCT BY ID
+// ----------------------
+router.get("/:productId", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.productId);
+    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+    res.json({ success: true, product });
+  } catch (err) {
+    console.error("Get product by ID error:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
