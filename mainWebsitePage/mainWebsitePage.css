@@ -591,14 +591,14 @@ body.cart-open {
 }
 
 .addToCart.viewOptions {
-  background: #222;
+  background: var(--navColor);
   color: white;
   border: none;
   cursor: pointer;
 }
 
 .addToCart.viewOptions:hover {
-  background: #444;
+  transform: translateY(-1px) scale(1.03);
 }
 
 .quantityControl {

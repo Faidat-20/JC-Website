@@ -538,25 +538,35 @@
   }
  
   .trackResultHeader {
-    flex-direction: column;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "title badge"
+      "orderid badge"
+      "confirm confirm";
     gap: 6px;
+    align-items: start;
   }
- 
+
   .trackResultHeader h2 {
-    font-size: 15px;
+    grid-area: title;
   }
- 
+
   .resultOrderId {
-    font-size: 11px;
-    word-break: break-all;
+    grid-area: orderid;
   }
- 
+
+  .trackResultHeader .statusBadge {
+    grid-area: badge;
+    justify-self: end;
+  }
+
   .viewConfirmationBtn {
+    grid-area: confirm;
     margin-right: 0;
-    font-size: 12px;
+    margin-top: 4px;
   }
- 
+
   /* Progress bar scrolls horizontally on tiny screens */
   .trackProgress {
     overflow-x: auto;
