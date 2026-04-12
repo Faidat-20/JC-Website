@@ -560,7 +560,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     let unratedCount = 0;
 
     for (const item of order.items) {
-      const productRes = await fetch(`http://localhost:5000/api/products/byname/${encodeURIComponent(item.name)}`);
+      // Strip variant label from name e.g. "Baloon (white)" → "Baloon"
+      const cleanName = item.name.replace(/\s*\(.*?\)\s*$/, "").trim();
+      const productRes = await fetch(`http://localhost:5000/api/products/byname/${encodeURIComponent(cleanName)}`);
       const productData = await productRes.json();
       if (!productData.success) continue;
 

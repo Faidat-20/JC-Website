@@ -1,5 +1,6 @@
 const cron = require("node-cron");
 const Order = require("../models/Order");
+const { sendDeliveredEmail } = require("./mailer");
 const ARCHIVE_AFTER_DAYS = 30;
 
 function startAutoDeliverJob() {
@@ -31,6 +32,7 @@ function startAutoDeliverJob() {
         await order.save();
         console.log(`Order ${order.trackingId} auto-marked as delivered ✅`);
       }
+      try { await sendDeliveredEmail(order); } catch (e) { console.error("Auto-deliver email error:", e); }
 
     } catch (err) {
       console.error("Auto-deliver job error:", err);

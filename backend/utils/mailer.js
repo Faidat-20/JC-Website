@@ -78,7 +78,9 @@ async function sendOrderConfirmationEmail(order) {
           </div>
 
           <p style="margin-top: 24px; color: #777; font-size: 13px;">
-            If you have any questions, reply to this email or contact us on Instagram.
+            If you have any questions, contact us:<br>
+            <strong>Phone:</strong> ${process.env.CONTACT_PHONE || "09040472851"}<br>
+            <strong>WhatsApp:</strong> <a href="https://wa.me/${process.env.WHATSAPP_NUMBER || "2349040472851"}" style="color: hsl(357, 45%, 69%);">Click here to chat</a>
           </p>
         </div>
 
@@ -198,7 +200,9 @@ async function sendShippedNotificationEmail(order) {
           <p style="margin: 4px 0;">${order.shippingOption ? order.shippingOption.name : "Not specified"}</p>
 
           <p style="margin-top: 24px; color: #777; font-size: 13px;">
-            If you have any questions, reply to this email or contact us on Instagram.
+            If you have any questions, contact us:<br>
+            <strong>Phone:</strong> ${process.env.CONTACT_PHONE || "09040472851"}<br>
+            <strong>WhatsApp:</strong> <a href="https://wa.me/${process.env.WHATSAPP_NUMBER || "2349040472851"}" style="color: hsl(357, 45%, 69%);">Click here to chat</a>
           </p>
         </div>
 
@@ -243,8 +247,8 @@ async function sendCancellationEmail(order) {
               <p style="margin: 0; font-size: 13px; color: #555;">A refund of <strong>₦${order.total.toLocaleString()}</strong> has been initiated automatically to your original payment method. Refunds typically take 5-10 business days to appear. If you have any questions please contact us:</p>
               <p style="margin: 10px 0 0; font-size: 13px;">
                 <strong>Email:</strong> ${process.env.EMAIL_USER}<br>
-                <strong>Phone:</strong> 09040472851 / 07057181591<br>
-                <strong>WhatsApp:</strong> <a href="https://wa.me/2349040472851" style="color: #e08c3a;">Click here to chat</a>
+                <strong>Phone:</strong> ${process.env.CONTACT_PHONE || "09040472851"}<br>
+                <strong>WhatsApp:</strong> <a href="https://wa.me/${process.env.WHATSAPP_NUMBER || "2349040472851"}" style="color: #e08c3a;">Click here to chat</a>
               </p>
             </div>
           ` : ""}
@@ -313,10 +317,57 @@ async function sendRefundProcessedEmail(order) {
   console.log(`Refund processed email sent to ${order.deliveryDetails.email} ✅`);
 }
 
+// ─────────────────────────────────────────
+// SEND ORDER DELIVERED EMAIL TO CUSTOMER
+// ─────────────────────────────────────────
+async function sendDeliveredEmail(order) {
+  const mailOptions = {
+    from: `"Jikes Cosmetics" <${process.env.EMAIL_USER}>`,
+    to: order.deliveryDetails.email,
+    subject: `Your order has been delivered — ${order.trackingId}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+
+        <div style="background: hsl(357, 45%, 69%); padding: 24px; text-align: center;">
+          <h1 style="color: white; margin: 0;">Jikes Cosmetics</h1>
+        </div>
+
+        <div style="padding: 24px;">
+          <h2>Your order has been delivered! 🎉</h2>
+          <p>Hi ${order.deliveryDetails.firstName}, your order has been marked as delivered. We hope you love your products!</p>
+
+          <div style="background: #e6f4ea; border: 1.5px dashed #4CAF50; border-radius: 8px; padding: 16px; margin: 20px 0; text-align: center;">
+            <p style="margin: 0; color: #888; font-size: 13px;">Order tracking ID</p>
+            <p style="margin: 8px 0 0; font-size: 24px; font-weight: bold; color: #4CAF50;">${order.trackingId}</p>
+          </div>
+
+          <p style="font-size: 13px; color: #555;">We would love to hear your feedback! Visit your order tracking page to rate your products.</p>
+
+          <p style="margin-top: 24px; color: #777; font-size: 13px;">
+            If you have any questions, contact us:<br>
+            <strong>Email:</strong> ${process.env.EMAIL_USER}<br>
+            <strong>Phone:</strong> ${process.env.CONTACT_PHONE || "09040472851"}<br>
+            <strong>WhatsApp:</strong> <a href="https://wa.me/${process.env.WHATSAPP_NUMBER || "2349040472851"}" style="color: hsl(357, 45%, 69%);">Click here to chat</a>
+          </p>
+        </div>
+
+        <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999;">
+          © 2026 Jikes Cosmetics. All rights reserved.
+        </div>
+
+      </div>
+    `
+  };
+
+  await transporter.sendMail(mailOptions);
+  console.log(`Delivered email sent to ${order.deliveryDetails.email} ✅`);
+}
+
 module.exports = { 
   sendOrderConfirmationEmail, 
   sendOwnerNotificationEmail, 
   sendShippedNotificationEmail, 
   sendCancellationEmail, 
-  sendRefundProcessedEmail
+  sendRefundProcessedEmail,
+  sendDeliveredEmail 
 };

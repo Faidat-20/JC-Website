@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order");
-const { sendShippedNotificationEmail, sendCancellationEmail } = require("../utils/mailer");
+const { sendShippedNotificationEmail, sendCancellationEmail, sendDeliveredEmail  } = require("../utils/mailer");
 const { initiatePaystackRefund } = require("../utils/refund");
 
 // ----------------------
@@ -203,6 +203,10 @@ router.put("/:orderId/status", async (req, res) => {
       try { await sendShippedNotificationEmail(order); } catch (e) { console.error("Shipped email error:", e); }
     }
 
+    if (status === "delivered") {
+      try { await sendDeliveredEmail(order); } catch (e) { console.error("Delivered email error:", e); }
+    }
+    
     // Send cancellation email + initiate refund
     if (status === "cancelled") {
       try { await sendCancellationEmail(order); } catch (e) { console.error("Cancel email error:", e); }
