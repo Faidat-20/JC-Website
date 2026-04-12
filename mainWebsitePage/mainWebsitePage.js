@@ -581,6 +581,7 @@ document.addEventListener("DOMContentLoaded", () => {
       cart = [];
       showEmptyCart();
       localStorage.setItem("cart", JSON.stringify(cart));
+      window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify([]) }));
       showCartOverlayMessage("Cart cleared!");
       return;
     }
@@ -596,6 +597,7 @@ document.addEventListener("DOMContentLoaded", () => {
         cart = [];
         showEmptyCart();
         localStorage.setItem("cart", JSON.stringify(cart)); // sync local storage
+        window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify([]) }));
         showCartOverlayMessage("Cart cleared successfully!");
       } else {
         showToast("error", data.message || "Failed to clear cart.");
