@@ -37,6 +37,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     let currentPrice = product.price;
     let selectedVariant = null;
     let quantity = 1;
+    let qtyDisplay;
+    let detailAddBtn;
 
     // Build variant options
     const variantHTML = product.hasVariants && product.variants?.length > 0 ? `
@@ -143,22 +145,280 @@ document.addEventListener("DOMContentLoaded", async () => {
     `;
 
     // Quantity controls
-    const qtyDisplay = document.getElementById("qtyDisplay");
+    qtyDisplay = document.getElementById("qtyDisplay");
+    detailAddBtn = document.getElementById("detailAddBtn");
+
+    // Basic quantity controls — work before and after adding to cart
     document.getElementById("qtyMinus").addEventListener("click", () => {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const cartName = selectedVariant
+        ? `${product.name} (${selectedVariant.label})`
+        : product.name;
+      const existingItem = cart.find(item => item.name === cartName);
+
+      // If item already in cart, let attachQuantitySyncListeners handle it
+      if (existingItem) return;
+
+      // Not in cart yet — just update display
       if (quantity > 1) {
         quantity--;
         qtyDisplay.textContent = quantity;
       }
     });
+
     document.getElementById("qtyPlus").addEventListener("click", () => {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const cartName = selectedVariant
+        ? `${product.name} (${selectedVariant.label})`
+        : product.name;
+      const existingItem = cart.find(item => item.name === cartName);
+
+      // If item already in cart, let attachQuantitySyncListeners handle it
+      if (existingItem) return;
+
+      // Not in cart yet — just update display
       quantity++;
       qtyDisplay.textContent = quantity;
     });
 
+    // First time add to cart
+    detailAddBtn.addEventListener("click", async () => {
+      const userId = sessionStorage.getItem("userId");
+      if (!userId) return alert("Please log in to add items to cart.");
+
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+      const cartName = selectedVariant
+        ? `${product.name} (${selectedVariant.label})`
+        : product.name;
+
+      const cartPrice = selectedVariant ? selectedVariant.price : product.price;
+      const existingItem = cart.find(item => item.name === cartName);
+
+      if (!existingItem) {
+        // First time adding — push with current quantity
+        cart.push({ name: cartName, image: product.image, price: cartPrice, quantity });
+        localStorage.setItem("cart", JSON.stringify(cart));
+        window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+
+        const addCartMessage = document.querySelector(".addCartMessage");
+        if (addCartMessage) {
+          addCartMessage.textContent = "Added to cart!";
+          addCartMessage.classList.add("show");
+          setTimeout(() => addCartMessage.classList.remove("show"), 1200);
+        }
+
+        // Change button to show it's in cart
+        detailAddBtn.textContent = "Added ✓";
+        detailAddBtn.style.background = "#4CAF50";
+
+        // Sync with backend
+        try {
+          const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId,
+              name: cartName,
+              image: product.image,
+              price: cartPrice,
+              action: "add",
+              quantity
+            })
+          });
+          const syncData = await syncRes.json();
+          if (syncData.success) {
+            localStorage.setItem("cart", JSON.stringify(syncData.cart));
+            window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
+          }
+        } catch (err) {
+          console.error("Cart sync error:", err);
+        }
+
+        // Now attach quantity sync listeners since item is in cart
+        attachQuantitySyncListeners(cartName, cartPrice);
+      }
+    });
+
+    // ─────────────────────────────────────────
+    // ATTACH QUANTITY SYNC LISTENERS
+    // ─────────────────────────────────────────
+    function attachQuantitySyncListeners(cartName, cartPrice) {
+      const userId = sessionStorage.getItem("userId");
+
+      document.getElementById("qtyPlus").addEventListener("click", async () => {
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const existingItem = cart.find(item => item.name === cartName);
+        if (!existingItem) return;
+
+        existingItem.quantity++;
+        quantity = existingItem.quantity;
+        qtyDisplay.textContent = quantity;
+
+        localStorage.setItem("cart", JSON.stringify(cart));
+        window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+
+        const addCartMessage = document.querySelector(".addCartMessage");
+        if (addCartMessage) {
+          addCartMessage.textContent = "Product quantity updated in cart!";
+          addCartMessage.classList.add("show");
+          setTimeout(() => addCartMessage.classList.remove("show"), 1200);
+        }
+
+        if (!userId) return;
+        try {
+          const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId,
+              name: cartName,
+              image: product.image,
+              price: cartPrice,
+              action: "update",
+              quantity: existingItem.quantity
+            })
+          });
+          const syncData = await syncRes.json();
+          if (syncData.success) {
+            localStorage.setItem("cart", JSON.stringify(syncData.cart));
+            window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
+          }
+        } catch (err) {
+          console.error("Cart sync error:", err);
+        }
+      });
+
+      document.getElementById("qtyMinus").addEventListener("click", async () => {
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const existingItem = cart.find(item => item.name === cartName);
+        if (!existingItem) return;
+
+        const addCartMessage = document.querySelector(".addCartMessage");
+
+        if (existingItem.quantity > 1) {
+          existingItem.quantity--;
+          quantity = existingItem.quantity;
+          qtyDisplay.textContent = quantity;
+
+          localStorage.setItem("cart", JSON.stringify(cart));
+          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+
+          if (addCartMessage) {
+            addCartMessage.textContent = "Product quantity updated in cart!";
+            addCartMessage.classList.add("show");
+            setTimeout(() => addCartMessage.classList.remove("show"), 1200);
+          }
+
+          if (!userId) return;
+          try {
+            const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userId,
+                name: cartName,
+                image: product.image,
+                price: cartPrice,
+                action: "update",
+                quantity: existingItem.quantity
+              })
+            });
+            const syncData = await syncRes.json();
+            if (syncData.success) {
+              localStorage.setItem("cart", JSON.stringify(syncData.cart));
+              window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
+            }
+          } catch (err) {
+            console.error("Cart sync error:", err);
+          }
+        } else {
+          // Remove from cart when quantity reaches 0
+          const index = cart.findIndex(item => item.name === cartName);
+          cart.splice(index, 1);
+          quantity = 1;
+          qtyDisplay.textContent = "1";
+
+          localStorage.setItem("cart", JSON.stringify(cart));
+          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+
+          // Reset button back to Add to cart
+          detailAddBtn.textContent = product.hasVariants ? "Select an option" : "Add to cart";
+          detailAddBtn.style.background = "";
+          detailAddBtn.disabled = product.hasVariants;
+
+          if (addCartMessage) {
+            addCartMessage.textContent = "Product removed from cart!";
+            addCartMessage.classList.add("show");
+            setTimeout(() => addCartMessage.classList.remove("show"), 1200);
+          }
+
+          if (!userId) return;
+          try {
+            await fetch("http://localhost:5000/api/auth/update-cart", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userId,
+                name: cartName,
+                image: product.image,
+                price: cartPrice,
+                action: "remove",
+                quantity: 0
+              })
+            });
+          } catch (err) {
+            console.error("Cart sync error:", err);
+          }
+        }
+      });
+    }
+
+    // ─────────────────────────────────────────
+    // SYNC FROM CART OVERLAY TO PRODUCT PAGE
+    // ─────────────────────────────────────────
+    window.addEventListener("storage", (event) => {
+      if (event.key === "cart") {
+        const updatedCart = JSON.parse(event.newValue) || [];
+        const cartName = selectedVariant
+          ? `${product.name} (${selectedVariant.label})`
+          : product.name;
+
+        const existingItem = updatedCart.find(item => item.name === cartName);
+        if (existingItem && qtyDisplay) {
+          quantity = existingItem.quantity;
+          qtyDisplay.textContent = quantity;
+        } else if (!existingItem && qtyDisplay) {
+          quantity = 1;
+          qtyDisplay.textContent = "1";
+          if (detailAddBtn) {
+            detailAddBtn.textContent = product.hasVariants ? "Select an option" : "Add to cart";
+            detailAddBtn.style.background = "";
+            detailAddBtn.disabled = product.hasVariants;
+          }
+        }
+      }
+    });
+
+    // Check if product already in cart on page load
+    const initialCart = JSON.parse(localStorage.getItem("cart")) || [];
+    const initialCartName = selectedVariant
+      ? `${product.name} (${selectedVariant.label})`
+      : product.name;
+    const initialItem = initialCart.find(item => item.name === initialCartName);
+    if (initialItem) {
+      quantity = initialItem.quantity;
+      if (qtyDisplay) qtyDisplay.textContent = quantity;
+      if (detailAddBtn) {
+        detailAddBtn.textContent = "Added ✓";
+        detailAddBtn.style.background = "#4CAF50";
+      }
+      attachQuantitySyncListeners(initialCartName, initialItem.price);
+    }
+
     // Variant selection
     if (product.hasVariants && product.variants?.length > 0) {
       const variantSelect = document.getElementById("variantSelect");
-      const detailAddBtn = document.getElementById("detailAddBtn");
       const detailPrice = document.getElementById("detailPrice");
 
       variantSelect.addEventListener("change", () => {
@@ -175,67 +435,38 @@ document.addEventListener("DOMContentLoaded", async () => {
         detailPrice.textContent = `₦${currentPrice.toLocaleString()}`;
         detailAddBtn.disabled = false;
         detailAddBtn.textContent = "Add to cart";
+
+        // Check if this variant is already in cart
+        const variantCartName = `${product.name} (${selectedVariant.label})`;
+        const variantCart = JSON.parse(localStorage.getItem("cart")) || [];
+        const variantItem = variantCart.find(item => item.name === variantCartName);
+        if (variantItem) {
+          quantity = variantItem.quantity;
+          if (qtyDisplay) qtyDisplay.textContent = quantity;
+          detailAddBtn.textContent = "Added ✓";
+          detailAddBtn.style.background = "#4CAF50";
+          attachQuantitySyncListeners(variantCartName, selectedVariant.price);
+        } else {
+          quantity = 1;
+          if (qtyDisplay) qtyDisplay.textContent = "1";
+          detailAddBtn.textContent = "Add to cart";
+          detailAddBtn.style.background = "";
+        }
       });
     }
-
-    // Add to cart
-    const detailAddBtn = document.getElementById("detailAddBtn");
-    detailAddBtn.addEventListener("click", async () => {
-      const userId = sessionStorage.getItem("userId");
-      if (!userId) return alert("Please log in to add items to cart.");
-
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-      const cartName = selectedVariant
-        ? `${product.name} (${selectedVariant.label})`
-        : product.name;
-
-      const cartPrice = selectedVariant ? selectedVariant.price : product.price;
-      const existingItem = cart.find(item => item.name === cartName);
-
-      if (existingItem) {
-        existingItem.quantity += quantity;
-      } else {
-        cart.push({ name: cartName, image: product.image, price: cartPrice, quantity });
-      }
-
-      localStorage.setItem("cart", JSON.stringify(cart));
-      window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
-
-      const addCartMessage = document.querySelector(".addCartMessage");
-      if (addCartMessage) {
-        addCartMessage.textContent = existingItem ? "Product quantity updated in cart!" : "Added to cart!";
-        addCartMessage.classList.add("show");
-        setTimeout(() => addCartMessage.classList.remove("show"), 1200);
-      }
-
-      // Sync with backend
-      try {
-        const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId,
-            name: cartName,
-            image: product.image,
-            price: cartPrice,
-            action: existingItem ? "update" : "add",
-            quantity: existingItem ? existingItem.quantity : quantity
-          })
-        });
-        const syncData = await syncRes.json();
-        if (syncData.success) {
-          localStorage.setItem("cart", JSON.stringify(syncData.cart));
-          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
-        }
-      } catch (err) {
-        console.error("Cart sync error:", err);
-      }
-    });
 
   } catch (err) {
     console.error("Product detail error:", err);
     container.innerHTML = `<p style="color:#e74c3c; text-align:center; padding:40px;">Failed to load product.</p>`;
   }
 
+  document.getElementById("backBtn").addEventListener("click", (e) => {
+    e.preventDefault();
+    // Go back and force reload so cart updates
+    if (document.referrer) {
+      window.location.href = document.referrer;
+    } else {
+      window.location.href = "mainWebsitePage.html";
+    }
+  });
 });
