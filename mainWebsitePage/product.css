@@ -291,13 +291,23 @@
   background: #000;
   color: white;
 }
-
+.shareX:hover{
+  background: #000;
+  color: white;
+}
 .shareFb {
   background: #1877f2;
   color: white;
 }
-
+.shareFb:hover {
+  background: #1877f2;
+  color: white;
+}
 .shareWa {
+  background: #25d366;
+  color: white;
+}
+.shareWa:hover {
   background: #25d366;
   color: white;
 }

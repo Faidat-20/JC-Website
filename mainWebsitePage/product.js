@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   try {
-    // Fetch product by slug name
     const res = await fetch(`http://localhost:5000/api/products/slug/${encodeURIComponent(productSlug)}`);
     const data = await res.json();
 
@@ -20,11 +19,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const product = data.product;
-
-    // Update page title
     document.title = `${product.name} — Jikes Cosmetics`;
 
-    // Fetch ratings
     const ratingsRes = await fetch(`http://localhost:5000/api/ratings/${product._id}`);
     const ratingsData = await ratingsRes.json();
     const ratings = ratingsData.success ? ratingsData.ratings : [];
@@ -39,8 +35,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     let quantity = 1;
     let qtyDisplay;
     let detailAddBtn;
+    let syncController = null; // ← declared here
 
-    // Build variant options
     const variantHTML = product.hasVariants && product.variants?.length > 0 ? `
       <div class="variantSection">
         <p class="variantLabel">${product.variantType || "Option"}:</p>
@@ -55,33 +51,23 @@ document.addEventListener("DOMContentLoaded", async () => {
       </div>
     ` : "";
 
-    // Share URL
     const shareUrl = encodeURIComponent(window.location.href);
     const shareTitle = encodeURIComponent(product.name);
 
     container.innerHTML = `
-
       <div class="productDetailTop">
-
         <img src="${product.image}" alt="${product.name}" class="productDetailImage">
-
         <div class="productDetailInfo">
-
           <h1 class="productDetailName">${product.name}</h1>
-
           <p class="productDetailPrice" id="detailPrice">₦${currentPrice.toLocaleString()}</p>
-
           <div class="productDetailRating">
             <span class="stars">${starsHTML}</span>
             <span>${total > 0 ? `${avg.toFixed(1)} (${total} ${total === 1 ? "review" : "reviews"})` : "No ratings yet"}</span>
           </div>
-
           <p class="productDetailStock ${product.inStock !== false ? "inStock" : "outOfStock"}">
             ${product.inStock !== false ? "✓ Available" : "✗ Out of stock"}
           </p>
-
           ${variantHTML}
-
           <div class="quantitySection">
             <p class="quantityLabel">Quantity:</p>
             <div class="quantityControl">
@@ -90,12 +76,10 @@ document.addEventListener("DOMContentLoaded", async () => {
               <button class="qtyBtn" id="qtyPlus">+</button>
             </div>
           </div>
-
           <button class="productDetailAddBtn" id="detailAddBtn"
             ${product.inStock === false || (product.hasVariants && product.variants?.length > 0) ? "disabled" : ""}>
             ${product.inStock === false ? "Out of stock" : product.hasVariants ? "Select an option" : "Add to cart"}
           </button>
-
           <div class="productDetailShare">
             <p class="shareLabel">Share this product:</p>
             <div class="shareButtons">
@@ -110,7 +94,6 @@ document.addEventListener("DOMContentLoaded", async () => {
               </a>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -144,107 +127,36 @@ document.addEventListener("DOMContentLoaded", async () => {
       </div>
     `;
 
-    // Quantity controls
     qtyDisplay = document.getElementById("qtyDisplay");
     detailAddBtn = document.getElementById("detailAddBtn");
 
-    // Basic quantity controls — work before and after adding to cart
-    document.getElementById("qtyMinus").addEventListener("click", () => {
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const cartName = selectedVariant
-        ? `${product.name} (${selectedVariant.label})`
-        : product.name;
-      const existingItem = cart.find(item => item.name === cartName);
-
-      // If item already in cart, let attachQuantitySyncListeners handle it
-      if (existingItem) return;
-
-      // Not in cart yet — just update display
-      if (quantity > 1) {
-        quantity--;
-        qtyDisplay.textContent = quantity;
+    // ─────────────────────────────────────────
+    // RESET ADD TO CART BUTTON
+    // ─────────────────────────────────────────
+    function resetAddToCartBtn() {
+      if (syncController) {
+        syncController.abort();
+        syncController = null;
       }
-    });
-
-    document.getElementById("qtyPlus").addEventListener("click", () => {
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const cartName = selectedVariant
-        ? `${product.name} (${selectedVariant.label})`
-        : product.name;
-      const existingItem = cart.find(item => item.name === cartName);
-
-      // If item already in cart, let attachQuantitySyncListeners handle it
-      if (existingItem) return;
-
-      // Not in cart yet — just update display
-      quantity++;
-      qtyDisplay.textContent = quantity;
-    });
-
-    // First time add to cart
-    detailAddBtn.addEventListener("click", async () => {
-      const userId = sessionStorage.getItem("userId");
-      if (!userId) return alert("Please log in to add items to cart.");
-
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-      const cartName = selectedVariant
-        ? `${product.name} (${selectedVariant.label})`
-        : product.name;
-
-      const cartPrice = selectedVariant ? selectedVariant.price : product.price;
-      const existingItem = cart.find(item => item.name === cartName);
-
-      if (!existingItem) {
-        // First time adding — push with current quantity
-        cart.push({ name: cartName, image: product.image, price: cartPrice, quantity });
-        localStorage.setItem("cart", JSON.stringify(cart));
-        window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
-
-        const addCartMessage = document.querySelector(".addCartMessage");
-        if (addCartMessage) {
-          addCartMessage.textContent = "Added to cart!";
-          addCartMessage.classList.add("show");
-          setTimeout(() => addCartMessage.classList.remove("show"), 1200);
-        }
-
-        // Change button to show it's in cart
-        detailAddBtn.textContent = "Added ✓";
-        detailAddBtn.style.background = "#4CAF50";
-
-        // Sync with backend
-        try {
-          const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userId,
-              name: cartName,
-              image: product.image,
-              price: cartPrice,
-              action: "add",
-              quantity
-            })
-          });
-          const syncData = await syncRes.json();
-          if (syncData.success) {
-            localStorage.setItem("cart", JSON.stringify(syncData.cart));
-            window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
-          }
-        } catch (err) {
-          console.error("Cart sync error:", err);
-        }
-
-        // Now attach quantity sync listeners since item is in cart
-        attachQuantitySyncListeners(cartName, cartPrice);
+      quantity = 1;
+      if (qtyDisplay) qtyDisplay.textContent = "1";
+      if (detailAddBtn) {
+        detailAddBtn.textContent = product.hasVariants ? "Select an option" : "Add to cart";
+        detailAddBtn.style.background = "";
+        detailAddBtn.disabled = product.hasVariants && !selectedVariant;
       }
-    });
+    }
 
     // ─────────────────────────────────────────
     // ATTACH QUANTITY SYNC LISTENERS
     // ─────────────────────────────────────────
     function attachQuantitySyncListeners(cartName, cartPrice) {
       const userId = sessionStorage.getItem("userId");
+
+      // Abort previous listeners
+      if (syncController) syncController.abort();
+      syncController = new AbortController();
+      const signal = syncController.signal;
 
       document.getElementById("qtyPlus").addEventListener("click", async () => {
         const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -270,24 +182,15 @@ document.addEventListener("DOMContentLoaded", async () => {
           const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userId,
-              name: cartName,
-              image: product.image,
-              price: cartPrice,
-              action: "update",
-              quantity: existingItem.quantity
-            })
+            body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "update", quantity: existingItem.quantity })
           });
           const syncData = await syncRes.json();
           if (syncData.success) {
             localStorage.setItem("cart", JSON.stringify(syncData.cart));
             window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
           }
-        } catch (err) {
-          console.error("Cart sync error:", err);
-        }
-      });
+        } catch (err) { console.error("Cart sync error:", err); }
+      }, { signal });
 
       document.getElementById("qtyMinus").addEventListener("click", async () => {
         const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -315,37 +218,22 @@ document.addEventListener("DOMContentLoaded", async () => {
             const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                userId,
-                name: cartName,
-                image: product.image,
-                price: cartPrice,
-                action: "update",
-                quantity: existingItem.quantity
-              })
+              body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "update", quantity: existingItem.quantity })
             });
             const syncData = await syncRes.json();
             if (syncData.success) {
               localStorage.setItem("cart", JSON.stringify(syncData.cart));
               window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
             }
-          } catch (err) {
-            console.error("Cart sync error:", err);
-          }
+          } catch (err) { console.error("Cart sync error:", err); }
+
         } else {
-          // Remove from cart when quantity reaches 0
+          // Remove from cart
           const index = cart.findIndex(item => item.name === cartName);
           cart.splice(index, 1);
-          quantity = 1;
-          qtyDisplay.textContent = "1";
 
           localStorage.setItem("cart", JSON.stringify(cart));
           window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
-
-          // Reset button back to Add to cart
-          detailAddBtn.textContent = product.hasVariants ? "Select an option" : "Add to cart";
-          detailAddBtn.style.background = "";
-          detailAddBtn.disabled = product.hasVariants;
 
           if (addCartMessage) {
             addCartMessage.textContent = "Product removed from cart!";
@@ -353,58 +241,120 @@ document.addEventListener("DOMContentLoaded", async () => {
             setTimeout(() => addCartMessage.classList.remove("show"), 1200);
           }
 
+          resetAddToCartBtn();
+
           if (!userId) return;
           try {
             await fetch("http://localhost:5000/api/auth/update-cart", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                userId,
-                name: cartName,
-                image: product.image,
-                price: cartPrice,
-                action: "remove",
-                quantity: 0
-              })
+              body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "remove", quantity: 0 })
             });
-          } catch (err) {
-            console.error("Cart sync error:", err);
-          }
+          } catch (err) { console.error("Cart sync error:", err); }
         }
-      });
+      }, { signal });
     }
 
     // ─────────────────────────────────────────
-    // SYNC FROM CART OVERLAY TO PRODUCT PAGE
+    // BASIC QTY BEFORE ADDING TO CART
+    // ─────────────────────────────────────────
+    document.getElementById("qtyMinus").addEventListener("click", () => {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const cartName = selectedVariant ? `${product.name} (${selectedVariant.label})` : product.name;
+      const existingItem = cart.find(item => item.name === cartName);
+      if (existingItem) return; // handled by syncListeners
+      if (quantity > 1) {
+        quantity--;
+        qtyDisplay.textContent = quantity;
+      }
+    });
+
+    document.getElementById("qtyPlus").addEventListener("click", () => {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const cartName = selectedVariant ? `${product.name} (${selectedVariant.label})` : product.name;
+      const existingItem = cart.find(item => item.name === cartName);
+      if (existingItem) return; // handled by syncListeners
+      quantity++;
+      qtyDisplay.textContent = quantity;
+    });
+
+    // ─────────────────────────────────────────
+    // ADD TO CART BUTTON
+    // ─────────────────────────────────────────
+    detailAddBtn.addEventListener("click", async () => {
+      const userId = sessionStorage.getItem("userId");
+      if (!userId) return alert("Please log in to add items to cart.");
+
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const cartName = selectedVariant ? `${product.name} (${selectedVariant.label})` : product.name;
+      const cartPrice = selectedVariant ? selectedVariant.price : product.price;
+      const existingItem = cart.find(item => item.name === cartName);
+
+      if (!existingItem) {
+        cart.push({ name: cartName, image: product.image, price: cartPrice, quantity });
+        localStorage.setItem("cart", JSON.stringify(cart));
+        window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+
+        const addCartMessage = document.querySelector(".addCartMessage");
+        if (addCartMessage) {
+          addCartMessage.textContent = "Added to cart!";
+          addCartMessage.classList.add("show");
+          setTimeout(() => addCartMessage.classList.remove("show"), 1200);
+        }
+
+        detailAddBtn.textContent = "Added ✓";
+        detailAddBtn.style.background = "#4CAF50";
+
+        try {
+          const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "add", quantity })
+          });
+          const syncData = await syncRes.json();
+          if (syncData.success) {
+            localStorage.setItem("cart", JSON.stringify(syncData.cart));
+            window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
+          }
+        } catch (err) { console.error("Cart sync error:", err); }
+
+        attachQuantitySyncListeners(cartName, cartPrice);
+      }
+    });
+
+    // ─────────────────────────────────────────
+    // STORAGE LISTENER — CART OVERLAY CHANGES
     // ─────────────────────────────────────────
     window.addEventListener("storage", (event) => {
-      if (event.key === "cart") {
-        const updatedCart = JSON.parse(event.newValue) || [];
-        const cartName = selectedVariant
-          ? `${product.name} (${selectedVariant.label})`
-          : product.name;
+      if (event.key !== "cart") return;
 
-        const existingItem = updatedCart.find(item => item.name === cartName);
-        if (existingItem && qtyDisplay) {
-          quantity = existingItem.quantity;
-          qtyDisplay.textContent = quantity;
-        } else if (!existingItem && qtyDisplay) {
-          quantity = 1;
-          qtyDisplay.textContent = "1";
-          if (detailAddBtn) {
-            detailAddBtn.textContent = product.hasVariants ? "Select an option" : "Add to cart";
-            detailAddBtn.style.background = "";
-            detailAddBtn.disabled = product.hasVariants;
-          }
+      const updatedCart = JSON.parse(event.newValue) || [];
+      const cartName = selectedVariant ? `${product.name} (${selectedVariant.label})` : product.name;
+      const existingItem = updatedCart.find(item => item.name === cartName);
+
+      if (existingItem) {
+        quantity = existingItem.quantity;
+        if (qtyDisplay) qtyDisplay.textContent = quantity;
+        if (detailAddBtn) {
+          detailAddBtn.textContent = "Added ✓";
+          detailAddBtn.style.background = "#4CAF50";
+        }
+      } else {
+        // Item removed from cart overlay — reset everything
+        resetAddToCartBtn();
+        // If a variant was selected, re-enable the button
+        if (selectedVariant) {
+          detailAddBtn.disabled = false;
+          detailAddBtn.textContent = "Add to cart";
         }
       }
     });
 
-    // Check if product already in cart on page load
+    // ─────────────────────────────────────────
+    // CHECK CART ON PAGE LOAD
+    // ─────────────────────────────────────────
     const initialCart = JSON.parse(localStorage.getItem("cart")) || [];
-    const initialCartName = selectedVariant
-      ? `${product.name} (${selectedVariant.label})`
-      : product.name;
+    const initialCartName = selectedVariant ? `${product.name} (${selectedVariant.label})` : product.name;
     const initialItem = initialCart.find(item => item.name === initialCartName);
     if (initialItem) {
       quantity = initialItem.quantity;
@@ -416,39 +366,44 @@ document.addEventListener("DOMContentLoaded", async () => {
       attachQuantitySyncListeners(initialCartName, initialItem.price);
     }
 
-    // Variant selection
+    // ─────────────────────────────────────────
+    // VARIANT SELECTION
+    // ─────────────────────────────────────────
     if (product.hasVariants && product.variants?.length > 0) {
       const variantSelect = document.getElementById("variantSelect");
       const detailPrice = document.getElementById("detailPrice");
 
       variantSelect.addEventListener("change", () => {
         const selectedIndex = variantSelect.value;
+
         if (selectedIndex === "") {
           selectedVariant = null;
           detailPrice.textContent = `₦${product.price.toLocaleString()}`;
           detailAddBtn.disabled = true;
           detailAddBtn.textContent = "Select an option";
+          resetAddToCartBtn();
           return;
         }
+
         selectedVariant = product.variants[parseInt(selectedIndex)];
         currentPrice = selectedVariant.price;
         detailPrice.textContent = `₦${currentPrice.toLocaleString()}`;
-        detailAddBtn.disabled = false;
-        detailAddBtn.textContent = "Add to cart";
 
         // Check if this variant is already in cart
         const variantCartName = `${product.name} (${selectedVariant.label})`;
         const variantCart = JSON.parse(localStorage.getItem("cart")) || [];
         const variantItem = variantCart.find(item => item.name === variantCartName);
+
         if (variantItem) {
           quantity = variantItem.quantity;
           if (qtyDisplay) qtyDisplay.textContent = quantity;
           detailAddBtn.textContent = "Added ✓";
           detailAddBtn.style.background = "#4CAF50";
+          detailAddBtn.disabled = false;
           attachQuantitySyncListeners(variantCartName, selectedVariant.price);
         } else {
-          quantity = 1;
-          if (qtyDisplay) qtyDisplay.textContent = "1";
+          resetAddToCartBtn();
+          detailAddBtn.disabled = false;
           detailAddBtn.textContent = "Add to cart";
           detailAddBtn.style.background = "";
         }
@@ -460,13 +415,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     container.innerHTML = `<p style="color:#e74c3c; text-align:center; padding:40px;">Failed to load product.</p>`;
   }
 
+  // ─────────────────────────────────────────
+  // BACK BUTTON
+  // ─────────────────────────────────────────
   document.getElementById("backBtn").addEventListener("click", (e) => {
     e.preventDefault();
-    // Go back and force reload so cart updates
     if (document.referrer) {
       window.location.href = document.referrer;
     } else {
       window.location.href = "mainWebsitePage.html";
     }
   });
+
 });
