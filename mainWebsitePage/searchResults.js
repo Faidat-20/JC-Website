@@ -114,7 +114,7 @@ function renderSearchResults(products) {
   });
 
   // ADD TO CART
-  const addToCartButtons = resultsContainer.querySelectorAll(".addToCart");
+  const addToCartButtons = resultsContainer.querySelectorAll(".addToCart:not(.viewOptions)");
   addToCartButtons.forEach(button => {
     button.addEventListener("click", async () => {
       const userId = sessionStorage.getItem("userId");
@@ -164,6 +164,16 @@ function renderSearchResults(products) {
       } catch (err) {
         console.error("Cart backend sync error:", err);
       }
+    });
+  });
+  // Handle view options buttons
+  resultsContainer.querySelectorAll(".viewOptions").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const productId = btn.dataset.id;
+      showSpinner();
+      setTimeout(() => {
+        window.location.href = `product.html?id=${productId}`;
+      }, 400);
     });
   });
 }

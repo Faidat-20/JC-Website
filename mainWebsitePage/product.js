@@ -1,16 +1,21 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
   const params = new URLSearchParams(window.location.search);
-  const productSlug = params.get("name");
+  const productId = params.get("id");
+  const productSlug = params.get("name"); // keep for backward compatibility
   const container = document.getElementById("productDetailCard");
 
-  if (!productSlug) {
+  if (!productId && !productSlug) {
     container.innerHTML = `<p style="color:#e74c3c; text-align:center; padding:40px;">Product not found.</p>`;
     return;
   }
 
   try {
-    const res = await fetch(`http://localhost:5000/api/products/slug/${encodeURIComponent(productSlug)}`);
+    // Use id if available, otherwise fall back to slug
+    const url = productId
+      ? `http://localhost:5000/api/products/id/${productId}`
+      : `http://localhost:5000/api/products/slug/${encodeURIComponent(productSlug)}`;
+    const res = await fetch(url);
     const data = await res.json();
 
     if (!data.success || !data.product) {
@@ -177,19 +182,21 @@ document.addEventListener("DOMContentLoaded", async () => {
           setTimeout(() => addCartMessage.classList.remove("show"), 1200);
         }
 
-        if (!userId) return;
-        try {
-          const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "update", quantity: existingItem.quantity })
-          });
-          const syncData = await syncRes.json();
-          if (syncData.success) {
-            localStorage.setItem("cart", JSON.stringify(syncData.cart));
-            window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
-          }
-        } catch (err) { console.error("Cart sync error:", err); }
+        // Sync with backend — only if logged in
+        if (userId) {
+          try {
+            const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "add", quantity })
+            });
+            const syncData = await syncRes.json();
+            if (syncData.success) {
+              localStorage.setItem("cart", JSON.stringify(syncData.cart));
+              window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
+            }
+          } catch (err) { console.error("Cart sync error:", err); }
+        }
       }, { signal });
 
       document.getElementById("qtyMinus").addEventListener("click", async () => {
@@ -213,19 +220,21 @@ document.addEventListener("DOMContentLoaded", async () => {
             setTimeout(() => addCartMessage.classList.remove("show"), 1200);
           }
 
-          if (!userId) return;
-          try {
-            const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "update", quantity: existingItem.quantity })
-            });
-            const syncData = await syncRes.json();
-            if (syncData.success) {
-              localStorage.setItem("cart", JSON.stringify(syncData.cart));
-              window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
-            }
-          } catch (err) { console.error("Cart sync error:", err); }
+          // Sync with backend — only if logged in
+          if (userId) {
+            try {
+              const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "add", quantity })
+              });
+              const syncData = await syncRes.json();
+              if (syncData.success) {
+                localStorage.setItem("cart", JSON.stringify(syncData.cart));
+                window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
+              }
+            } catch (err) { console.error("Cart sync error:", err); }
+          }
 
         } else {
           // Remove from cart
@@ -242,15 +251,16 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
 
           resetAddToCartBtn();
-
-          if (!userId) return;
-          try {
-            await fetch("http://localhost:5000/api/auth/update-cart", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "remove", quantity: 0 })
-            });
-          } catch (err) { console.error("Cart sync error:", err); }
+          
+          if (userId) {
+            try {
+              await fetch("http://localhost:5000/api/auth/update-cart", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "remove", quantity: 0 })
+              });
+            } catch (err) { console.error("Cart sync error:", err); }
+          }
         }
       }, { signal });
     }
@@ -283,7 +293,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // ─────────────────────────────────────────
     detailAddBtn.addEventListener("click", async () => {
       const userId = sessionStorage.getItem("userId");
-      if (!userId) return alert("Please log in to add items to cart.");
 
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
       const cartName = selectedVariant ? `${product.name} (${selectedVariant.label})` : product.name;
@@ -305,18 +314,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         detailAddBtn.textContent = "Added ✓";
         detailAddBtn.style.background = "#4CAF50";
 
-        try {
-          const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "add", quantity })
-          });
-          const syncData = await syncRes.json();
-          if (syncData.success) {
-            localStorage.setItem("cart", JSON.stringify(syncData.cart));
-            window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
-          }
-        } catch (err) { console.error("Cart sync error:", err); }
+        // Sync with backend — only if logged in
+        if (userId) {
+          try {
+            const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "add", quantity })
+            });
+            const syncData = await syncRes.json();
+            if (syncData.success) {
+              localStorage.setItem("cart", JSON.stringify(syncData.cart));
+              window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(syncData.cart) }));
+            }
+          } catch (err) { console.error("Cart sync error:", err); }
+        }
 
         attachQuantitySyncListeners(cartName, cartPrice);
       }
