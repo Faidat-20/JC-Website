@@ -363,11 +363,57 @@ async function sendDeliveredEmail(order) {
   console.log(`Delivered email sent to ${order.deliveryDetails.email} ✅`);
 }
 
+// ─────────────────────────────────────────
+// SEND WELCOME / SUBSCRIPTION EMAIL
+// ─────────────────────────────────────────
+async function sendWelcomeEmail(email, username) {
+  const mailOptions = {
+    from: `"Jikes Cosmetics" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `Welcome to Jikes Cosmetics! 🎉`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+
+        <div style="background: hsl(357, 45%, 69%); padding: 24px; text-align: center;">
+          <h1 style="color: white; margin: 0;">Jikes Cosmetics</h1>
+        </div>
+
+        <div style="padding: 24px;">
+          <h2>Welcome, ${username || "there"}! 🎉</h2>
+          <p>Thank you for subscribing to Jikes Cosmetics. You are now part of our exclusive community!</p>
+
+          <div style="background: #fff8f0; border: 1.5px dashed hsl(357, 45%, 69%); border-radius: 8px; padding: 16px; margin: 20px 0; text-align: center;">
+            <p style="margin: 0; font-size: 14px; color: #555;">You will be the first to know about:</p>
+            <p style="margin: 8px 0 0; font-size: 15px; font-weight: bold; color: hsl(357, 45%, 69%);">Exclusive deals, new arrivals & special offers</p>
+          </div>
+
+          <p style="font-size: 13px; color: #555;">You can now log in with your email to shop, track orders and more.</p>
+
+          <p style="margin-top: 24px; color: #777; font-size: 13px;">
+            If you have any questions, contact us:<br>
+            <strong>Phone:</strong> ${process.env.CONTACT_PHONE || "09040472851"}<br>
+            <strong>WhatsApp:</strong> <a href="https://wa.me/${process.env.WHATSAPP_NUMBER || "2349040472851"}" style="color: hsl(357, 45%, 69%);">Click here to chat</a>
+          </p>
+        </div>
+
+        <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999;">
+          © 2026 Jikes Cosmetics. All rights reserved.
+        </div>
+
+      </div>
+    `
+  };
+
+  await transporter.sendMail(mailOptions);
+  console.log(`Welcome email sent to ${email} ✅`);
+}
+
 module.exports = { 
   sendOrderConfirmationEmail, 
   sendOwnerNotificationEmail, 
   sendShippedNotificationEmail, 
   sendCancellationEmail, 
   sendRefundProcessedEmail,
-  sendDeliveredEmail 
+  sendDeliveredEmail ,
+  sendWelcomeEmail 
 };

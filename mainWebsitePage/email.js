@@ -3,10 +3,10 @@
   emailjs.init("LwQCTrUmqyQcsHYsO");
 })();
 
-// WAIT until page loads before finding the form
 window.addEventListener("load", function () {
 
   const form = document.getElementById("newsletterForm");
+  if (!form) return;
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -16,9 +16,6 @@ window.addEventListener("load", function () {
 
     let subscribers = JSON.parse(localStorage.getItem("subscribers")) || [];
 
-    // if (subscribers.includes(email)) {
-    //   return; // do nothing
-    // }
     const userId = sessionStorage.getItem("userId");
     if (userId) {
       fetch(`http://localhost:5000/api/auth/userdata/${userId}`)
@@ -27,39 +24,22 @@ window.addEventListener("load", function () {
           if (data.success && data.subscribed) {
             return;
           } else {
-            sendEmail();
+            trackSubscriber();
           }
         })
         .catch(err => {
           console.error("Error checking subscription status:", err);
-          sendEmail();
+          trackSubscriber();
         });
     } else {
-      sendEmail();
+      trackSubscriber();
     }
 
-
-    function sendEmail() {
-      if (subscribers.includes(email)) {
-        return;
-      }
-
-      emailjs.sendForm( /* global emailjs */
-        "service_gouqvrc",
-        "template_5tw4y1q",
-        form
-      ).then(
-        function () {
-          subscribers.push(email);
-          localStorage.setItem("subscribers", JSON.stringify(subscribers));
-          showToast("success", "Subscription successful! Check your email.");
-          form.reset();
-        },
-        function (error) {
-          console.log("EmailJS Error:", error);
-          showToast("error", "Something went wrong. Please try again.");
-        }
-      );
+    function trackSubscriber() {
+      if (subscribers.includes(email)) return;
+      // Welcome email is sent from backend — just track locally
+      subscribers.push(email);
+      localStorage.setItem("subscribers", JSON.stringify(subscribers));
     }
   });
 });

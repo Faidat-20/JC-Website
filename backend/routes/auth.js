@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
+const { sendWelcomeEmail } = require("../utils/mailer");
 // ─────────────────────────────────────────
 // SANITIZATION HELPERS
 // ─────────────────────────────────────────
@@ -333,11 +334,11 @@ router.post("/subscribe-newsletter", async (req, res) => {
     // User exists but not subscribed yet — update them
     if (user && !user.isSubscribed) {
       user.isSubscribed = true;
-      console.log("Username received:", username);
       const generatedUsername = await generateUniqueUsername(username);
-      console.log("Generated username:", generatedUsername);
       if (username) user.username = generatedUsername;
       await user.save();
+      // Send welcome email
+      try { await sendWelcomeEmail(user.email, user.username); } catch (e) { console.error("Welcome email error:", e); }
       return res.json({ success: true, message: "Subscription successful!" });
     }
 
@@ -347,6 +348,10 @@ router.post("/subscribe-newsletter", async (req, res) => {
       const uniqueUsername = await generateUniqueUsername(username);
       user = new User({ email, username: uniqueUsername, isSubscribed: true, cart: [] });
       await user.save();
+
+      // Send welcome email
+      try { await sendWelcomeEmail(email, uniqueUsername); } catch (e) { console.error("Welcome email error:", e); }
+
       return res.json({ success: true, message: "Subscription successful!" });
     } catch (createErr) {
       if (createErr.code === 11000) {
@@ -359,6 +364,7 @@ router.post("/subscribe-newsletter", async (req, res) => {
               user.username = await generateUniqueUsername(username);
             }
             await user.save();
+            try { await sendWelcomeEmail(user.email, user.username); } catch (e) { console.error("Welcome email error:", e); }
             return res.json({ success: true, message: "Subscription successful!" });
           }
           return res.json({ success: true, message: "You are already subscribed! Login." });
