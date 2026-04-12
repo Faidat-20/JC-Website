@@ -50,7 +50,7 @@ router.post("/create", async (req, res) => {
 // ----------------------
 router.get("/all", async (req, res) => {
   try {
-    const orders = await Order.find().sort({ order_created_at: -1 });
+    const orders = await Order.find({ isArchived: { $ne: true } }).sort({ createdAt: -1 });
     res.json({ success: true, orders });
   } catch (err) {
     console.error("Get orders error:", err);
@@ -126,6 +126,19 @@ router.get("/track/:trackingId", async (req, res) => {
     res.json({ success: true, isOwner: true, order });
   } catch (err) {
     console.error("Track order error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// GET ARCHIVED ORDERS
+// ----------------------
+router.get("/archived", async (req, res) => {
+  try {
+    const orders = await Order.find({ isArchived: true }).sort({ order_archived_at: -1 });
+    res.json({ success: true, orders });
+  } catch (err) {
+    console.error("Get archived orders error:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
@@ -209,6 +222,44 @@ router.put("/:orderId/status", async (req, res) => {
     res.json({ success: true, message: `Order marked as ${status}!`, order });
   } catch (err) {
     console.error("Update order status error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// MANUALLY ARCHIVE AN ORDER
+// ----------------------
+router.put("/:orderId/archive", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    order.isArchived = true;
+    order.order_archived_at = new Date();
+    await order.save();
+
+    res.json({ success: true, message: "Order archived!", order });
+  } catch (err) {
+    console.error("Archive order error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// UNARCHIVE AN ORDER
+// ----------------------
+router.put("/:orderId/unarchive", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    order.isArchived = false;
+    order.order_archived_at = null;
+    await order.save();
+
+    res.json({ success: true, message: "Order unarchived!", order });
+  } catch (err) {
+    console.error("Unarchive order error:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });

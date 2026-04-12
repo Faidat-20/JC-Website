@@ -66,6 +66,9 @@
         <button class="adminTab active" data-tab="orders">
           <i class="fa-solid fa-box"></i> Orders
         </button>
+        <button class="adminTab" data-tab="archived">
+          <i class="fa-solid fa-box-archive"></i> Archived
+        </button>
         <button class="adminTab" data-tab="products">
           <i class="fa-solid fa-tag"></i> Products
         </button>
@@ -90,6 +93,16 @@
         <!-- ORDERS CONTAINER — moved inside ordersSection -->
         <div class="ordersContainer" id="ordersContainer">
           <p class="loadingMsg">Loading orders...</p>
+        </div>
+      </div>
+
+      <!-- ARCHIVED ORDERS SECTION -->
+      <div class="adminSection" id="archivedSection" style="display:none;">
+        <div class="adminTopBar">
+          <span id="archivedCount" class="orderCount"></span>
+        </div>
+        <div class="ordersContainer" id="archivedContainer">
+          <p class="loadingMsg">Loading archived orders...</p>
         </div>
       </div>
 

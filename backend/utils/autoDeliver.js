@@ -1,5 +1,6 @@
 const cron = require("node-cron");
 const Order = require("../models/Order");
+const ARCHIVE_AFTER_DAYS = 30;
 
 function startAutoDeliverJob() {
 
@@ -50,6 +51,35 @@ function startAutoDeliverJob() {
       console.log(`Cleaned up ${result.deletedCount} abandoned pending orders ✅`);
     } catch (err) {
       console.error("Pending order cleanup error:", err);
+    }
+  });
+  // Auto-archive orders older than 30 days
+  cron.schedule("0 1 * * *", async () => {
+    console.log("Running auto-archive check...");
+    try {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - ARCHIVE_AFTER_DAYS);
+
+      const ordersToArchive = await Order.find({
+        isArchived: false,
+        order_created_at: { $lte: cutoffDate }
+      });
+
+      if (ordersToArchive.length === 0) {
+        console.log("No orders to archive.");
+        return;
+      }
+
+      for (const order of ordersToArchive) {
+        order.isArchived = true;
+        order.order_archived_at = new Date();
+        await order.save();
+        console.log(`Order ${order.trackingId} archived ✅`);
+      }
+
+      console.log(`Auto-archived ${ordersToArchive.length} order(s) ✅`);
+    } catch (err) {
+      console.error("Auto-archive error:", err);
     }
   });
 }

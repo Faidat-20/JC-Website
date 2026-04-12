@@ -1,25 +1,3 @@
-// -----------------------------
-// TAB SWITCHING
-// -----------------------------
-const adminTabs = document.querySelectorAll(".adminTab");
-const ordersSection = document.getElementById("ordersSection");
-const productsSection = document.getElementById("productsSection");
-
-adminTabs.forEach(tab => {
-  tab.addEventListener("click", () => {
-    adminTabs.forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-
-    if (tab.dataset.tab === "orders") {
-      ordersSection.style.display = "block";
-      productsSection.style.display = "none";
-    } else {
-      ordersSection.style.display = "none";
-      productsSection.style.display = "block";
-    }
-  });
-});
-
 // ADMIN PROTECTION
 (async () => {
   const userId = sessionStorage.getItem("userId");
@@ -63,6 +41,33 @@ function formatDateTime(dateStr) {
 
 document.addEventListener("DOMContentLoaded", async () => {
 
+  const adminTabs = document.querySelectorAll(".adminTab");
+  const ordersSection = document.getElementById("ordersSection");
+  const productsSection = document.getElementById("productsSection");
+
+  adminTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      adminTabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      const archivedSection = document.getElementById("archivedSection");
+
+      if (tab.dataset.tab === "orders") {
+        ordersSection.style.display = "block";
+        archivedSection.style.display = "none";
+        productsSection.style.display = "none";
+      } else if (tab.dataset.tab === "archived") {
+        ordersSection.style.display = "none";
+        archivedSection.style.display = "block";
+        productsSection.style.display = "none";
+        loadArchivedOrders();
+      } else {
+        ordersSection.style.display = "none";
+        archivedSection.style.display = "none";
+        productsSection.style.display = "block";
+      }
+    });
+  });
   const ordersContainer = document.getElementById("ordersContainer");
   const orderCount = document.getElementById("orderCount");
   const modalOverlay = document.getElementById("modalOverlay");
@@ -182,6 +187,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             <button class="viewBtn" data-id="${order._id}">
               <i class="fa-solid fa-eye"></i> View
             </button>
+            <button class="archiveBtn" data-id="${order._id}" title="Archive order"
+              style="padding:8px 12px; background:#f5f5f5; color:#777; border:1px solid #ddd; border-radius:6px; font-size:12px; cursor:pointer;">
+              <i class="fa-solid fa-box-archive"></i>
+            </button>
           </div>
         </div>
       `;
@@ -205,6 +214,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         showOrderModal(order);
       });
 
+      // Archive button
+      const archiveBtn = card.querySelector(".archiveBtn");
+      archiveBtn.addEventListener("click", async () => {
+        if (!confirm("Archive this order? It will be moved out of the main dashboard.")) return;
+        try {
+          const res = await fetch(`http://localhost:5000/api/orders/${order._id}/archive`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" }
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast("success", "Order archived!");
+            allOrders = allOrders.filter(o => o._id !== order._id);
+            renderOrders(allOrders);
+          }
+        } catch (err) {
+          console.error("Archive error:", err);
+        }
+      });
       ordersContainer.appendChild(card);
     });
   }
@@ -327,6 +355,88 @@ document.addEventListener("DOMContentLoaded", async () => {
   // -----------------------------
   fetchOrders();
 
+  // -----------------------------
+  // ARCHIVED ORDERS
+  // -----------------------------
+  async function loadArchivedOrders() {
+    const archivedContainer = document.getElementById("archivedContainer");
+    const archivedCount = document.getElementById("archivedCount");
+
+    try {
+      archivedContainer.innerHTML = `<p class="loadingMsg">Loading archived orders...</p>`;
+      const res = await fetch("http://localhost:5000/api/orders/archived");
+      const data = await res.json();
+
+      if (!data.success || data.orders.length === 0) {
+        archivedContainer.innerHTML = `<p class="noOrders">No archived orders found.</p>`;
+        archivedCount.textContent = "0 orders";
+        return;
+      }
+
+      archivedCount.textContent = `${data.orders.length} ${data.orders.length === 1 ? "order" : "orders"}`;
+      archivedContainer.innerHTML = "";
+
+      data.orders.forEach(order => {
+        const card = document.createElement("div");
+        card.className = "orderCard";
+
+        card.innerHTML = `
+          <div class="orderCardLeft">
+            <h3>Tracking ID: ${order.trackingId}</h3>
+            <p><strong>Customer:</strong> ${order.deliveryDetails?.firstName || ""} ${order.deliveryDetails?.lastName || ""}</p>
+            <p><strong>Phone:</strong> ${order.deliveryDetails?.phone || "N/A"}</p>
+            <p><strong>Total:</strong> ₦${order.total?.toLocaleString()}</p>
+            <p><strong>Order placed:</strong> ${formatDateTime(order.order_created_at)}</p>
+            <p><strong>Archived:</strong> ${formatDateTime(order.order_archived_at)}</p>
+          </div>
+          <div class="orderCardRight">
+            <span class="statusBadge ${order.status}">${order.status}</span>
+            <span class="statusBadge ${order.paymentStatus === "refund_initiated" ? "refund-pending" : order.paymentStatus}">
+              ${order.paymentStatus === "refund_initiated" ? "Refund pending" : order.paymentStatus}
+            </span>
+            <div class="orderCardActions">
+              <button class="viewBtn unarchiveBtn" data-id="${order._id}">
+                <i class="fa-solid fa-box-open"></i> Unarchive
+              </button>
+              <button class="viewBtn" data-id="${order._id}" style="background:#555;">
+                <i class="fa-solid fa-eye"></i> View
+              </button>
+            </div>
+          </div>
+        `;
+
+        // Unarchive button
+        card.querySelector(".unarchiveBtn").addEventListener("click", async () => {
+          if (!confirm("Move this order back to active orders?")) return;
+          try {
+            const res = await fetch(`http://localhost:5000/api/orders/${order._id}/unarchive`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" }
+            });
+            const data = await res.json();
+            if (data.success) {
+              showToast("success", "Order unarchived successfully!");
+              loadArchivedOrders();
+              fetchOrders();
+            }
+          } catch (err) {
+            console.error("Unarchive error:", err);
+          }
+        });
+
+        // View button
+        card.querySelector(".viewBtn:not(.unarchiveBtn)").addEventListener("click", () => {
+          showOrderModal(order);
+        });
+
+        archivedContainer.appendChild(card);
+      });
+
+    } catch (err) {
+      console.error("Load archived orders error:", err);
+      archivedContainer.innerHTML = `<p class="noOrders">Failed to load archived orders.</p>`;
+    }
+  }
   // -----------------------------
   // PRODUCT MANAGEMENT
   // -----------------------------

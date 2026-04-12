@@ -72,8 +72,16 @@ const OrderSchema = new mongoose.Schema({
     type: Date
   },
 
-  // ADD THIS
   order_refunded_at: {
+    type: Date
+  },
+
+  isArchived: {
+    type: Boolean,
+    default: false
+  },
+
+  order_archived_at: {
     type: Date
   }
 
