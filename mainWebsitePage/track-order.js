@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
+  const BASE_URL = "http://localhost:5000";
   const trackBtn = document.getElementById("trackBtn");
   const trackingInput = document.getElementById("trackingInput");
   const trackResult = document.getElementById("trackResult");
@@ -27,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ─────────────────────────────────────────
   if (userId) {
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/user/${userId}`);
+      const res = await fetch(`${BASE_URL}/api/orders/user/${userId}`);
       const data = await res.json();
 
       if (data.success && data.orders.length > 0) {
@@ -79,7 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     trackError.style.display = "none";
     showSpinner();
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/track/${trackingId}?userId=${userId || ""}`);
+      const res = await fetch(`${BASE_URL}/api/orders/track/${trackingId}?userId=${userId || ""}`);
       const data = await res.json();
 
       if (data.success) {
@@ -320,7 +321,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     showSpinner();
 
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/${order._id}/status`, {
+      const res = await fetch(`${BASE_URL}/api/orders/${order._id}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "cancelled", requestingUserId: userId })
@@ -383,7 +384,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function refreshMyOrders() {
     if (!userId || !myOrdersList) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/user/${userId}`);
+      const res = await fetch(`${BASE_URL}/api/orders/user/${userId}`);
       const data = await res.json();
       if (data.success) {
         myOrdersList.innerHTML = "";
@@ -504,7 +505,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!confirm("Confirm that you have received your order?")) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+      const res = await fetch(`${BASE_URL}/api/orders/${orderId}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "delivered" })
@@ -537,7 +538,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let username = "Anonymous";
     if (userId) {
       try {
-        const userRes = await fetch(`http://localhost:5000/api/auth/userdata/${userId}`);
+        const userRes = await fetch(`${BASE_URL}/api/auth/userdata/${userId}`);
         const userData = await userRes.json();
         if (userData.success && userData.username) username = userData.username;
       } catch (err) {
@@ -562,20 +563,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     for (const item of order.items) {
       // Strip variant label from name e.g. "Baloon (white)" → "Baloon"
       const cleanName = item.name.replace(/\s*\(.*?\)\s*$/, "").trim();
-      const productRes = await fetch(`http://localhost:5000/api/products/byname/${encodeURIComponent(cleanName)}`);
+      const productRes = await fetch(`${BASE_URL}/api/products/byname/${encodeURIComponent(cleanName)}`);
       const productData = await productRes.json();
       if (!productData.success) continue;
 
       const product = productData.product;
 
-      const checkRes = await fetch(`http://localhost:5000/api/ratings/check/${order._id}/${product._id}/${userId}`);
+      const checkRes = await fetch(`${BASE_URL}/api/ratings/check/${order._id}/${product._id}/${userId}`);
       const checkData = await checkRes.json();
 
       const div = document.createElement("div");
       div.className = "ratingItem";
 
       if (checkData.alreadyRated) {
-        const existingRes = await fetch(`http://localhost:5000/api/ratings/get/${order._id}/${product._id}/${userId}`);
+        const existingRes = await fetch(`${BASE_URL}/api/ratings/get/${order._id}/${product._id}/${userId}`);
         const existingData = await existingRes.json();
         const existingRating = existingData.rating;
 
@@ -654,7 +655,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const r = ratings[productId];
         if (!r.rating || r.rating === 0) { skipped++; continue; }
         try {
-          const res = await fetch("http://localhost:5000/api/ratings", {
+          const res = await fetch(`${BASE_URL}/api/ratings`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ productId, orderId: order._id, userId, username, rating: r.rating, review: r.review || "" })

@@ -1,8 +1,9 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
+  const BASE_URL = "http://localhost:5000";
   const params = new URLSearchParams(window.location.search);
   const productId = params.get("id");
-  const productSlug = params.get("name"); // keep for backward compatibility
+  const productSlug = params.get("name");
   const container = document.getElementById("productDetailCard");
 
   if (!productId && !productSlug) {
@@ -13,8 +14,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     // Use id if available, otherwise fall back to slug
     const url = productId
-      ? `http://localhost:5000/api/products/id/${productId}`
-      : `http://localhost:5000/api/products/slug/${encodeURIComponent(productSlug)}`;
+      ? `${BASE_URL}/api/products/id/${productId}`
+      : `${BASE_URL}/api/products/slug/${encodeURIComponent(productSlug)}`;
     const res = await fetch(url);
     const data = await res.json();
 
@@ -26,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const product = data.product;
     document.title = `${product.name} — Jikes Cosmetics`;
 
-    const ratingsRes = await fetch(`http://localhost:5000/api/ratings/${product._id}`);
+    const ratingsRes = await fetch(`${BASE_URL}/api/ratings/${product._id}`);
     const ratingsData = await ratingsRes.json();
     const ratings = ratingsData.success ? ratingsData.ratings : [];
 
@@ -40,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let quantity = 1;
     let qtyDisplay;
     let detailAddBtn;
-    let syncController = null; // ← declared here
+    let syncController = null;
 
     const variantHTML = product.hasVariants && product.variants?.length > 0 ? `
       <div class="variantSection">
@@ -182,10 +183,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           setTimeout(() => addCartMessage.classList.remove("show"), 1200);
         }
 
-        // Sync with backend — only if logged in
         if (userId) {
           try {
-            const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
+            const syncRes = await fetch(`${BASE_URL}/api/auth/update-cart`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "add", quantity })
@@ -220,10 +220,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             setTimeout(() => addCartMessage.classList.remove("show"), 1200);
           }
 
-          // Sync with backend — only if logged in
           if (userId) {
             try {
-              const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
+              const syncRes = await fetch(`${BASE_URL}/api/auth/update-cart`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "add", quantity })
@@ -254,7 +253,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           
           if (userId) {
             try {
-              await fetch("http://localhost:5000/api/auth/update-cart", {
+              await fetch(`${BASE_URL}/api/auth/update-cart`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "remove", quantity: 0 })
@@ -313,11 +312,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         detailAddBtn.textContent = "Added ✓";
         detailAddBtn.style.background = "#4CAF50";
-
-        // Sync with backend — only if logged in
+        
         if (userId) {
           try {
-            const syncRes = await fetch("http://localhost:5000/api/auth/update-cart", {
+            const syncRes = await fetch(`${BASE_URL}/api/auth/update-cart`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ userId, name: cartName, image: product.image, price: cartPrice, action: "add", quantity })

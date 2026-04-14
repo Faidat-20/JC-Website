@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
+  const BASE_URL = "http://localhost:5000";
   const productList = document.querySelector(".productList");
   if (!productList) return;
 
-  // Get current page name e.g. "mainWebsitePage.html"
   const paginationContainer = document.querySelector(".paginationContainer");
   const paginationDiv = paginationContainer ? paginationContainer.querySelector(".pagination") : null;
 
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Use paginate endpoint — page 1 is always mainWebsitePage.html
-    const res = await fetch(`http://localhost:5000/api/products/paginate?page=1&limit=8`);
+    const res = await fetch(`${BASE_URL}/api/products/paginate?page=1&limit=8`);
     const data = await res.json();
 
     if (!data.success || data.products.length === 0) {
@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const span = document.createElement("a");
       span.textContent = "...";
       span.style.pointerEvents = "none";
-      span.style.color = "rgb(41, 39, 39);";
+      span.style.color = "rgb(41, 39, 39)";
       span.style.cursor = "default";
       return span;
     }
@@ -189,27 +189,9 @@ function reattachCartListeners() {
       const price = Number(priceText.replace(/[₦,]/g, ""));
       const addCartMessage = document.querySelector(".addCartMessage");
 
-      if (!userId) {
-        const cart = JSON.parse(localStorage.getItem("cart")) || [];
-        const existingItem = cart.find(item => item.name === name);
-        if (existingItem) {
-          existingItem.quantity++;
-          if (addCartMessage) addCartMessage.textContent = "Product quantity updated in cart!";
-        } else {
-          cart.push({ name, image, price, quantity: 1 });
-          if (addCartMessage) addCartMessage.textContent = "Added to cart!";
-        }
-        localStorage.setItem("cart", JSON.stringify(cart));
-        window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
-        if (addCartMessage) {
-          addCartMessage.classList.add("show");
-          setTimeout(() => addCartMessage.classList.remove("show"), 1200);
-        }
-        return;
-      }
-
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
       const existingItem = cart.find(item => item.name === name);
+
       if (existingItem) {
         existingItem.quantity++;
         if (addCartMessage) addCartMessage.textContent = "Product quantity updated in cart!";
@@ -221,15 +203,16 @@ function reattachCartListeners() {
       localStorage.setItem("cart", JSON.stringify(cart));
       window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
 
-      // Show message
       if (addCartMessage) {
         addCartMessage.classList.add("show");
         setTimeout(() => addCartMessage.classList.remove("show"), 1200);
       }
 
+      if (!userId) return;
+
       // Sync with backend
       try {
-        const res = await fetch("http://localhost:5000/api/auth/update-cart", {
+        const res = await fetch(`${BASE_URL}/api/auth/update-cart`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -254,9 +237,11 @@ function reattachCartListeners() {
   // Handle view options buttons
   document.querySelectorAll(".viewOptions").forEach(btn => {
     btn.addEventListener("click", () => {
-      const name = btn.dataset.name;
-      const slug = name.replace(/\s+/g, '-');
-      window.location.href = `product.html?name=${encodeURIComponent(slug)}`;
+      const productId = btn.dataset.id;
+      showSpinner();
+      setTimeout(() => {
+        window.location.href = `product.html?id=${productId}`;
+      }, 400);
     });
   });
 }
@@ -311,7 +296,7 @@ async function showReviewsModal(product) {
 
   // Fetch reviews
   try {
-    const res = await fetch(`http://localhost:5000/api/ratings/${product._id}`);
+    const res = await fetch(`${BASE_URL}/api/ratings/${product._id}`);
     const data = await res.json();
     const reviewsList = document.getElementById("reviewsList");
 

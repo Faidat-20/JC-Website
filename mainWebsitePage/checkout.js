@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+  const BASE_URL = "http://localhost:5000";
   const cartItemsContainer = document.getElementById("checkoutCartItems");
-
   const subtotalEl = document.getElementById("subtotal");
   const totalEl = document.getElementById("total");
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function updateCartBackend(name, image, price, action, quantity = 1) {
     try {
-      const res = await fetch("http://localhost:5000/api/auth/update-cart", {
+      const res = await fetch(`${BASE_URL}/api/auth/update-cart`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, name, image, price, action, quantity })
@@ -198,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // SAVE TO BACKEND
       if (userId) {
         try {
-          const res = await fetch("http://localhost:5000/api/auth/save-delivery", {
+          const res = await fetch(`${BASE_URL}/api/auth/save-delivery`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId, deliveryDetails: formData })
@@ -227,7 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (userId) {
     (async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/auth/delivery-details/${userId}`);
+        const res = await fetch(`${BASE_URL}/api/auth/delivery-details/${userId}`);
         const data = await res.json();
         if (data.success && data.deliveryDetails) {
           const details = data.deliveryDetails;
@@ -250,8 +250,6 @@ document.addEventListener("DOMContentLoaded", () => {
               stateSelect.value = details.state;
             }, 200); // small delay ensures states are populated
           }
-
-          console.log("Delivery details from DB:", details);
         }
       } catch (err) {
         console.error("Load delivery error:", err);
@@ -265,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (userId) {
     (async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/auth/shipping-option/${userId}`);
+        const res = await fetch(`${BASE_URL}/api/auth/shipping-option/${userId}`);
         const data = await res.json();
 
         if (data.success && data.shippingOption) {
@@ -309,9 +307,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await res.json();
 
       countriesData = data.data;
-
-      console.log("Countries loaded:", countriesData);
-
       populateCountries();
 
       // ✅ After countries load, restore saved values from localStorage
@@ -552,7 +547,7 @@ document.addEventListener("DOMContentLoaded", () => {
       shippingSelected = true;
 
       if (userId) {
-        fetch("http://localhost:5000/api/auth/save-shipping", {
+        fetch(`${BASE_URL}/api/auth/save-shipping`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -693,7 +688,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       try {
-        const res = await fetch("http://localhost:5000/api/payment", {
+        const res = await fetch(`${BASE_URL}/api/payment`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
@@ -712,62 +707,5 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("error", "Error placing order. Check console.");
       }
     });
-  }
-
-  // -----------------------------
-  // TRIGGER PAYMENT / CREATE ORDER
-  // -----------------------------
-  const payBtn = document.getElementById("payBtn");
-
-  if (payBtn) {
-    payBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
-
-      // 1️⃣ Collect cart and delivery data
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const deliveryDetails = JSON.parse(localStorage.getItem("deliveryDetails")) || {};
-      const shippingSelected = JSON.parse(localStorage.getItem("selectedShipping")) || { price: 0, name: "" };
-
-      if (cart.length === 0) return showToast("error", "Your cart is empty.");
-      if (!deliveryDetails.firstName) return showToast("error", "Please fill in delivery details.");
-
-      const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      const total = subtotal + shippingSelected.price;
-
-      // 2️⃣ Send data to backend to create order (status: pending)
-      try {
-        const res = await fetch("http://localhost:5000/api/orders/create", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId,
-            items: cart,
-            deliveryDetails,
-            shippingOption: shippingSelected,
-            subtotal,
-            shippingFee: shippingSelected.price,
-            total,
-          })
-        });
-        const data = await res.json();
-        if (!data.success) return showToast("error", "Failed to create order. Try again.");
-
-        const orderId = data.order._id; // backend returns created order with _id
-
-        // 3️⃣ Trigger payment gateway here with orderId and amount
-        startPaymentGateway(orderId, total); // you implement this function
-      } catch (err) {
-        console.error("Create order error:", err);
-        showToast("error", "Server error while creating order.");
-      }
-    });
-  }
-
-  // Example payment trigger function
-  function startPaymentGateway(orderId, amount) {
-    // Example: Flutterwave / Paystack / Stripe payment integration
-    console.log("Trigger payment for order:", orderId, "Amount:", amount);
-
-    // After payment success, your backend webhook should update order.paymentStatus = 'paid'
   }
 });

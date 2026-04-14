@@ -394,7 +394,7 @@ body{
     top: 0;
     right: 0;
     bottom: 0;
-    display: grid;
+    /* display: grid; */
     grid-template-rows: 70px 1fr auto;
     box-shadow: -2px 0 10px rgba(0,0,0,0.1);
     display: none;

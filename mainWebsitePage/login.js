@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------------
   // VARIABLES
   // -----------------------------
+  const BASE_URL = "http://localhost:5000";
   const overlay = document.getElementById("newsletterOverlay");
   const footerSubscribeBtn = document.getElementById("footerSubscribeBtn");
   const closeBtn = document.getElementById("closeNewsletter");
@@ -41,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       showSpinner();
       try {
-        const resCheck = await fetch("http://localhost:5000/api/auth/check-or-create", {
+        const resCheck = await fetch(`${BASE_URL}/api/auth/check-or-create`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email })
@@ -111,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        const resOtp = await fetch("http://localhost:5000/api/auth/request-otp", {
+        const resOtp = await fetch("`${BASE_URL}/api/auth/request-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email })
@@ -241,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (resendBtn.disabled) return;
       showSpinner();
       try {
-        const res = await fetch("http://localhost:5000/api/auth/request-otp", {
+        const res = await fetch(`${BASE_URL}/api/auth/request-otp`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: currentEmail })
@@ -268,7 +269,7 @@ document.addEventListener("DOMContentLoaded", () => {
       showSpinner();
 
       try {
-        const resVerify = await fetch("http://localhost:5000/api/auth/verify-otp", {
+        const resVerify = await fetch(`${BASE_URL}/api/auth/verify-otp`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: currentEmail, otp: enteredOTP })
@@ -383,7 +384,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const username = usernameInput ? usernameInput.value.trim() : "";
 
       try {
-        const res = await fetch("http://localhost:5000/api/auth/subscribe-newsletter", {
+        const res = await fetch(`${BASE_URL}/api/auth/subscribe-newsletter`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId, email, username })

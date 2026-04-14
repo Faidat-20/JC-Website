@@ -56,17 +56,14 @@ function showToast(type, message) {
 const storedUser = JSON.parse(localStorage.getItem("currentUser"));
 
 if (storedUser) {
-    // Sync with sessionStorage if not already set
-    if (!sessionStorage.getItem("userId")) {
-        sessionStorage.setItem("userId", storedUser.userId);
-    }
-}
-function clickme() {
-  window.location.href = "mainWebsitePage.html";
+  // Sync with sessionStorage if not already set
+  if (!sessionStorage.getItem("userId")) {
+    sessionStorage.setItem("userId", storedUser.userId);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-
+  const BASE_URL = "http://localhost:5000";
   // -----------------------------
   // NAVIGATION / GREETING
   // -----------------------------
@@ -96,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!confirmSwitch) return;
         showSpinner();
 
-        await fetch("http://localhost:5000/api/auth/logout", {
+        await fetch(`${BASE_URL}/api/auth/logout`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         });
@@ -164,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("searchInput");
   const closeSearch = document.getElementById("closeSearch");
   const searchIcon = document.getElementById("icon");
-    function redirectToSearchResults() {
+  function redirectToSearchResults() {
     const searchTerm = searchInput.value.trim();
     if (!searchTerm) return;
     showSpinner();
@@ -183,8 +180,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-
-  // Optional: search icon click triggers search
   if (searchIcon) {
     searchIcon.addEventListener("click", redirectToSearchResults);
   }
@@ -209,33 +204,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (greeting && greetingMessage) {
 
-    if (currentPage === "login.html") {
+    const pageTitles = {
+      "login.html": "Login",
+      "searchResults.html": "Search Results",
+      "checkout.html": "Checkout",
+      "admin.html": "Admin Dashboard",
+      "track-order.html": "Track Your Order",
+      "shop.html": "Shop"
+    };
+    const title = pageTitles[currentPage] || (currentPage !== "mainWebsitePage.html" ? "Shop" : null);
+    if (title) {
       greeting.classList.add("shopPage");
-      greetingMessage.innerHTML = `<h1>Login</h1>`;
-    }
-      else if (currentPage === "searchResults.html") {
-      greeting.classList.add("shopPage");
-      greetingMessage.innerHTML = `<h1>Search Results</h1>`;
-    }
-    else if (currentPage === "checkout.html") {
-      greeting.classList.add("shopPage");
-      greetingMessage.innerHTML = `<h1>Checkout</h1>`;
-    }
-    else if (currentPage === "admin.html") {
-      greeting.classList.add("shopPage");
-      greetingMessage.innerHTML = `<h1>Admin Dashboard</h1>`;
-    }
-    else if (currentPage === "track-order.html") {
-      greeting.classList.add("shopPage");
-      greetingMessage.innerHTML = `<h1>Track Your Order</h1>`;
-    }
-    else if (currentPage === "shop.html") {
-      greeting.classList.add("shopPage");
-      greetingMessage.innerHTML = `<h1>Shop</h1>`;
-    }
-    else if (currentPage !== "mainWebsitePage.html") {
-      greeting.classList.add("shopPage");
-      greetingMessage.innerHTML = `<h1>Shop</h1>`;
+      greetingMessage.innerHTML = `<h1>${title}</h1>`;
     }
   }
 
@@ -352,7 +332,6 @@ document.addEventListener("DOMContentLoaded", () => {
           addCartMessage.textContent = "Added to cart!";
         }
         showAddCartMessage();
-        localStorage.setItem("cart", JSON.stringify(cart));
         renderCart();
         return; // skip backend sync
       }
@@ -384,7 +363,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------------
   async function updateCartBackend(userId, name, image, price, action, quantity = 1) {
     try {
-      const res = await fetch(`http://localhost:5000/api/auth/update-cart`, {
+      const res = await fetch(`${BASE_URL}/api/auth/update-cart`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, name, image, price, action, quantity })
@@ -405,6 +384,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function syncCart() {
+    localStorage.setItem("cart", JSON.stringify(cart));
+    window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+  }
   // -----------------------------
   // RENDER CART
    // -----------------------------
@@ -458,8 +441,7 @@ document.addEventListener("DOMContentLoaded", () => {
         item.quantity++;
         renderCart();
         showCartOverlayMessage("Product quantity updated!");
-        localStorage.setItem("cart", JSON.stringify(cart));
-        window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+        syncCart();
 
         if (!userId) return; // guest — localStorage already updated
         const success = await updateCartBackend(userId, item.name, item.image, item.price, "update", item.quantity);
@@ -475,8 +457,7 @@ document.addEventListener("DOMContentLoaded", () => {
           item.quantity--;
           renderCart();
           showCartOverlayMessage("Product quantity updated!");
-          localStorage.setItem("cart", JSON.stringify(cart));
-          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+          syncCart();
 
           if (!userId) return; // guest — localStorage already updated
           const success = await updateCartBackend(userId, item.name, item.image, item.price, "update", item.quantity);
@@ -489,16 +470,14 @@ document.addEventListener("DOMContentLoaded", () => {
           cart.splice(index, 1);
           renderCart();
           showCartOverlayMessage("Product removed from cart!");
-          localStorage.setItem("cart", JSON.stringify(cart));
-          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+          syncCart();
 
           if (!userId) return; // guest — localStorage already updated
           const success = await updateCartBackend(userId, removedItem.name, removedItem.image, removedItem.price, "remove", 0);
           if (!success) {
             cart.splice(index, 0, removedItem);
             renderCart();
-            localStorage.setItem("cart", JSON.stringify(cart));
-            window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+            syncCart();
             showCartOverlayMessage("Failed to remove product, rollback applied.");
           }
         }
@@ -510,16 +489,14 @@ document.addEventListener("DOMContentLoaded", () => {
         cart.splice(index, 1);
         renderCart();
         showCartOverlayMessage("Product removed from cart!");
-        localStorage.setItem("cart", JSON.stringify(cart));
-        window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+        syncCart();
 
         if (!userId) return; // guest — localStorage already updated
         const success = await updateCartBackend(userId, removedItem.name, removedItem.image, removedItem.price, "remove", 0);
         if (!success) {
           cart.splice(index, 0, removedItem);
           renderCart();
-          localStorage.setItem("cart", JSON.stringify(cart));
-          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
+          syncCart();
           showCartOverlayMessage("Failed to remove product, rollback applied.");
         }
       });
@@ -530,7 +507,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCartItemText();
 
     cartCount.textContent = cart.length;
-    localStorage.setItem("cart", JSON.stringify(cart));
   }
 
   // -----------------------------
@@ -580,14 +556,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!userId) {
       cart = [];
       showEmptyCart();
-      localStorage.setItem("cart", JSON.stringify(cart));
-      window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify([]) }));
+      syncCart()
       showCartOverlayMessage("Cart cleared!");
       return;
     }
   
     try {
-      const res = await fetch("http://localhost:5000/api/auth/clear-cart", {
+      const res = await fetch(`${BASE_URL}/api/auth/clear-cart`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId })
@@ -596,8 +571,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.success) {
         cart = [];
         showEmptyCart();
-        localStorage.setItem("cart", JSON.stringify(cart)); // sync local storage
-        window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify([]) }));
+        syncCart();
         showCartOverlayMessage("Cart cleared successfully!");
       } else {
         showToast("error", data.message || "Failed to clear cart.");
@@ -614,7 +588,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (userId) {
     (async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/auth/userdata/${userId}`);
+        const res = await fetch(`${BASE_URL}/api/auth/userdata/${userId}`);
         const data = await res.json();
         if (data.success) {
 
@@ -707,38 +681,25 @@ document.addEventListener("DOMContentLoaded", () => {
     newsletterForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      alert("Make sure the email you input is correct.");
-
       const usernameInput = newsletterForm.querySelector("input[name='username']");
       const username = usernameInput.value.trim();
 
       const newsletterInput = newsletterForm.querySelector("input[name='user_email']");
       const email = newsletterInput.value.trim();
 
-      if (!email) return alert("Enter your email.");
-      if (!username) return alert("Enter your name.");
-
-      const userId = sessionStorage.getItem("userId"); // ✅ get userId from session
+      if (!email) return showToast("error", "Please enter your email.");
+      if (!username) return showToast("error", "Please enter your name.");
 
       try {
-        const res = await fetch("http://localhost:5000/api/auth/subscribe-newsletter", {
+        const res = await fetch(`${BASE_URL}/api/auth/subscribe-newsletter`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId, email, username  })
         });
         const data = await res.json();
         if (data.success) {
-          if (data.message === "Subscription successful!") {
-            // New subscription
-            showToast("info", data.message);
-            newsletterInput.disabled = true;
-          } else if (data.message === "You are already subscribed! Login.") {
-            // Already subscribed
-            showToast("info", data.message);
-          } else {
-            // fallback for any other message
-            showToast("info", data.message);
-      }
+          showToast("info", data.message);
+          if (data.message === "Subscription successful!") newsletterInput.disabled = true;
         }else {
           showToast("error", data.message || "Subscription failed.");
         }
@@ -768,57 +729,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   })
 
-  const prevBtn = document.querySelector(".backwardBtn");
-  const nextBtn = document.querySelector(".fowardBtn");
-  const pageLinks = document.querySelectorAll(".pages a");
-
-  function getCurrentPageIndex() {
-    return Array.from(pageLinks).findIndex(link => link.classList.contains("active"));
-  }
-
-  // PREVIOUS PAGE
-  if (prevBtn) {
-    prevBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      const currentIndex = getCurrentPageIndex();
-      showSpinner();
-      setTimeout(() => {
-        if (currentIndex > 0) {
-          window.location.href = pageLinks[currentIndex - 1].href;
-        } else {
-          window.location.reload();
-        }
-      }, 600);
-    });
-  }
-
-  // NEXT PAGE
-  if (nextBtn) {
-    nextBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      const currentIndex = getCurrentPageIndex();
-      showSpinner();
-      setTimeout(() => {
-        if (currentIndex < pageLinks.length - 1) {
-          window.location.href = pageLinks[currentIndex + 1].href;
-        } else {
-          window.location.href = pageLinks[0].href;
-        }
-      }, 600);
-    });
-  }
-
-  // PAGE NUMBER LINKS
-  pageLinks.forEach(link => {
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      showSpinner();
-      setTimeout(() => {
-        window.location.href = link.href;
-      }, 600);
-    });
-  });
-    // -----------------------------
+  // -----------------------------
   // FOOTER SUBSCRIBE BUTTON & AUTO POPUP
   // -----------------------------
   const overlay = document.getElementById("newsletterOverlay");

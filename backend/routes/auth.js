@@ -2,6 +2,20 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const { sendWelcomeEmail } = require("../utils/mailer");
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, 
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
+});
 // ─────────────────────────────────────────
 // SANITIZATION HELPERS
 // ─────────────────────────────────────────
@@ -60,8 +74,6 @@ setInterval(() => {
   }
 }, 15 * 60 * 1000);
 
-const nodemailer = require("nodemailer");
-
 // ----------------------
 // GENERATE UNIQUE USERNAME
 // ----------------------
@@ -74,7 +86,6 @@ async function generateUniqueUsername(baseUsername) {
   let existing = await User.findOne({ username: cleanBase });
   if (!existing) return cleanBase;
 
-  // Find all users with similar username
   let counter = 1;
   let newUsername = `${cleanBase}${String(counter).padStart(3, "0")}`;
 
@@ -133,23 +144,10 @@ router.post("/request-otp", async (req, res) => {
     }
 
     const otp = generateOTP();
-    const otpExpiry = Date.now() + 5 * 60 * 1000; // 5 minutes
+    const otpExpiry = Date.now() + 5 * 60 * 1000;
     user.otp = otp;
     user.otpExpiry = otpExpiry;
     await user.save();
-
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-    port: 587,
-    secure: false, 
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    tls: {
-        rejectUnauthorized: false
-    }
-    });
     
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
@@ -240,7 +238,7 @@ router.post("/update-cart", async (req, res) => {
     }
     else if (action === "update") {
       if (existingItem) {
-        existingItem.quantity = quantity; // set exact quantity
+        existingItem.quantity = quantity;
         // Remove item if quantity is 0
         if (existingItem.quantity <= 0) {
           cart = cart.filter(item => item.name !== name);
@@ -283,7 +281,6 @@ router.post("/clear-cart", async (req, res) => {
 // LOGOUT
 // ----------------------
 router.post("/logout", (req, res) => {
-  // On JWT, the token cannot be destroyed, but frontend should remove it
   res.status(200).json({ message: "Logged out successfully" });
 });
 
@@ -343,7 +340,6 @@ router.post("/subscribe-newsletter", async (req, res) => {
     }
 
     // User doesn't exist at all — create them
-    // User doesn't exist at all — create them
     try {
       const uniqueUsername = await generateUniqueUsername(username);
       user = new User({ email, username: uniqueUsername, isSubscribed: true, cart: [] });
@@ -355,7 +351,6 @@ router.post("/subscribe-newsletter", async (req, res) => {
       return res.json({ success: true, message: "Subscription successful!" });
     } catch (createErr) {
       if (createErr.code === 11000) {
-        // Race condition — user was created between our check and insert
         user = await User.findOne({ email: new RegExp(`^${email}$`, "i") });
         if (user) {
           if (!user.isSubscribed) {

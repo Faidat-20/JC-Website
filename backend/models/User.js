@@ -8,8 +8,8 @@ const UserSchema = new mongoose.Schema({
     unique: true 
   },
   username: {
-    type: String,        // <-- add this
-    required: false,      // we can add it later during newsletter signup
+    type: String,
+    required: false,
   },
 
   otp: { 

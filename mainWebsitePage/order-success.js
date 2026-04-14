@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
+  const BASE_URL = "http://localhost:5000";
   function formatDateTime(dateStr) {
     if (!dateStr) return "N/A";
     return new Date(dateStr).toLocaleString("en-GB", {
@@ -20,12 +21,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     if (orderId) {
       // Returning visitor — load by orderId
-      const res = await fetch(`http://localhost:5000/api/orders/${orderId}`);
+      const res = await fetch(`${BASE_URL}/api/orders/${orderId}`);
       const data = await res.json();
       if (data.success) order = data.order;
     } else if (userId) {
       // Fresh from payment — load most recent paid order
-      const res = await fetch(`http://localhost:5000/api/orders/user/${userId}/latest-paid`);
+      const res = await fetch(`${BASE_URL}/api/orders/user/${userId}/latest-paid`);
       const data = await res.json();
       if (data.success) order = data.order;
     }
@@ -98,7 +99,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       localStorage.removeItem("selectedShipping");
 
       if (userId) {
-        await fetch("http://localhost:5000/api/auth/clear-cart", {
+        await fetch(`${BASE_URL}/api/auth/clear-cart`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId })

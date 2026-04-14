@@ -1,3 +1,4 @@
+const BASE_URL = "http://localhost:5000";
 // ADMIN PROTECTION
 (async () => {
   const userId = sessionStorage.getItem("userId");
@@ -8,7 +9,7 @@
   }
 
   try {
-    const res = await fetch("http://localhost:5000/api/auth/check-admin", {
+    const res = await fetch(`${BASE_URL}/api/auth/check-admin`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId })
@@ -27,6 +28,7 @@
     window.location.href = "mainWebsitePage.html";
   }
 })();
+
 
 function formatDateTime(dateStr) {
   if (!dateStr) return "N/A";
@@ -116,7 +118,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // -----------------------------
   async function fetchOrders() {
     try {
-      const res = await fetch("http://localhost:5000/api/orders/all");
+      const res = await fetch(`${BASE_URL}/api/orders/all`);
       const data = await res.json();
       if (data.success) {
         allOrders = data.orders;
@@ -219,7 +221,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       archiveBtn.addEventListener("click", async () => {
         if (!confirm("Archive this order? It will be moved out of the main dashboard.")) return;
         try {
-          const res = await fetch(`http://localhost:5000/api/orders/${order._id}/archive`, {
+          const res = await fetch(`${BASE_URL}/api/orders/${order._id}/archive`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" }
           });
@@ -242,7 +244,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // -----------------------------
   async function updateOrderStatus(orderId, status) {
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+      const res = await fetch(`${BASE_URL}/api/orders/${orderId}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status })
@@ -364,7 +366,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       archivedContainer.innerHTML = `<p class="loadingMsg">Loading archived orders...</p>`;
-      const res = await fetch("http://localhost:5000/api/orders/archived");
+      const res = await fetch(`${BASE_URL}/api/orders/archived`);
       const data = await res.json();
 
       if (!data.success || data.orders.length === 0) {
@@ -409,7 +411,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         card.querySelector(".unarchiveBtn").addEventListener("click", async () => {
           if (!confirm("Move this order back to active orders?")) return;
           try {
-            const res = await fetch(`http://localhost:5000/api/orders/${order._id}/unarchive`, {
+            const res = await fetch(`${BASE_URL}/api/orders/${order._id}/unarchive`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" }
             });
@@ -451,7 +453,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Load all products
   async function fetchProducts() {
     try {
-      const res = await fetch("http://localhost:5000/api/products");
+      const res = await fetch(`${BASE_URL}/api/products`);
       const data = await res.json();
       if (data.success) {
         allProducts = data.products;
@@ -465,101 +467,99 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Render product cards
   function renderProducts(products) {
-  adminProductsList.innerHTML = "";
+    adminProductsList.innerHTML = "";
 
-  if (products.length === 0) {
-    adminProductsList.innerHTML = `<p class="noOrders">No products found.</p>`;
-    return;
+    if (products.length === 0) {
+      adminProductsList.innerHTML = `<p class="noOrders">No products found.</p>`;
+      return;
+    }
+
+    products.forEach(product => {
+      const card = document.createElement("div");
+      card.className = "adminProductCard";
+      card.innerHTML = `
+        <img src="${product.image}" alt="${product.name}"
+          onerror="this.src='https://via.placeholder.com/260x140?text=No+Image'">
+        <h4>${product.name}</h4>
+        <p class="productPrice">₦${product.price.toLocaleString()}</p>
+        <p class="productPage">${product.page}</p>
+        ${product.hasVariants ? `
+          <p style="font-size:11px; color: hsl(357,45%,69%); font-weight:bold;">
+            Has variants (${product.variantType}) — ${product.variants?.length || 0} options
+          </p>
+        ` : ""}
+
+        <button class="stockToggleBtn ${product.inStock !== false ? "inStock" : "outOfStock"}"
+          data-id="${product._id}" data-stock="${product.inStock !== false}">
+          ${product.inStock !== false ? "✓ In Stock" : "✗ Out of Stock"}
+        </button>
+
+        <div class="adminProductCardActions">
+          <button class="editProductBtn" data-id="${product._id}">Edit</button>
+          <button class="deleteProductBtn" data-id="${product._id}">Delete</button>
+        </div>
+      `;
+
+      // Toggle stock
+      const stockBtn = card.querySelector(".stockToggleBtn");
+      stockBtn.addEventListener("click", async () => {
+        const currentStock = stockBtn.dataset.stock === "true";
+        const newStock = !currentStock;
+
+        const confirmMsg = newStock
+          ? `Mark "${product.name}" as IN STOCK?`
+          : `Mark "${product.name}" as OUT OF STOCK?`;
+        if (!confirm(confirmMsg)) return;
+
+        try {
+          const res = await fetch(`${BASE_URL}/api/products/${product._id}/stock`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ inStock: newStock })
+          });
+          const data = await res.json();
+          if (data.success) {
+            product.inStock = newStock;
+            stockBtn.dataset.stock = newStock;
+            stockBtn.textContent = newStock ? "✓ In Stock" : "✗ Out of Stock";
+            stockBtn.className = `stockToggleBtn ${newStock ? "inStock" : "outOfStock"}`;
+          }
+        } catch (err) {
+          console.error("Toggle stock error:", err);
+        }
+      });
+
+      // Edit product — open modal
+
+      const editBtn = card.querySelector(".editProductBtn");
+      editBtn.addEventListener("click", () => {
+        openEditModal(product);
+      });
+
+      // Delete product
+      const deleteBtn = card.querySelector(".deleteProductBtn");
+      deleteBtn.addEventListener("click", async () => {
+        if (!confirm(`Are you sure you want to delete "${product.name}"?`)) return;
+
+        try {
+          const res = await fetch(`${BASE_URL}/api/products/${product._id}`, {
+            method: "DELETE"
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert("Product deleted!");
+            fetchProducts();
+          } else {
+            alert(data.message || "Failed to delete product.");
+          }
+        } catch (err) {
+          console.error("Delete product error:", err);
+        }
+      });
+
+      adminProductsList.appendChild(card);
+    });
   }
-
-  products.forEach(product => {
-    const card = document.createElement("div");
-    card.className = "adminProductCard";
-    card.innerHTML = `
-      <img src="${product.image}" alt="${product.name}"
-        onerror="this.src='https://via.placeholder.com/260x140?text=No+Image'">
-      <h4>${product.name}</h4>
-      <p class="productPrice">₦${product.price.toLocaleString()}</p>
-      <p class="productPage">${product.page}</p>
-      ${product.hasVariants ? `
-        <p style="font-size:11px; color: hsl(357,45%,69%); font-weight:bold;">
-          Has variants (${product.variantType}) — ${product.variants?.length || 0} options
-        </p>
-      ` : ""}
-
-      <button class="stockToggleBtn ${product.inStock !== false ? "inStock" : "outOfStock"}"
-        data-id="${product._id}" data-stock="${product.inStock !== false}">
-        ${product.inStock !== false ? "✓ In Stock" : "✗ Out of Stock"}
-      </button>
-
-      <div class="adminProductCardActions">
-        <button class="editProductBtn" data-id="${product._id}">Edit</button>
-        <button class="deleteProductBtn" data-id="${product._id}">Delete</button>
-      </div>
-    `;
-
-    // Toggle stock
-    const stockBtn = card.querySelector(".stockToggleBtn");
-    stockBtn.addEventListener("click", async () => {
-      const currentStock = stockBtn.dataset.stock === "true";
-      const newStock = !currentStock;
-
-      const confirmMsg = newStock
-        ? `Mark "${product.name}" as IN STOCK?`
-        : `Mark "${product.name}" as OUT OF STOCK?`;
-      if (!confirm(confirmMsg)) return;
-
-      try {
-        const res = await fetch(`http://localhost:5000/api/products/${product._id}/stock`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ inStock: newStock })
-        });
-        const data = await res.json();
-        if (data.success) {
-          product.inStock = newStock;
-          stockBtn.dataset.stock = newStock;
-          stockBtn.textContent = newStock ? "✓ In Stock" : "✗ Out of Stock";
-          stockBtn.className = `stockToggleBtn ${newStock ? "inStock" : "outOfStock"}`;
-        }
-      } catch (err) {
-        console.error("Toggle stock error:", err);
-      }
-    });
-
-    // Edit product — open modal
-
-    const editBtn = card.querySelector(".editProductBtn");
-    editBtn.addEventListener("click", () => {
-      console.log("Edit clicked for:", product.name);
-      console.log("Modal element:", document.getElementById("editProductModal"));
-      openEditModal(product);
-    });
-
-    // Delete product
-    const deleteBtn = card.querySelector(".deleteProductBtn");
-    deleteBtn.addEventListener("click", async () => {
-      if (!confirm(`Are you sure you want to delete "${product.name}"?`)) return;
-
-      try {
-        const res = await fetch(`http://localhost:5000/api/products/${product._id}`, {
-          method: "DELETE"
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert("Product deleted!");
-          fetchProducts();
-        } else {
-          alert(data.message || "Failed to delete product.");
-        }
-      } catch (err) {
-        console.error("Delete product error:", err);
-      }
-    });
-
-    adminProductsList.appendChild(card);
-  });
-}
 
   // Show/hide add product form
   addProductBtn.addEventListener("click", () => {
@@ -633,7 +633,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!imageUrl) return alert("Image upload failed. Please try again.");
 
     try {
-      const res = await fetch("http://localhost:5000/api/products/add", {
+      const res = await fetch(`${BASE_URL}/api/products/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -644,7 +644,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           hasVariants,
           variantType: hasVariants ? variantType : null,
           variants,
-          description: document.getElementById("newProductDescription").value.trim()
+          description
         })
       });
       const data = await res.json();
@@ -705,9 +705,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     (product.variants || []).forEach(v => {
       addEditVariantRow(v.label, v.price);
     });
-
-    // Description
-    document.getElementById("editProductDescription").value = product.description || "";
 
     // Show modal
     editProductModal.style.display = "flex";
@@ -790,7 +787,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:5000/api/products/${productId}`, {
+      const res = await fetch(`${BASE_URL}/api/products/${productId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -798,7 +795,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           hasVariants,
           variantType: hasVariants ? variantType : null,
           variants: hasVariants ? variants : [],
-          description: document.getElementById("editProductDescription").value.trim()  
+          description 
         })
       });
       const data = await res.json();
@@ -891,7 +888,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     formData.append("image", file);
 
     try {
-      const res = await fetch("http://localhost:5000/api/products/upload-image", {
+      const res = await fetch(`${BASE_URL}/api/products/upload-image`, {
         method: "POST",
         body: formData
       });

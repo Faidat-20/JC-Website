@@ -60,7 +60,6 @@ router.get("/all", async (req, res) => {
 
 // ----------------------
 // GET LATEST PAID ORDER BY USER
-// Must be BEFORE /:orderId to avoid route conflict
 // ----------------------
 router.get("/user/:userId/latest-paid", async (req, res) => {
   try {
@@ -118,7 +117,6 @@ router.get("/track/:trackingId", async (req, res) => {
           order_delivered_at: order.order_delivered_at,
           updatedAt: order.updatedAt,
           order_refunded_at: order.order_refunded_at
-          // NO: deliveryDetails, items, pricing, userId
         }
       });
     }
@@ -159,7 +157,6 @@ router.get("/:orderId", async (req, res) => {
 
 // ----------------------
 // UPDATE ORDER STATUS
-// Used by admin AND by user (cancel only)
 // ----------------------
 router.put("/:orderId/status", async (req, res) => {
   const { status, requestingUserId } = req.body;
@@ -173,8 +170,6 @@ router.put("/:orderId/status", async (req, res) => {
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
     // ── User-initiated cancellation guard ──────────────────────
-    // If requestingUserId is provided, this is a user cancel request.
-    // Only allow if: the user owns the order, status is "pending", and it's paid.
     if (requestingUserId) {
       if (String(order.userId) !== String(requestingUserId)) {
         return res.status(403).json({ success: false, message: "You are not authorised to cancel this order." });
@@ -189,7 +184,6 @@ router.put("/:orderId/status", async (req, res) => {
         return res.status(400).json({ success: false, message: "This order has not been paid and cannot be refunded." });
       }
     }
-    // ────────────────────────────────────────────────────────────
 
     order.status = status;
 

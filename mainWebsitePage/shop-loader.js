@@ -1,32 +1,34 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
+  const BASE_URL = "http://localhost:5000";
   const productList = document.getElementById("productList");
   const paginationDiv = document.getElementById("pagination");
   if (!productList) return;
 
-  // Get page number from URL — e.g. shop.html?page=2
+  // Get page number from URL
   const params = new URLSearchParams(window.location.search);
   const currentPage = parseInt(params.get("page")) || 1;
 
   await loadProducts(currentPage);
 
- async function loadProducts(page) {
-  try {
-    // Show skeleton cards while loading
-    productList.innerHTML = "";
-    for (let i = 0; i < 8; i++) {
-      const skeleton = document.createElement("div");
-      skeleton.className = "item skeletonCard";
-      skeleton.innerHTML = `
-        <div class="skeletonImg"></div>
-        <div class="skeletonLine skeletonTitle"></div>
-        <div class="skeletonLine skeletonStars"></div>
-        <div class="skeletonLine skeletonPrice"></div>
-        <div class="skeletonLine skeletonBtn"></div>
-      `;
-      productList.appendChild(skeleton);
-    }
-      const res = await fetch(`http://localhost:5000/api/products/paginate?page=${page}&limit=8`);
+  async function loadProducts(page) {
+    try {
+      // Show skeleton cards while loading
+      productList.innerHTML = "";
+      for (let i = 0; i < 8; i++) {
+        const skeleton = document.createElement("div");
+        skeleton.className = "item skeletonCard";
+        skeleton.innerHTML = `
+          <div class="skeletonImg"></div>
+          <div class="skeletonLine skeletonTitle"></div>
+          <div class="skeletonLine skeletonStars"></div>
+          <div class="skeletonLine skeletonPrice"></div>
+          <div class="skeletonLine skeletonBtn"></div>
+        `;
+        productList.appendChild(skeleton);
+      }
+
+      const res = await fetch(`${BASE_URL}/api/products/paginate?page=${page}&limit=8`);
       const data = await res.json();
 
       if (!data.success || data.products.length === 0) {
@@ -142,12 +144,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       const span = document.createElement("a");
       span.textContent = "...";
       span.style.pointerEvents = "none";
-      span.style.color = "rgb(41, 39, 39);";
+      span.style.color = "rgb(41, 39, 39)";
       span.style.cursor = "default";
       return span;
     }
     // Build the page numbers to show
-    // Always show: first, last, current, and 1 page either side of current
     const pagesToShow = new Set();
     pagesToShow.add(1);
     pagesToShow.add(totalPages);
@@ -200,25 +201,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const price = Number(priceText.replace(/[₦,]/g, ""));
         const addCartMessage = document.querySelector(".addCartMessage");
 
-        if (!userId) {
-          const cart = JSON.parse(localStorage.getItem("cart")) || [];
-          const existingItem = cart.find(item => item.name === name);
-          if (existingItem) {
-            existingItem.quantity++;
-            if (addCartMessage) addCartMessage.textContent = "Product quantity updated in cart!";
-          } else {
-            cart.push({ name, image, price, quantity: 1 });
-            if (addCartMessage) addCartMessage.textContent = "Added to cart!";
-          }
-          localStorage.setItem("cart", JSON.stringify(cart));
-          window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
-          if (addCartMessage) {
-            addCartMessage.classList.add("show");
-            setTimeout(() => addCartMessage.classList.remove("show"), 1200);
-          }
-          return;
-        }
-
         const cart = JSON.parse(localStorage.getItem("cart")) || [];
         const existingItem = cart.find(item => item.name === name);
 
@@ -231,18 +213,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         localStorage.setItem("cart", JSON.stringify(cart));
-        window.dispatchEvent(new StorageEvent("storage", {
-          key: "cart",
-          newValue: JSON.stringify(cart)
-        }));
+        window.dispatchEvent(new StorageEvent("storage", { key: "cart", newValue: JSON.stringify(cart) }));
 
         if (addCartMessage) {
           addCartMessage.classList.add("show");
           setTimeout(() => addCartMessage.classList.remove("show"), 1200);
         }
 
+        if (!userId) return;
+
         try {
-          const res = await fetch("http://localhost:5000/api/auth/update-cart", {
+          const res = await fetch(`${BASE_URL}/api/auth/update-cart`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -270,9 +251,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Handle view options buttons
     document.querySelectorAll(".viewOptions").forEach(btn => {
       btn.addEventListener("click", () => {
-        const name = btn.dataset.name;
-        const slug = name.replace(/\s+/g, '-');
-        window.location.href = `product.html?name=${encodeURIComponent(slug)}`;
+        const productId = btn.dataset.id;
+        showSpinner();
+        setTimeout(() => {
+          window.location.href = `product.html?id=${productId}`;
+        }, 400);
       });
     });
   }
@@ -323,7 +306,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     try {
-      const res = await fetch(`http://localhost:5000/api/ratings/${product._id}`);
+      const res = await fetch(`${BASE_URL}/api/ratings/${product._id}`);
       const data = await res.json();
       const reviewsList = document.getElementById("reviewsList");
 

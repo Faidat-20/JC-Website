@@ -1,41 +1,4 @@
-// -----------------------------
-// CART OVERLAY MESSAGE SETUP
-// -----------------------------
-const cartOverlayMessage = document.getElementById("cartOverlayMessage");
-let cartOverlayTimer;
-
-function showCartOverlayMessage(message) {
-  if (!cartOverlayMessage) return;
-  clearTimeout(cartOverlayTimer);
-  cartOverlayMessage.textContent = message;
-  cartOverlayMessage.classList.add("show");
-  cartOverlayTimer = setTimeout(() => {
-    cartOverlayMessage.classList.remove("show");
-  }, 1200);
-}
-
-function renderCart() {
-  const cartCountElement = document.getElementById("cartCount");
-  if (cartCountElement) {
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    cartCountElement.textContent = totalItems;
-  }
-}
-
-// -----------------------------
-// CART SETUP
-// -----------------------------
-// let cart = [];
-// const savedCart = localStorage.getItem("cart");
-// if (savedCart) {
-//   try {
-//     cart = JSON.parse(savedCart);
-//     if (!Array.isArray(cart)) cart = [];
-//   } catch (err) {
-//     cart = [];
-//   }
-// }
-
+const BASE_URL = "http://localhost:5000";
 // -----------------------------
 // PAGINATION SETTINGS
 // -----------------------------
@@ -149,7 +112,7 @@ function renderSearchResults(products) {
       if (!userId) return;
 
       try {
-        await fetch("http://localhost:5000/api/auth/update-cart", {
+        await fetch(`${BASE_URL}/api/auth/update-cart`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -224,7 +187,7 @@ async function showReviewsModal(product) {
   });
 
   try {
-    const res = await fetch(`http://localhost:5000/api/ratings/${product._id}`);
+    const res = await fetch(`${BASE_URL}/api/ratings/${product._id}`);
     const data = await res.json();
     const reviewsList = document.getElementById("reviewsList");
 
@@ -350,7 +313,7 @@ if (greetingHeading2) {
 // -----------------------------
 (async () => {
   try {
-    const res = await fetch("http://localhost:5000/api/products");
+    const res = await fetch(`${BASE_URL}/api/products`);
     const data = await res.json();
 
     if (!data.success) {
