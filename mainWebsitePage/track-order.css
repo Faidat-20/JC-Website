@@ -1,0 +1,612 @@
+:root{
+    --secondaryColor: #eee;
+    --primaryColor: white;
+    --tertiaryColor: #222; 
+    --trackColor: hsl(357, 45%, 69%);
+    
+    /* --pageColor: rgba(220, 166, 172, 0.25);
+    --backgroundcolor: hsl(0, 0%, 96%);
+    --paginationActive: #f7f7f7;
+    --grey: #ddd; */
+}
+.trackMain {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 0 16px 60px;
+}
+
+.trackSearchBox {
+  background: var(--primaryColor);
+  border: 1px solid var(--secondaryColor);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.trackSearchLabel {
+  font-size: 14px;
+  color: #777;
+  margin-bottom: 16px;
+}
+
+.trackSearchRow {
+  display: flex;
+  gap: 10px;
+}
+
+.trackSearchRow input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+
+.trackSearchRow input:focus {
+  border-color: var(--trackColor);
+}
+
+.trackSearchRow button {
+  padding: 10px 20px;
+  background: var(--trackColor);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.trackSearchRow button:hover {
+  background: hsl(357, 45%, 66%);
+}
+.trackStep.refunded-step .trackStepDot {
+  background: #4CAF50;
+  border-color: #4CAF50;
+}
+
+.trackStep.refunded-step p {
+  color: #4CAF50;
+  font-weight: bold;
+}
+.statusBadge.refunded {
+  background: #e6f4ea;
+  color: #2d7a3a;
+}
+
+/* MY ORDERS SECTION */
+.myOrdersSection {
+  margin-bottom: 32px;
+}
+
+.myOrdersSection h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.myOrderItem {
+  background: white;
+  border: 1px solid var(--secondaryColor);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.myOrderItem:hover {
+  border-color: var(--trackColor);
+}
+
+.myOrderItem p {
+  margin: 0;
+  font-size: 13px;
+  color: #555;
+}
+
+.myOrderItem h4 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: var(--tertiaryColor);
+}
+
+/* TRACKING RESULT */
+.trackResult {
+  background: white;
+  border: 1px solid var(--secondaryColor);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.trackResultHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.trackResultHeader h2 {
+  font-size: 18px;
+  color: var(--tertiaryColor);
+  margin: 0;
+}
+
+/* PROGRESS BAR */
+.trackProgress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.trackStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 70px;
+}
+
+.trackStep p {
+  font-size: 11px;
+  color: #aaa;
+  text-align: center;
+  margin: 0;
+}
+
+.trackStepDot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ddd;
+  border: 2px solid #ddd;
+  transition: all 0.3s;
+}
+
+.trackStep.active .trackStepDot {
+  background: var(--trackColor);
+  border-color: var(--trackColor);
+}
+
+.trackStep.active p {
+  color: var(--trackColor);
+  font-weight: bold;
+}
+
+.trackStep.done .trackStepDot {
+  background: #4CAF50;
+  border-color: #4CAF50;
+}
+
+.trackStep.done p {
+  color: #4CAF50;
+}
+.trackStep.cancelled-step .trackStepDot {
+  background: #e74c3c;
+  border-color: #e74c3c;
+}
+
+.trackStep.cancelled-step p {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.trackLine {
+  flex: 1;
+  height: 2px;
+  background: #ddd;
+  min-width: 20px;
+  transition: background 0.3s;
+}
+
+.trackLine.done {
+  background: #4CAF50;
+}
+
+/* TRACK DETAILS */
+.trackDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.trackSection {
+  padding: 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.trackSection:last-child {
+  border-bottom: none;
+}
+
+.trackSection h3 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.trackSection p {
+  font-size: 14px;
+  color: #444;
+  margin: 2px 0;
+  line-height: 1.6;
+}
+
+.trackItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.trackItem img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--secondaryColor);
+}
+
+.trackItem p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.trackItem .itemPrice {
+  font-weight: bold;
+  color: var(--tertiaryColor);
+}
+
+.trackSummaryRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.trackSummaryRow.total {
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--tertiaryColor);
+  padding-top: 8px;
+  border-top: 1px solid var(--secondaryColor);
+  margin-top: 4px;
+}
+.trackStep.refund-pending-step .trackStepDot {
+  background: #f39c12;
+  border-color: #f39c12;
+}
+
+.trackStep.refund-pending-step p {
+  color: #f39c12;
+  font-weight: bold;
+}
+.statusBadge.refund-pending {
+  background: #fef3e2;
+  color: #f39c12;
+}
+/* MARK AS RECEIVED */
+.markReceivedSection {
+  text-align: center;
+  padding: 20px 0 0;
+}
+
+.markReceivedSection p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.markReceivedSection button {
+  padding: 12px 28px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.markReceivedSection button:hover {
+  background: #43a047;
+}
+
+/* ERROR */
+.trackError {
+  text-align: center;
+  padding: 32px;
+  color: #e74c3c;
+  font-size: 14px;
+}
+
+/* STATUS BADGES */
+.statusBadge {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.statusBadge.pending {
+  background: #fff8e1;
+  color: #b8860b;
+}
+
+.statusBadge.shipped {
+  background: #e8f0fe;
+  color: #1a56db;
+}
+
+.statusBadge.delivered {
+  background: #e6f4ea;
+  color: #2d7a3a;
+}
+
+.statusBadge.cancelled {
+  background: #fce8e8;
+  color: #c0392b;
+}
+
+/* RATINGS SECTION */
+.ratingsSection {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.ratingsSection h3 {
+  font-size: 16px;
+  color: var(--tertiaryColor);
+  margin-bottom: 4px;
+}
+
+.ratingsSubtitle {
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 20px;
+}
+
+.ratingItem {
+  background: #f9f9f9;
+  border: 1px solid var(--secondaryColor);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.ratingItemHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ratingItemHeader img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--secondaryColor);
+}
+
+.ratingItemHeader p {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--tertiaryColor);
+  margin: 0;
+}
+
+.starRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.star {
+  font-size: 28px;
+  cursor: pointer;
+  color: #ddd;
+  transition: color 0.2s;
+  user-select: none;
+}
+
+.star.selected {
+  color: var(--trackColor);
+}
+
+.star.hovered {
+  color: hsl(357, 45%, 66%);
+}
+
+.ratingReview {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  resize: none;
+  height: 70px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.ratingReview:focus {
+  border-color: var(--trackColor);
+}
+
+.alreadyRated {
+  font-size: 13px;
+  color: #4CAF50;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+#submitRatingsBtn {
+  width: 100%;
+  padding: 12px;
+  background: var(--trackColor);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+#submitRatingsBtn:hover {
+  background: hsl(357, 45%, 66%);
+}
+
+.existingReview {
+  margin-top: 8px;
+  background: white;
+  border: 1px solid var(--secondaryColor);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.existingReview p {
+  font-size: 13px;
+  color: #555;
+  font-style: italic;
+  margin: 0;
+}
+.viewConfirmationBtn {
+  display: inline-block;
+  margin-top: 10px;
+  margin-right: 100px;
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--trackColor)
+}
+
+@media (max-width: 600px) {
+  .trackMain {
+    padding: 0 10px 40px;
+    margin-top: 20px;
+  }
+ 
+  .trackSearchBox {
+    padding: 16px;
+  }
+ 
+  .trackSearchRow {
+    flex-direction: column;
+    gap: 8px;
+  }
+ 
+  .trackSearchRow input {
+    width: 100%;
+    font-size: 13px;
+  }
+ 
+  .trackSearchRow button {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+ 
+  .myOrderItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+ 
+  .trackResult {
+    padding: 16px;
+  }
+ 
+  .trackResultHeader {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "title badge"
+      "orderid badge"
+      "confirm confirm";
+    gap: 6px;
+    align-items: start;
+  }
+
+  .trackResultHeader h2 {
+    grid-area: title;
+  }
+
+  .resultOrderId {
+    grid-area: orderid;
+  }
+
+  .trackResultHeader .statusBadge {
+    grid-area: badge;
+    justify-self: end;
+  }
+
+  .viewConfirmationBtn {
+    grid-area: confirm;
+    margin-right: 0;
+    margin-top: 4px;
+  }
+
+  /* Progress bar scrolls horizontally on tiny screens */
+  .trackProgress {
+    overflow-x: auto;
+    padding-bottom: 6px;
+    justify-content: flex-start;
+  }
+ 
+  .trackStep {
+    min-width: 56px;
+  }
+ 
+  .trackStep p {
+    font-size: 10px;
+  }
+ 
+  .trackLine {
+    min-width: 14px;
+  }
+ 
+  .trackSection h3 {
+    font-size: 11px;
+  }
+ 
+  .trackSection p,
+  .trackSummaryRow {
+    font-size: 13px;
+  }
+ 
+  .ratingItem {
+    padding: 12px;
+  }
+ 
+  .star {
+    font-size: 22px;
+  }
+ 
+  #submitRatingsBtn {
+    font-size: 13px;
+    padding: 10px;
+  }
+ 
+  /* Cancel section button full-width on mobile */
+  #cancelOrderBtn {
+    width: 50%;
+    white-space: nowrap;
+  }
+}

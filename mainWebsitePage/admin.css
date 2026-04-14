@@ -1,0 +1,908 @@
+:root{
+    --color: black;
+    --primaryColor: white; 
+    --secondaryColor: #f6f6f6;
+    --tertiaryColor: #333333;
+    --navColor: hsl(357, 45%, 69%);
+    --pageColor: rgba(220, 166, 172, 0.25);
+    --backgroundcolor: hsl(0, 0%, 96%);
+    --paginationColor: #eee;
+    --paginationActive: #f7f7f7;
+    --grey: #ddd;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+}
+
+
+/* TOP BAR */
+.adminTopBar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+}
+
+.orderCount {
+  background: #e91e8c;
+  color: #fff;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+/* MAIN */
+.adminMain {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* FILTERS */
+.adminFilters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.filterBtn {
+  padding: 8px 20px;
+  border: 2px solid #222;
+  background: #fff;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.filterBtn:hover {
+  background: #222;
+  color: #fff;
+}
+
+.filterBtn.active {
+  background: #222;
+  color: #fff;
+}
+
+/* ORDERS CONTAINER */
+.ordersContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.loadingMsg {
+  text-align: center;
+  color: #999;
+  margin-top: 40px;
+}
+
+/* ORDER CARD */
+.orderCard {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.orderCardLeft h3 {
+  font-size: 0.95rem;
+  margin-bottom: 5px;
+  word-break: break-all;
+}
+
+.orderCardLeft p {
+  font-size: 0.82rem;
+  color: #666;
+  margin-bottom: 3px;
+}
+
+.orderCardLeft strong {
+  color: #222;
+}
+
+/* STATUS BADGE */
+.statusBadge {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.statusBadge.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.statusBadge.shipped {
+  background: #cfe2ff;
+  color: #084298;
+}
+
+.statusBadge.delivered {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.statusBadge.cancelled {
+  background: #f8d7da;
+  color: #842029;
+}
+
+/* ORDER CARD ACTIONS */
+.orderCardActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.viewBtn {
+  padding: 8px 16px;
+  background: #222;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+
+.viewBtn:hover {
+  background: #444;
+}
+
+/* STATUS SELECT */
+.statusSelect {
+  padding: 7px 10px;
+  border: 2px solid #222;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  background: #fff;
+}
+
+/* MODAL */
+.modalOverlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalOverlay.active {
+  display: flex;
+}
+
+.modalContent {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modalHeader h2 {
+  font-size: 1.1rem;
+}
+
+.closeModal {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.closeModal:hover {
+  color: #222;
+}
+
+/* MODAL BODY */
+.modalSection {
+  margin-bottom: 20px;
+}
+
+.modalSection h3 {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.modalSection p {
+  font-size: 0.88rem;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+/* ORDER ITEMS IN MODAL */
+.modalOrderItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.modalOrderItem img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.modalOrderItem p {
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* NO ORDERS */
+.noOrders {
+  text-align: center;
+  color: #999;
+  margin-top: 40px;
+  font-size: 0.95rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .orderCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .adminHeader h1 {
+    font-size: 1rem;
+  }
+}
+.statusBadge.paid {
+  background: #e6f4ea;
+  color: #2d7a3a;
+}
+
+.statusBadge.pending {
+  background: #fff8e1;
+  color: #b8860b;
+}
+
+.statusBadge.shipped {
+  background: #e8f0fe;
+  color: #1a56db;
+}
+
+.statusBadge.delivered {
+  background: #e6f4ea;
+  color: #2d7a3a;
+}
+
+.statusBadge.cancelled {
+  background: #fce8e8;
+  color: #c0392b;
+}
+
+.statusBadge.failed {
+  background: #fce8e8;
+  color: #c0392b;
+}
+
+.statusSelect:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f5f5f5;
+}
+.statusBadge.refunded {
+  background: #e8f0fe;
+  color: #2d7a3a;
+}
+.statusBadge.refund-pending {
+  background: #fef3e2;
+  color: #f39c12;
+}
+
+.statusBadge.refunded {
+  background: #e6f4ea;
+  color: #2d7a3a;
+}
+
+/* PRODUCT MANAGEMENT */
+.adminProductSection {
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid #eee;
+}
+
+.adminProductHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.adminProductHeader h2 {
+  font-size: 18px;
+  color: #222;
+}
+
+.addProductBtn {
+  padding: 10px 20px;
+  background: hsl(357, 45%, 69%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.addProductBtn:hover {
+  background: hsl(357, 32%, 63%);
+}
+
+.addProductForm {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.addProductForm h3 {
+  font-size: 15px;
+  margin-bottom: 16px;
+  color: #222;
+}
+
+.productFormGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+  align-items: start;
+}
+
+.productFormGrid .formField {
+  align-self: start;
+}
+
+.productSearchBar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.productSearchBar input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  min-width: 200px;
+}
+
+.productSearchBar input:focus {
+  border-color: hsl(357, 45%, 69%);
+}
+
+.productFilterBtns {
+  display: flex;
+  gap: 6px;
+}
+
+.productFilterBtn {
+  padding: 8px 14px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  background: white;
+  color: #555;
+  transition: all 0.2s;
+}
+
+.productFilterBtn.active {
+  background: hsl(357, 45%, 69%);
+  color: white;
+  border-color: hsl(357, 45%, 69%);
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formField label {
+  font-size: 12px;
+  color: #777;
+  font-weight: bold;
+}
+
+.formField input,
+.formField select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+}
+
+.formField input:focus,
+.formField select:focus {
+  border-color: hsl(357, 45%, 69%);
+}
+/* VARIANTS */
+.addVariantBtn {
+  padding: 7px 14px;
+  background: white;
+  color: #555;
+  border: 1px dashed #ddd;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.addVariantBtn:hover {
+  border-color: hsl(357, 45%, 69%);
+  color: hsl(357, 45%, 69%);
+}
+
+.variantRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.variantRow input {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 12px;
+  outline: none;
+}
+
+.variantRow input:focus {
+  border-color: hsl(357, 45%, 69%);
+}
+
+.removeVariantBtn {
+  padding: 7px 10px;
+  background: #fce8e8;
+  color: #c0392b;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.productFormActions {
+  display: flex;
+  gap: 10px;
+}
+
+.saveProductBtn {
+  padding: 10px 20px;
+  background: hsl(357, 45%, 69%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.cancelProductBtn {
+  padding: 10px 20px;
+  background: white;
+  color: #777;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* PRODUCTS LIST */
+.adminProductsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 600px) {
+  .adminProductsList {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    align-items: start;
+  }
+
+  .adminProductCard img {
+    height: 100px;
+  }
+
+  .adminProductCard h4 {
+    font-size: 12px;
+  }
+
+  .adminProductCard .productPrice {
+    font-size: 11px;
+  }
+
+  .productFormGrid {
+    grid-template-columns: 1fr;
+  }
+}
+.adminProductCard {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-self: start; /* ← ADD THIS */
+}
+
+.adminProductCard img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.adminProductCard h4 {
+  font-size: 14px;
+  color: #222;
+  margin: 0;
+}
+
+.adminProductCard .productPrice {
+  font-size: 13px;
+  color: #555;
+}
+
+.adminProductCard .productPage {
+  font-size: 11px;
+  color: #999;
+}
+
+.adminProductCardActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.editProductBtn {
+  flex: 1;
+  padding: 7px;
+  background: #e8f0fe;
+  color: #1a56db;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.deleteProductBtn {
+  flex: 1;
+  padding: 7px;
+  background: #fce8e8;
+  color: #c0392b;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.stockToggleBtn {
+  width: 100%;
+  padding: 7px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.stockToggleBtn.inStock {
+  background: #e6f4ea;
+  color: #2d7a3a;
+}
+
+.stockToggleBtn.outOfStock {
+  background: #fce8e8;
+  color: #c0392b;
+}
+
+/* EDIT FORM INLINE */
+.editProductForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.editProductForm input {
+  padding: 7px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 12px;
+  outline: none;
+}
+
+.editProductForm input:focus {
+  border-color: hsl(357, 45%, 69%);
+}
+
+.saveEditBtn {
+  padding: 8px;
+  background: hsl(357, 45%, 69%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.cancelEditBtn {
+  padding: 8px;
+  background: white;
+  color: #777;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.adminTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0;
+}
+
+.adminTab {
+  padding: 12px 24px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: #777;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.adminTab.active {
+  color: #222;
+  border-bottom-color: #222;
+}
+
+.adminTab:hover {
+  color: #222;
+}
+
+/* ── Tablet: 768px and below ── */
+@media (max-width: 768px) {
+  .adminMain {
+    padding: 16px;
+  }
+
+  .adminFilters {
+    gap: 8px;
+  }
+
+  .filterBtn {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+
+  .orderCard {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .orderCardLeft h3 {
+    font-size: 0.88rem;
+  }
+
+  .orderCardLeft p {
+    font-size: 0.78rem;
+  }
+
+  .orderCardRight {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .orderCardActions {
+    justify-content: flex-start;
+  }
+
+  .statusSelect {
+    max-width: 160px;
+    font-size: 0.78rem;
+  }
+
+  .viewBtn {
+    font-size: 0.78rem;
+    padding: 7px 12px;
+  }
+}
+
+/* ── Small phones: 480px and below ── */
+@media (max-width: 480px) {
+  .adminMain {
+    padding: 10px;
+  }
+
+  .adminTopBar {
+    margin-bottom: 10px;
+  }
+
+  .orderCount {
+    font-size: 0.78rem;
+    padding: 4px 10px;
+  }
+
+  .adminFilters {
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .filterBtn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    border-width: 1.5px;
+  }
+
+  .orderCard {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .orderCardLeft h3 {
+    font-size: 0.82rem;
+    margin-bottom: 6px;
+  }
+
+  .orderCardLeft p {
+    font-size: 0.75rem;
+    margin-bottom: 2px;
+  }
+
+  .orderCardRight {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .orderCardActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .statusSelect {
+    flex: 1;
+    max-width: unset;
+    font-size: 0.75rem;
+    padding: 6px 8px;
+  }
+
+  .viewBtn {
+    font-size: 0.75rem;
+    padding: 7px 14px;
+  }
+
+  /* Modal slides up from bottom on small phones */
+  .modalOverlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modalContent {
+    border-radius: 16px 16px 0 0;
+    max-height: 90vh;
+    padding: 20px 16px;
+  }
+
+  .modalHeader h2 {
+    font-size: 1rem;
+  }
+
+  .modalSection p {
+    font-size: 0.82rem;
+  }
+
+  .modalOrderItem {
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .modalOrderItem img {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ── Ultra-thin: Galaxy Z Fold and similar (≤ 344px) ── */
+@media (max-width: 344px) {
+  .adminMain {
+    padding: 8px;
+  }
+
+  .filterBtn {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  .orderCardLeft h3 {
+    font-size: 0.76rem;
+  }
+
+  .orderCardLeft p {
+    font-size: 0.7rem;
+  }
+
+  .statusBadge {
+    font-size: 0.68rem;
+    padding: 3px 8px;
+  }
+
+  .statusSelect,
+  .viewBtn {
+    font-size: 0.7rem;
+  }
+}

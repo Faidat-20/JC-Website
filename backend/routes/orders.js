@@ -1,0 +1,265 @@
+const express = require("express");
+const router = express.Router();
+const Order = require("../models/Order");
+const { sendShippedNotificationEmail, sendCancellationEmail, sendDeliveredEmail  } = require("../utils/mailer");
+const { initiatePaystackRefund } = require("../utils/refund");
+
+// ----------------------
+// CREATE ORDER (pre-payment)
+// ----------------------
+router.post("/create", async (req, res) => {
+  const { userId, items, deliveryDetails, shippingOption, subtotal, shippingFee, total } = req.body;
+
+  if (!userId || !items || !deliveryDetails || !total) {
+    return res.status(400).json({ success: false, message: "Missing required fields" });
+  }
+
+  try {
+    const trackingId = "JC-" + Date.now() + "-" + Math.floor(Math.random() * 10000);
+
+    const order = new Order({
+      userId,
+      items,
+      deliveryDetails,
+      shippingOption,
+      subtotal,
+      shippingFee,
+      total,
+      trackingId,
+      status: "pending",
+      paymentStatus: "pending"
+    });
+
+    await order.save();
+
+    res.json({
+      success: true,
+      message: "Order created successfully!",
+      orderId: order._id,
+      trackingId: order.trackingId
+    });
+
+  } catch (err) {
+    console.error("Create order error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// GET ALL ORDERS (OWNER/ADMIN)
+// ----------------------
+router.get("/all", async (req, res) => {
+  try {
+    const orders = await Order.find({ isArchived: { $ne: true } }).sort({ createdAt: -1 });
+    res.json({ success: true, orders });
+  } catch (err) {
+    console.error("Get orders error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// GET LATEST PAID ORDER BY USER
+// ----------------------
+router.get("/user/:userId/latest-paid", async (req, res) => {
+  try {
+    const order = await Order.findOne({
+      userId: req.params.userId,
+      paymentStatus: "paid"
+    }).sort({ createdAt: -1 });
+
+    if (!order) return res.status(404).json({ success: false, message: "No paid orders found" });
+
+    res.json({ success: true, order });
+  } catch (err) {
+    console.error("Get latest paid order error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// GET ORDERS BY USER
+// ----------------------
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const orders = await Order.find({ userId: req.params.userId }).sort({ order_created_at: -1 });
+    res.json({ success: true, orders });
+  } catch (err) {
+    console.error("Get user orders error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// TRACK ORDER BY TRACKING ID
+// ----------------------
+router.get("/track/:trackingId", async (req, res) => {
+  try {
+    const order = await Order.findOne({ trackingId: req.params.trackingId });
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    // Check if requestingUserId was passed (logged-in user)
+    const requestingUserId = req.query.userId || null;
+    const isOwner = requestingUserId && String(order.userId) === String(requestingUserId);
+
+    // If not the owner, return only basic public info — no personal details
+    if (!isOwner) {
+      return res.json({
+        success: true,
+        isOwner: false,
+        order: {
+          _id: order._id,
+          trackingId: order.trackingId,
+          status: order.status,
+          paymentStatus: order.paymentStatus,
+          order_created_at: order.order_created_at,
+          order_shipped_at: order.order_shipped_at,
+          order_delivered_at: order.order_delivered_at,
+          updatedAt: order.updatedAt,
+          order_refunded_at: order.order_refunded_at
+        }
+      });
+    }
+
+    res.json({ success: true, isOwner: true, order });
+  } catch (err) {
+    console.error("Track order error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// GET ARCHIVED ORDERS
+// ----------------------
+router.get("/archived", async (req, res) => {
+  try {
+    const orders = await Order.find({ isArchived: true }).sort({ order_archived_at: -1 });
+    res.json({ success: true, orders });
+  } catch (err) {
+    console.error("Get archived orders error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// GET SINGLE ORDER
+// ----------------------
+router.get("/:orderId", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    res.json({ success: true, order });
+  } catch (err) {
+    console.error("Get order error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// UPDATE ORDER STATUS
+// ----------------------
+router.put("/:orderId/status", async (req, res) => {
+  const { status, requestingUserId } = req.body;
+
+  if (!["pending", "shipped", "delivered", "cancelled"].includes(status)) {
+    return res.status(400).json({ success: false, message: "Invalid status" });
+  }
+
+  try {
+    const order = await Order.findById(req.params.orderId);
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    // ── User-initiated cancellation guard ──────────────────────
+    if (requestingUserId) {
+      if (String(order.userId) !== String(requestingUserId)) {
+        return res.status(403).json({ success: false, message: "You are not authorised to cancel this order." });
+      }
+      if (status !== "cancelled") {
+        return res.status(403).json({ success: false, message: "Users can only cancel orders." });
+      }
+      if (order.status !== "pending") {
+        return res.status(400).json({ success: false, message: "Only pending orders can be cancelled." });
+      }
+      if (order.paymentStatus !== "paid") {
+        return res.status(400).json({ success: false, message: "This order has not been paid and cannot be refunded." });
+      }
+    }
+
+    order.status = status;
+
+    if (status === "shipped") order.order_shipped_at = Date.now();
+    if (status === "delivered") order.order_delivered_at = Date.now();
+
+    await order.save();
+
+    // Send shipped email
+    if (status === "shipped") {
+      try { await sendShippedNotificationEmail(order); } catch (e) { console.error("Shipped email error:", e); }
+    }
+
+    if (status === "delivered") {
+      try { await sendDeliveredEmail(order); } catch (e) { console.error("Delivered email error:", e); }
+    }
+    
+    // Send cancellation email + initiate refund
+    if (status === "cancelled") {
+      try { await sendCancellationEmail(order); } catch (e) { console.error("Cancel email error:", e); }
+
+      if (order.paymentStatus === "paid" && order.paystackReference) {
+        const refundResult = await initiatePaystackRefund(order.paystackReference, order.total);
+        if (refundResult.success) {
+          console.log(`Refund initiated for order ${order.trackingId} ✅`);
+          order.paymentStatus = "refund_initiated";
+          await order.save();
+        } else {
+          console.error(`Refund failed for order ${order.trackingId}:`, refundResult.message);
+        }
+      }
+    }
+
+    res.json({ success: true, message: `Order marked as ${status}!`, order });
+  } catch (err) {
+    console.error("Update order status error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// MANUALLY ARCHIVE AN ORDER
+// ----------------------
+router.put("/:orderId/archive", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    order.isArchived = true;
+    order.order_archived_at = new Date();
+    await order.save();
+
+    res.json({ success: true, message: "Order archived!", order });
+  } catch (err) {
+    console.error("Archive order error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// UNARCHIVE AN ORDER
+// ----------------------
+router.put("/:orderId/unarchive", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    order.isArchived = false;
+    order.order_archived_at = null;
+    await order.save();
+
+    res.json({ success: true, message: "Order unarchived!", order });
+  } catch (err) {
+    console.error("Unarchive order error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+module.exports = router;
