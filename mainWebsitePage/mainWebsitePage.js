@@ -681,6 +681,19 @@ document.addEventListener("DOMContentLoaded", () => {
     newsletterForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
+      const submitBtn = newsletterForm.querySelector("button[type='submit']");
+      const originalBtnText = submitBtn.textContent;
+
+      function setLoading(isLoading) {
+        if (isLoading) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Please wait...`;
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+        }
+      }
+
       const usernameInput = newsletterForm.querySelector("input[name='username']");
       const username = usernameInput.value.trim();
 
@@ -690,6 +703,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!email) return showToast("error", "Please enter your email.");
       if (!username) return showToast("error", "Please enter your name.");
 
+      setLoading(true);
+      
       try {
         const res = await fetch(`${BASE_URL}/api/auth/subscribe-newsletter`, {
           method: "POST",
@@ -698,13 +713,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const data = await res.json();
         if (data.success) {
+          setLoading(false);
           showToast("info", data.message);
           if (data.message === "Subscription successful!") newsletterInput.disabled = true;
         }else {
+          setLoading(false);
           showToast("error", data.message || "Subscription failed.");
         }
       } catch (err) {
         console.error("Newsletter error:", err);
+        setLoading(false);
         showToast("error", "Server error.");
       }
     });
