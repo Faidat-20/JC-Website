@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script>
+      // Hide page immediately before anything renders
+      document.documentElement.style.display = "none";
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jikes Cosmetics | Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./mainWebsitePage/mainWebsitePage.css">
+    <link rel="stylesheet" href="mainWebsitePage/admin.css">
+    <script src="https://kit.fontawesome.com/1fe1b7d9e4.js" crossorigin="anonymous"></script>
+  </head>
+  <body>
+
+    <header class="navbar" id="navBar">
+      <div class="navLeft" id="navLeft">
+        <div class="businessName">Jikes Cosmetics</div>
+      </div>
+
+      <div class="navCenter">
+        <form>
+          <div class="search" id="searchBox">
+            <input class="searchInput" id="searchInput" type="search" placeholder="Search">
+            <i id="icon" class="fa-solid fa-magnifying-glass"></i>
+          </div>
+        </form>
+        <i class="fa-solid fa-xmark closeSearch" id="closeSearch"></i>
+      </div>
+
+      <div class="navRight" id="navRight">
+        <div class="login">Login</div>
+        <div class="logout" id="logoutBtn" style="display: none;">Logout</div>
+        <div class="cartWrapper">
+          <i id="cart" class="fa-solid fa-cart-arrow-down"></i>
+          <span class="countCart">0</span>
+          <span class="cartTooltip">Cart</span>
+          <span class="addCartMessage">Added to cart</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="pageContent">
+      <section class="greeting">
+        <div class="greetingOverlay"></div>
+        <div class="greetingMessage">
+          <h1>Admin</h1>
+          <h2>Dashboard</h2>
+        </div>
+      </section>
+
+      <!-- Home Icon -->
+      <div class="homeIconWrapper">
+        <a href="mainWebsitePage.html" class="homeIcon" title="Go to Home">
+          <i class="fa-regular fa-house"></i>
+        </a>
+      </div>
+    </div>
+
+    <main class="adminMain">
+
+      <!-- TABS -->
+      <div class="adminTabs">
+        <button class="adminTab active" data-tab="orders">
+          <i class="fa-solid fa-box"></i> Orders
+        </button>
+        <button class="adminTab" data-tab="archived">
+          <i class="fa-solid fa-box-archive"></i> Archived
+        </button>
+        <button class="adminTab" data-tab="products">
+          <i class="fa-solid fa-tag"></i> Products
+        </button>
+      </div>
+
+      <!-- ORDERS SECTION -->
+      <div class="adminSection" id="ordersSection">
+        <!-- ORDER COUNT -->
+        <div class="adminTopBar">
+          <span id="orderCount" class="orderCount"></span>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="adminFilters">
+          <button class="filterBtn active" data-status="all">All</button>
+          <button class="filterBtn" data-status="pending">Pending</button>
+          <button class="filterBtn" data-status="shipped">Shipped</button>
+          <button class="filterBtn" data-status="delivered">Delivered</button>
+          <button class="filterBtn" data-status="cancelled">Cancelled</button>
+        </div>
+
+        <!-- ORDERS CONTAINER — moved inside ordersSection -->
+        <div class="ordersContainer" id="ordersContainer">
+          <p class="loadingMsg">Loading orders...</p>
+        </div>
+      </div>
+
+      <!-- ARCHIVED ORDERS SECTION -->
+      <div class="adminSection" id="archivedSection" style="display:none;">
+        <div class="adminTopBar">
+          <span id="archivedCount" class="orderCount"></span>
+        </div>
+        <div class="ordersContainer" id="archivedContainer">
+          <p class="loadingMsg">Loading archived orders...</p>
+        </div>
+      </div>
+
+      <!-- PRODUCTS SECTION — moved inside main -->
+      <div class="adminSection" id="productsSection" style="display:none;">
+        <div class="adminProductSection">
+          <div class="adminProductHeader">
+            <h2>Product Management</h2>
+            <button id="addProductBtn" class="addProductBtn">+ Add New Product</button>
+          </div>
+
+          <!-- PRODUCT SEARCH AND FILTER -->
+          <div class="productSearchBar">
+            <input type="text" id="productSearchInput" placeholder="Search products...">
+            <div class="productFilterBtns">
+              <button class="productFilterBtn active" data-filter="all">All</button>
+              <button class="productFilterBtn" data-filter="inStock">In Stock</button>
+              <button class="productFilterBtn" data-filter="outOfStock">Out of Stock</button>
+            </div>
+          </div>
+
+          <!-- ADD PRODUCT FORM -->
+          <div class="addProductForm" id="addProductForm" style="display: none;">
+            <h3>Add New Product</h3>
+            <div class="productFormGrid">
+              <div class="formField">
+                <label>Product Name</label>
+                <input type="text" id="newProductName" placeholder="e.g. Lip gloss tube">
+              </div>
+              <div class="formField">
+                <label>Product Image</label>
+                <input type="file" id="newProductImageFile" accept="image/*">
+                <img id="newProductImagePreview" src="" alt="Preview"
+                  style="display:none; width:100%; height:120px; object-fit:cover; border-radius:8px; margin-top:8px; border:1px solid #eee;">
+                <p id="uploadStatus" style="font-size:11px; color:#4CAF50; margin:4px 0 0;"></p>
+              </div>
+              <div class="formField">
+                <label>Price (₦)</label>
+                <input type="number" id="newProductPrice" placeholder="e.g. 10000">
+              </div>
+              <div class="formField">
+                <label>Shop Page</label>
+                <select id="newProductPage">
+                  <!-- populated dynamically -->
+                </select>
+              </div>
+
+              <div class="formField" style="grid-column: 1 / -1;">
+                <label>Product Description</label>
+                <textarea id="newProductDescription" placeholder="e.g. Premium quality lip gloss tubes available in multiple sizes. Perfect for DIY cosmetic making." 
+                  style="padding:8px 12px; border:1px solid #ddd; border-radius:8px; font-size:13px; outline:none; resize:vertical; min-height:80px; width:100%;"></textarea>
+              </div>
+            </div>
+
+            <!-- VARIANTS SECTION -->
+            <div class="formField" style="grid-column: 1 / -1;">
+              <label>
+                <input type="checkbox" id="hasVariants"> This product has variants (size, color, quantity etc.)
+              </label>
+            </div>
+            <div id="variantsSection" style="display:none; grid-column: 1 / -1;">
+              <div class="formField">
+                <label>Variant Type</label>
+                <select id="variantType">
+                  <option value="size">Size</option>
+                  <option value="color">Color</option>
+                  <option value="quantity">Quantity</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+              <div id="variantsList" style="margin-top: 12px;"></div>
+              <button type="button" id="addVariantBtn" class="addVariantBtn">+ Add Variant</button>
+            </div>
+
+
+            <div class="productFormActions">
+              <button id="saveNewProductBtn" class="saveProductBtn">Save Product</button>
+              <button id="cancelAddProductBtn" class="cancelProductBtn">Cancel</button>
+            </div>
+          </div>
+
+          <!-- PRODUCTS LIST -->
+          <div class="adminProductsList" id="adminProductsList">
+            <p class="loadingMsg">Loading products...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <!-- ORDER DETAIL MODAL -->
+    <div class="modalOverlay" id="modalOverlay">
+      <div class="modalContent">
+        <div class="modalHeader">
+          <h2>Order Details</h2>
+          <span class="closeModal" id="closeModal">&times;</span>
+        </div>
+
+        <div class="modalBody" id="modalBody">
+          <!-- filled dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <div class="pageOverlay" id="pageOverlay"></div>
+    <div class="cartOverlay" id="cartOverlay">
+      <div class="cartHeader">
+        <h3>Your cart (<span id="cartItemCount">0 item</span>)</h3>
+        <i class="fa-solid fa-xmark" id="closeCart"></i>
+        <span class="cartOverlayMessage" id="cartOverlayMessage"></span>
+      </div>
+      <div class="cartItems empty" id="cartItems"></div>
+      <div class="cartFooter">
+        <div class="subtotal">
+          <span>Subtotal:</span>
+          <strong>₦<span id="cartSubtotal">0</span></strong>
+        </div>
+        <button class="checkoutBtn" id="checkoutBtn" disabled>Checkout</button>
+        <div class="cartFooterActions">
+          <span class="continueShopping" id="continueShopping">Continue shopping</span>
+          <span class="clearCart" id="clearCart">× Clear cart</span>
+        </div>
+      </div>
+    </div>
+
+    <footer class="siteFooter">
+      <div class="footerContent">
+        <div class="footerContact">
+          <h3>Contact Us</h3>
+          <p><i class="fa-solid fa-phone"></i> 09040472851</p>
+          <p><i class="fa-solid fa-phone"></i> 07057181591</p>
+        </div>
+        <div class="footerSubscribe" id="footerSubscribeBtn">
+          <h3>Sign Up for Sales & Updates</h3>
+          <button type="submit">Subscribe</button>
+        </div>
+      </div>
+      <div class="footerBottom">
+        <a href="https://wa.me/2349040472851" target="_blank" class="whatsappBtn">
+          <i class="fa-brands fa-whatsapp"></i>
+        </a>
+      </div>
+    </footer>
+
+    <!-- EDIT PRODUCT MODAL -->
+    <div class="modalOverlay" id="editProductModal" style="display:none;">
+      <div class="modalContent" style="max-width: 500px;">
+        <div class="modalHeader">
+          <h2>Edit Product</h2>
+          <span class="closeModal" id="closeEditProductModal">&times;</span>
+        </div>
+        <div class="modalBody">
+          <input type="hidden" id="editProductId">
+
+          <div class="formField" style="margin-bottom:12px;">
+            <label>Product Name</label>
+            <input type="text" id="editProductName" placeholder="Product name">
+          </div>
+
+          <div class="formField" style="margin-bottom:12px;">
+            <label>Current Image</label>
+            <img id="editProductPreview" src="" alt="Preview"
+              style="width:100%; height:120px; object-fit:cover; border-radius:8px; border:1px solid #eee; margin-top:6px;">
+            <input type="file" id="editProductImageFile" accept="image/*" style="margin-top:8px;">
+            <input type="hidden" id="editProductImage">
+            <p id="editProductUploadStatus" style="font-size:11px; color:#4CAF50; margin:4px 0 0;"></p>
+          </div>
+
+          <div class="formField" style="margin-bottom:12px;">
+            <label>Price (₦)</label>
+            <input type="number" id="editProductPrice" placeholder="Price">
+          </div>
+
+          <div class="formField" style="margin-bottom:12px;">
+            <label>
+              <input type="checkbox" id="editProductHasVariants"> This product has variants
+            </label>
+          </div>
+
+          <div id="editProductVariantsSection" style="display:none; margin-bottom:12px;">
+            <div class="formField" style="margin-bottom:8px;">
+              <label>Variant Type</label>
+              <select id="editProductVariantType" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-size:13px; width:100%;">
+                <option value="size">Size</option>
+                <option value="color">Color</option>
+                <option value="quantity">Quantity</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            <div id="editProductVariantsList"></div>
+            <button type="button" id="editProductAddVariantBtn" class="addVariantBtn">+ Add Variant</button>
+          </div>
+
+          <div class="formField" style="margin-bottom:12px;">
+            <label>Product Description (optional)</label>
+            <textarea id="editProductDescription" placeholder="Product description..." 
+              style="padding:8px 12px; border:1px solid #ddd; border-radius:8px; font-size:13px; outline:none; resize:vertical; min-height:80px; width:100%; box-sizing:border-box;"></textarea>
+          </div>
+
+          <div class="productFormActions" style="margin-top:16px;">
+            <button id="saveEditProductBtn" class="saveProductBtn">Save Changes</button>
+            <button id="cancelEditProductBtn" class="cancelProductBtn">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="./mainWebsitePage/mainWebsitePage.js"></script>
+    <script src="mainWebsitePage/admin.js"></script>
+  </body>
+</html>

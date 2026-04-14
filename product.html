@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product — Jikes Cosmetics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./mainWebsitePage/mainWebsitePage.css">
+    <link rel="stylesheet" href="mainWebsitePage/product.css">
+    <script src="https://kit.fontawesome.com/1fe1b7d9e4.js" crossorigin="anonymous"></script>
+  </head>
+  <body>
+
+    <header class="navbar" id="navBar">
+      <div class="navLeft" id="navLeft">
+        <div class="businessName">Jikes Cosmetics</div>
+      </div>
+      <div class="navCenter">
+        <form>
+          <div class="search" id="searchBox">
+            <input class="searchInput" id="searchInput" type="search" placeholder="Search">
+            <i id="icon" class="fa-solid fa-magnifying-glass"></i>
+          </div>
+        </form>
+        <i class="fa-solid fa-xmark closeSearch" id="closeSearch"></i>
+      </div>
+      <div class="navRight" id="navRight">
+        <div class="login">Login</div>
+        <div class="logout" id="logoutBtn" style="display: none;">Logout</div>
+        <div class="cartWrapper">
+          <i id="cart" class="fa-solid fa-cart-arrow-down"></i>
+          <span class="countCart">0</span>
+          <span class="cartTooltip">Cart</span>
+          <span class="addCartMessage">Added to cart</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="productDetailMain">
+
+      <div class="productDetailBack">
+        <a href="#" id="backBtn">← Back</a>
+      </div>
+
+      <div class="productDetailCard" id="productDetailCard">
+        <p style="color:#999; text-align:center; padding:40px;">Loading product...</p>
+      </div>
+
+    </main>
+
+    <div class="pageOverlay" id="pageOverlay"></div>
+    <div class="cartOverlay" id="cartOverlay">
+      <div class="cartHeader">
+        <h3>Your cart (<span id="cartItemCount">0 item</span>)</h3>
+        <i class="fa-solid fa-xmark" id="closeCart"></i>
+        <span class="cartOverlayMessage" id="cartOverlayMessage"></span>
+      </div>
+      <div class="cartItems empty" id="cartItems"></div>
+      <div class="cartFooter">
+        <div class="subtotal">
+          <span>Subtotal:</span>
+          <strong>₦<span id="cartSubtotal">0</span></strong>
+        </div>
+        <button class="checkoutBtn" id="checkoutBtn" disabled>Checkout</button>
+        <div class="cartFooterActions">
+          <span class="continueShopping" id="continueShopping">Continue shopping</span>
+          <span class="clearCart" id="clearCart">× Clear cart</span>
+        </div>
+      </div>
+    </div>
+
+    <footer class="siteFooter">
+      <div class="footerContent">
+        <div class="footerContact">
+          <h3>Contact Us</h3>
+          <p><i class="fa-solid fa-phone"></i> 09040472851</p>
+          <p><i class="fa-solid fa-phone"></i> 07057181591</p>
+        </div>
+        <div class="footerSubscribe" id="footerSubscribeBtn">
+          <h3>Sign Up for Sales & Updates</h3>
+          <button type="button">Subscribe</button>
+        </div>
+      </div>
+
+      <div class="footerTrack" id="footerTrack" style="display:none;">
+        <h3>Your Orders</h3>
+        <a href="track-order.html" class="footerTrackBtn">
+          <i class="fa-solid fa-box"></i> Track my order
+        </a>
+      </div>
+      
+      <div class="footerBottom">
+        <a href="https://wa.me/2349040472851" target="_blank" class="whatsappBtn">
+          <i class="fa-brands fa-whatsapp"></i>
+        </a>
+      </div>
+    </footer>
+
+    <div class="newsletterOverlay" id="newsletterOverlay">
+      <div class="newsletterModal">
+        <span class="closeNewsletter" id="closeNewsletter">&times;</span>
+        <h2>GET EXCLUSIVE OFFERS</h2>
+        <p>Subscribe to receive updates, exclusive deals, and be the first to know about our latest offers.</p>
+        <form id="newsletterForm" class="newsletterForm">
+          <input type="text" name="username" placeholder="Enter your full name" required>
+          <input type="email" name="user_email" placeholder="Enter your email address" required>
+          <button type="submit">Sign up</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="./mainWebsitePage/mainWebsitePage.js"></script>
+    <script src="mainWebsitePage/product.js"></script>
+  </body>
+</html>
