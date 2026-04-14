@@ -1,74 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jikes Cosmetics Website</title>
-    <link rel="stylesheet" href="./firstWebsite/firstwebsite.css">
-    <script src="https://kit.fontawesome.com/1fe1b7d9e4.js" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jikes Cosmetics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/1fe1b7d9e4.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="./firstWebsite/firstwebsite.css">
+  <link rel="icon" type="image/jpg" href="images/JC LOGO.jpg">
 </head>
-  <body>
-    <div class="circleLogo">
-      <img id="topLogo" src="images/logo 2.jpg" alt="">
-      <div id="logoContent"><pre></pre>GET YOUR LIPCARE PRODUCTS FROM <br>@jikescosmectics</pre></div>
+<body>
+
+  <!-- Decorative corners -->
+  <div class="corner corner--tl"></div>
+  <div class="corner corner--tr"></div>
+  <div class="corner corner--bl"></div>
+  <div class="corner corner--br"></div>
+
+  <!-- Petal shapes -->
+  <div class="petal petal-1"></div>
+  <div class="petal petal-2"></div>
+  <div class="petal petal-3"></div>
+
+  <div class="page">
+
+    <!-- Logo ring -->
+    <div class="logo-wrap">
+      <div class="logo-ring">
+        <img src="images/JC LOGO.jpg" alt="Jikes Cosmetics Logo">
+      </div>
     </div>
-    <div id="brandName">
-      <i>@jikescosmectics
+
+    <!-- Handle -->
+    <p class="handle">@jikescosmetics</p>
+
+    <!-- Hero image -->
+    <div class="hero-wrap">
+      <img class="hero-img" src="images/Background Logo Image.jpg" alt="Jikes Cosmetics">
+      <div class="hero-overlay"></div>
+      <span class="hero-badge">Lip Care ✦ Beauty</span>
     </div>
-    <div id="shoppingMessage">
-      This is an online store,<br>you can now shop on our website <b>OR</b><br> send us a DM on WhatsApp</i>
+
+    <!-- Centered JC logo -->
+    <div class="logo-center-wrap">
+      <img class="logo-center" src="images/JC LOGO.jpg" alt="JC Logo">
     </div>
-    <div class="jcLogo">
-      <img id="backgroundLogo" src="images/Background Logo Image.jpg" alt="">
-      <img id="bottomLogo" src="images/JC LOGO.jpg" alt="">
+
+    <!-- Message -->
+    <div class="message">
+      <h1 class="message-heading">Make you<br><em>more beautiful</em></h1>
+      <p class="message-sub">Shop our premium lip care products online or send us a DM on WhatsApp — we deliver across Nigeria.</p>
     </div>
-    <div class="websiteLink" onclick="clickme()">
-      <p>Shop Via Website</p>
+
+    <!-- Divider -->
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-dot"></div>
+      <div class="divider-line"></div>
     </div>
-    <h5>Jikes🛍️, MAKE YOU MORE BEAUTY❤️</h5>
-    <div class="icons">
-      <a href="https://wa.me/2349040472851" target="_blank">
-        <i id="iconStyle" class="fa-brands fa-whatsapp fa-2x"></i>
-        <p>Message us on WhatsApp<br></p> 
+
+    <!-- CTA -->
+    <a href="mainWebsitePage.html" class="cta-btn">
+      Shop via website
+      <span class="cta-arrow">→</span>
+    </a>
+
+    <!-- Tagline -->
+    <p class="tagline">Jikes🛍️ — Beauty, Delivered.</p>
+
+    <!-- Social links -->
+    <div class="socials">
+
+      <a href="https://wa.me/2349040472851" target="_blank" class="social-link">
+        <div class="social-icon wa"><i class="fa-brands fa-whatsapp"></i></div>
+        <div class="social-label">
+          <div class="social-name">WhatsApp</div>
+          <div class="social-desc">Message us directly</div>
+        </div>
+        <span class="social-arrow">↗</span>
       </a>
-    </div>
-    <div class="icons">
-      <a href="https://www.instagram.com/jikes_cosmetics/" target="_blank">
-        <i id="iconStyle" class="fa-brands fa-instagram fa-2x"></i>
-        <p>FOllow us on Instagram</p>
+
+      <a href="https://www.instagram.com/jikes_cosmetics/" target="_blank" class="social-link">
+        <div class="social-icon ig"><i class="fa-brands fa-instagram"></i></div>
+        <div class="social-label">
+          <div class="social-name">Instagram</div>
+          <div class="social-desc">Follow @jikes_cosmetics</div>
+        </div>
+        <span class="social-arrow">↗</span>
       </a>
-    </div>
-    <div class="icons">
-      <a href="">
-        <i id="iconStyle" class="fa-brands fa-tiktok fa-2x"></i>
-        <p>FOllow us on Tiktok</p>
+
+      <a href="#" class="social-link">
+        <div class="social-icon tt"><i class="fa-brands fa-tiktok"></i></div>
+        <div class="social-label">
+          <div class="social-name">TikTok</div>
+          <div class="social-desc">Watch our videos</div>
+        </div>
+        <span class="social-arrow">↗</span>
       </a>
-    </div>
-    <div class="icons">
-      <a href="">
-        <i id="iconStyle" class="fa-brands fa-twitter fa-2x"></i>
-        <p>FOllow us on X</p>
+
+      <a href="#" class="social-link">
+        <div class="social-icon tw"><i class="fa-brands fa-x-twitter"></i></div>
+        <div class="social-label">
+          <div class="social-name">X (Twitter)</div>
+          <div class="social-desc">Follow us on X</div>
+        </div>
+        <span class="social-arrow">↗</span>
       </a>
+
     </div>
-    <div class="bottomIcon">
-      <a href="https://www.instagram.com/jikes_cosmetics/" target="_blank">
-        <i class="fa-brands fa-instagram fa-2x"></i>
-      </a>
-      <a href="">
-        <i class="fa-brands fa-tiktok fa-2x"></i>
-      </a>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-icons">
+        <a href="https://www.instagram.com/jikes_cosmetics/" target="_blank" class="footer-icon">
+          <i class="fa-brands fa-instagram"></i>
+        </a>
+        <a href="#" class="footer-icon">
+          <i class="fa-brands fa-tiktok"></i>
+        </a>
+        <a href="https://wa.me/2349040472851" target="_blank" class="footer-icon">
+          <i class="fa-brands fa-whatsapp"></i>
+        </a>
+      </div>
+      <p class="footer-copy">© 2026 Jikes Cosmetics</p>
     </div>
-    <style>
-      *{
-        font-family: 'Armata';
-        box-sizing: border-box;
-      }
-      html, body{
-        margin: 0px;
-        padding: 0px
-      }
-    </style>
-  </body>
-    
+
+  </div>
+
+</body>
 </html>
-<script src="./mainWebsitePage/mainWebsitePage.js"></script>
