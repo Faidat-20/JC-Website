@@ -694,7 +694,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await fetch(`${BASE_URL}/api/auth/subscribe-newsletter`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, email, username  })
+          body: JSON.stringify({ email, username  })
         });
         const data = await res.json();
         if (data.success) {

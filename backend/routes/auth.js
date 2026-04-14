@@ -305,7 +305,6 @@ router.post("/subscribe-newsletter", async (req, res) => {
     // Find user by userId first
     if (userId) {
       user = await User.findById(userId);
-      console.log("Found by userId:", user ? user.email : "not found");
     }
 
     // Then try by email (case-insensitive fallback)
@@ -314,10 +313,7 @@ router.post("/subscribe-newsletter", async (req, res) => {
       if (!user) {
         user = await User.findOne({ email: new RegExp(`^${email}$`, "i") });
       }
-      console.log("Found by email:", user ? user.email : "not found");
     }
-
-    console.log("Final user:", user ? user.email : "null");
 
     // User exists and already subscribed
     if (user && user.isSubscribed) {

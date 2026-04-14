@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
     subtotalEl.textContent = subtotal.toLocaleString();
 
     const savedShipping = JSON.parse(localStorage.getItem("selectedShipping"));
-    const shipping = savedShipping ? savedShipping.price : 0;
+    const shipping = (savedShipping && savedShipping.price != null) ? savedShipping.price : 0;
 
     const shippingEl = document.getElementById("shippingAmount");
     if (shippingEl) {
@@ -664,10 +664,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // ✅ Validation
       if (!deliveryDetails.firstName || !deliveryDetails.lastName || !deliveryDetails.address || !deliveryDetails.phone) {
+        hideSpinner();
         return showToast("error", "Please fill in all delivery details before placing your order.");
       }
 
       if (!shipping || !shipping.name) {
+        hideSpinner();
         return showToast("error", "Please select a shipping option before placing your order.");
       }
 
@@ -699,6 +701,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.success && data.paymentLink) {
           window.location.href = data.paymentLink;
         } else {
+          hideSpinner();
           showToast("error", data.message || "Failed to place order.");
         }
       } catch (err) {

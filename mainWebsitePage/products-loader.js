@@ -1,6 +1,6 @@
+const BASE_URL = "http://localhost:5000";
 document.addEventListener("DOMContentLoaded", async () => {
 
-  const BASE_URL = "http://localhost:5000";
   const productList = document.querySelector(".productList");
   if (!productList) return;
 
