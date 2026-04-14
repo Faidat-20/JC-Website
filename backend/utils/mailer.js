@@ -7,6 +7,11 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS
   }
 });
+const EMAIL_FOOTER = `
+  <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999;">
+    © ${new Date().getFullYear()} Jikes Cosmetics. All rights reserved.
+  </div>
+`;
 
 // ─────────────────────────────────────────
 // SEND CUSTOMER ORDER CONFIRMATION EMAIL
@@ -83,11 +88,7 @@ async function sendOrderConfirmationEmail(order) {
             <strong>WhatsApp:</strong> <a href="https://wa.me/${process.env.WHATSAPP_NUMBER || "2349040472851"}" style="color: hsl(357, 45%, 69%);">Click here to chat</a>
           </p>
         </div>
-
-        <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999;">
-          © 2026 Jikes Cosmetics. All rights reserved.
-        </div>
-
+        ${EMAIL_FOOTER}
       </div>
     `
   };
@@ -205,11 +206,7 @@ async function sendShippedNotificationEmail(order) {
             <strong>WhatsApp:</strong> <a href="https://wa.me/${process.env.WHATSAPP_NUMBER || "2349040472851"}" style="color: hsl(357, 45%, 69%);">Click here to chat</a>
           </p>
         </div>
-
-        <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999;">
-          © 2026 Jikes Cosmetics. All rights reserved.
-        </div>
-
+        ${EMAIL_FOOTER}
       </div>
     `
   };
@@ -261,11 +258,7 @@ async function sendCancellationEmail(order) {
             We apologise for any inconvenience. Please contact us if you have any questions.
           </p>
         </div>
-
-        <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999;">
-          © 2026 Jikes Cosmetics. All rights reserved.
-        </div>
-
+        ${EMAIL_FOOTER}
       </div>
     `
   };
@@ -304,11 +297,7 @@ async function sendRefundProcessedEmail(order) {
             If you have any questions, reply to this email or contact us on WhatsApp.
           </p>
         </div>
-
-        <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999;">
-          © 2026 Jikes Cosmetics. All rights reserved.
-        </div>
-
+        ${EMAIL_FOOTER}
       </div>
     `
   };
@@ -350,11 +339,7 @@ async function sendDeliveredEmail(order) {
             <strong>WhatsApp:</strong> <a href="https://wa.me/${process.env.WHATSAPP_NUMBER || "2349040472851"}" style="color: hsl(357, 45%, 69%);">Click here to chat</a>
           </p>
         </div>
-
-        <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999;">
-          © 2026 Jikes Cosmetics. All rights reserved.
-        </div>
-
+        ${EMAIL_FOOTER}
       </div>
     `
   };
@@ -395,11 +380,7 @@ async function sendWelcomeEmail(email, username) {
             <strong>WhatsApp:</strong> <a href="https://wa.me/${process.env.WHATSAPP_NUMBER || "2349040472851"}" style="color: hsl(357, 45%, 69%);">Click here to chat</a>
           </p>
         </div>
-
-        <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999;">
-          © 2026 Jikes Cosmetics. All rights reserved.
-        </div>
-
+        ${EMAIL_FOOTER}
       </div>
     `
   };
