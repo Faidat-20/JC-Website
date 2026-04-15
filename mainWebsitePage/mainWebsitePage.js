@@ -63,7 +63,7 @@ if (storedUser) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const BASE_URL = "http://localhost:5000";
+  const BASE_URL = "https://jc-website.onrender.com";
   // -----------------------------
   // NAVIGATION / GREETING
   // -----------------------------

@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
-  const BASE_URL = "http://localhost:5000";
+  const BASE_URL = "https://jc-website.onrender.com";
   const params = new URLSearchParams(window.location.search);
   const productId = params.get("id");
   const productSlug = params.get("name");

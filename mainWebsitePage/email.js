@@ -18,7 +18,7 @@ window.addEventListener("load", function () {
 
     const userId = sessionStorage.getItem("userId");
     if (userId) {
-      fetch(`http://localhost:5000/api/auth/userdata/${userId}`)
+      fetch(`https://jc-website.onrender.com/api/auth/userdata/${userId}`)
         .then(res => res.json())
         .then(data => {
           if (data.success && data.subscribed) {

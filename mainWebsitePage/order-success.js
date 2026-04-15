@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
-  const BASE_URL = "http://localhost:5000";
+  const BASE_URL = "https://jc-website.onrender.com";
   function formatDateTime(dateStr) {
     if (!dateStr) return "N/A";
     return new Date(dateStr).toLocaleString("en-GB", {

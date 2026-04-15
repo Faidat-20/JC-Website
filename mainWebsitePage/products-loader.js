@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://jc-website.onrender.com";
 document.addEventListener("DOMContentLoaded", async () => {
 
   const productList = document.querySelector(".productList");

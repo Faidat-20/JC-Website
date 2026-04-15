@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
-  const BASE_URL = "http://localhost:5000";
+  const BASE_URL = "https://jc-website.onrender.com";
   const trackBtn = document.getElementById("trackBtn");
   const trackingInput = document.getElementById("trackingInput");
   const trackResult = document.getElementById("trackResult");

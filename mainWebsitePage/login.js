@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------------
   // VARIABLES
   // -----------------------------
-  const BASE_URL = "http://localhost:5000";
+  const BASE_URL = "https://jc-website.onrender.com";
   const overlay = document.getElementById("newsletterOverlay");
   const footerSubscribeBtn = document.getElementById("footerSubscribeBtn");
   const closeBtn = document.getElementById("closeNewsletter");

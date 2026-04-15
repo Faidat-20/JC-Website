@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  const BASE_URL = "http://localhost:5000";
+  const BASE_URL = "https://jc-website.onrender.com";
   const cartItemsContainer = document.getElementById("checkoutCartItems");
   const subtotalEl = document.getElementById("subtotal");
   const totalEl = document.getElementById("total");
