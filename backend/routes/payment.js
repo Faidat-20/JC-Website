@@ -63,6 +63,8 @@ router.post("/", async (req, res) => {
 // ─────────────────────────────────────────
 router.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
 
+  console.log("Webhook received:", req.headers["x-paystack-signature"] ? "has signature" : "NO SIGNATURE");
+  console.log("Webhook event:", req.body?.toString()?.substring(0, 100));
   // 1. Verify signature
   const secret = process.env.PAYSTACK_SECRET_KEY;
   const hash = crypto
