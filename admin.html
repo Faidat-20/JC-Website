@@ -73,6 +73,9 @@
         <button class="adminTab" data-tab="products">
           <i class="fa-solid fa-tag"></i> Products
         </button>
+        <button class="adminTab" data-tab="shipping">
+          <i class="fa-solid fa-truck"></i> Shipping
+        </button>
       </div>
 
       <!-- ORDERS SECTION -->
@@ -188,6 +191,45 @@
           <!-- PRODUCTS LIST -->
           <div class="adminProductsList" id="adminProductsList">
             <p class="loadingMsg">Loading products...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHIPPING SECTION -->
+      <div class="adminSection" id="shippingSection" style="display:none;">
+        <div class="adminProductSection">
+          <div class="adminProductHeader">
+            <h2>Shipping Options</h2>
+            <button id="addShippingBtn" class="addProductBtn">+ Add Shipping Option</button>
+          </div>
+
+          <!-- ADD FORM -->
+          <div class="addProductForm" id="addShippingForm" style="display:none;">
+            <h3>Add Shipping Option</h3>
+            <div class="productFormGrid">
+              <div class="formField" style="grid-column: 1 / -1;">
+                <label>Option Name</label>
+                <input type="text" id="newShippingName" placeholder="e.g. Lagos Mainland">
+              </div>
+              <div class="formField" style="grid-column: 1 / -1;">
+                <label>Description</label>
+                <textarea id="newShippingDesc" placeholder="Delivery details, days, notes..."
+                  style="padding:8px 12px; border:1px solid #ddd; border-radius:8px; font-size:13px; outline:none; resize:vertical; min-height:80px; width:100%;"></textarea>
+              </div>
+              <div class="formField">
+                <label>Price (₦) — enter 0 for free/pay driver</label>
+                <input type="number" id="newShippingPrice" placeholder="e.g. 3500">
+              </div>
+            </div>
+            <div class="productFormActions" style="margin-top:12px;">
+              <button id="saveNewShippingBtn" class="saveProductBtn">Save Option</button>
+              <button id="cancelAddShippingBtn" class="cancelProductBtn">Cancel</button>
+            </div>
+          </div>
+
+          <!-- LIST -->
+          <div id="shippingOptionsList" style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+            <p class="loadingMsg">Loading shipping options...</p>
           </div>
         </div>
       </div>

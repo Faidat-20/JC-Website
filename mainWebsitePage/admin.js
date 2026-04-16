@@ -54,22 +54,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const archivedSection = document.getElementById("archivedSection");
 
+      // Hide ALL sections first
+      ordersSection.style.display = "none";
+      archivedSection.style.display = "none";
+      productsSection.style.display = "none";
+      shippingSection.style.display = "none";
+
+      // Show the one that was clicked
       if (tab.dataset.tab === "orders") {
         ordersSection.style.display = "block";
-        archivedSection.style.display = "none";
-        productsSection.style.display = "none";
       } else if (tab.dataset.tab === "archived") {
-        ordersSection.style.display = "none";
         archivedSection.style.display = "block";
-        productsSection.style.display = "none";
         loadArchivedOrders();
-      } else {
-        ordersSection.style.display = "none";
-        archivedSection.style.display = "none";
+      } else if (tab.dataset.tab === "products") {
         productsSection.style.display = "block";
+      } else if (tab.dataset.tab === "shipping") {
+        shippingSection.style.display = "block";
+        fetchShippingOptions();
       }
     });
   });
+  
   const ordersContainer = document.getElementById("ordersContainer");
   const orderCount = document.getElementById("orderCount");
   const modalOverlay = document.getElementById("modalOverlay");
@@ -908,4 +913,189 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   // Initial load
   fetchProducts();
+
+  // ─────────────────────────────────────────
+  // SHIPPING MANAGEMENT
+  // ─────────────────────────────────────────
+  const shippingSection = document.getElementById("shippingSection");
+  const addShippingBtn = document.getElementById("addShippingBtn");
+  const addShippingForm = document.getElementById("addShippingForm");
+  const cancelAddShippingBtn = document.getElementById("cancelAddShippingBtn");
+  const saveNewShippingBtn = document.getElementById("saveNewShippingBtn");
+  const shippingOptionsList = document.getElementById("shippingOptionsList");
+
+  let allShippingOptions = [];
+
+  async function fetchShippingOptions() {
+    try {
+      const res = await fetch(`${BASE_URL}/api/shipping/all`);
+      const data = await res.json();
+      if (data.success) {
+        allShippingOptions = data.options;
+        renderShippingOptions();
+      }
+    } catch (err) {
+      console.error("Fetch shipping options error:", err);
+    }
+  }
+
+  function renderShippingOptions() {
+    shippingOptionsList.innerHTML = "";
+
+    if (allShippingOptions.length === 0) {
+      shippingOptionsList.innerHTML = `<p class="noOrders">No shipping options yet. Add one above.</p>`;
+      return;
+    }
+
+    allShippingOptions.forEach(opt => {
+      const card = document.createElement("div");
+      card.className = "orderCard";
+      card.style.flexDirection = "column";
+      card.style.alignItems = "stretch";
+      card.style.gap = "10px";
+
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+          <div style="flex:1;">
+            <p style="font-weight:bold; font-size:14px; margin-bottom:4px;">${opt.name}</p>
+            <p style="font-size:12px; color:#666; margin-bottom:4px;">${opt.desc || "No description"}</p>
+            <p style="font-size:13px; font-weight:600; color:#222;">₦${opt.price.toLocaleString()}</p>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <span class="statusBadge ${opt.isActive ? "delivered" : "cancelled"}" style="cursor:pointer;" 
+              data-id="${opt._id}" data-active="${opt.isActive}">
+              ${opt.isActive ? "Active" : "Inactive"}
+            </span>
+            <button class="editShippingBtn viewBtn" data-id="${opt._id}" 
+              style="background:#e8f0fe; color:#1a56db;">Edit</button>
+            <button class="deleteShippingBtn viewBtn" data-id="${opt._id}" 
+              style="background:#fce8e8; color:#c0392b;">Delete</button>
+          </div>
+        </div>
+
+        <!-- inline edit form (hidden by default) -->
+        <div class="editShippingForm" id="editForm-${opt._id}" style="display:none; flex-direction:column; gap:8px; margin-top:8px; border-top:1px solid #eee; padding-top:12px;">
+          <input type="text" class="editShippingName" value="${opt.name}" 
+            style="padding:8px 12px; border:1px solid #ddd; border-radius:8px; font-size:13px;">
+          <textarea class="editShippingDesc" rows="3"
+            style="padding:8px 12px; border:1px solid #ddd; border-radius:8px; font-size:13px; resize:vertical;">${opt.desc || ""}</textarea>
+          <input type="number" class="editShippingPrice" value="${opt.price}" 
+            style="padding:8px 12px; border:1px solid #ddd; border-radius:8px; font-size:13px;">
+          <div style="display:flex; gap:8px;">
+            <button class="saveShippingEditBtn saveProductBtn" data-id="${opt._id}">Save</button>
+            <button class="cancelShippingEditBtn cancelProductBtn" data-id="${opt._id}">Cancel</button>
+          </div>
+        </div>
+      `;
+
+      // Toggle active/inactive
+      card.querySelector(".statusBadge").addEventListener("click", async (e) => {
+        const isActive = e.target.dataset.active === "true";
+        try {
+          const res = await fetch(`${BASE_URL}/api/shipping/${opt._id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...opt, isActive: !isActive })
+          });
+          const data = await res.json();
+          if (data.success) {
+            fetchShippingOptions();
+            showToast("success", `Option marked as ${!isActive ? "active" : "inactive"}`);
+          }
+        } catch (err) {
+          console.error("Toggle shipping error:", err);
+        }
+      });
+
+      // Open edit form
+      card.querySelector(".editShippingBtn").addEventListener("click", () => {
+        const form = document.getElementById(`editForm-${opt._id}`);
+        form.style.display = form.style.display === "none" ? "flex" : "none";
+      });
+
+      // Save edit
+      card.querySelector(".saveShippingEditBtn").addEventListener("click", async () => {
+        const form = document.getElementById(`editForm-${opt._id}`);
+        const name = form.querySelector(".editShippingName").value.trim();
+        const desc = form.querySelector(".editShippingDesc").value.trim();
+        const price = Number(form.querySelector(".editShippingPrice").value);
+
+        if (!name || price == null) return showToast("error", "Name and price are required.");
+
+        try {
+          const res = await fetch(`${BASE_URL}/api/shipping/${opt._id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, desc, price, isActive: opt.isActive })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast("success", "Shipping option updated!");
+            fetchShippingOptions();
+          }
+        } catch (err) {
+          console.error("Edit shipping error:", err);
+        }
+      });
+
+      // Cancel edit
+      card.querySelector(".cancelShippingEditBtn").addEventListener("click", () => {
+        document.getElementById(`editForm-${opt._id}`).style.display = "none";
+      });
+
+      // Delete
+      card.querySelector(".deleteShippingBtn").addEventListener("click", async () => {
+        if (!confirm(`Delete "${opt.name}"?`)) return;
+        try {
+          const res = await fetch(`${BASE_URL}/api/shipping/${opt._id}`, { method: "DELETE" });
+          const data = await res.json();
+          if (data.success) {
+            showToast("success", "Shipping option deleted!");
+            fetchShippingOptions();
+          }
+        } catch (err) {
+          console.error("Delete shipping error:", err);
+        }
+      });
+
+      shippingOptionsList.appendChild(card);
+    });
+  }
+
+  addShippingBtn.addEventListener("click", () => {
+    addShippingForm.style.display = addShippingForm.style.display === "none" ? "block" : "none";
+  });
+
+  cancelAddShippingBtn.addEventListener("click", () => {
+    addShippingForm.style.display = "none";
+  });
+
+  saveNewShippingBtn.addEventListener("click", async () => {
+    const name = document.getElementById("newShippingName").value.trim();
+    const desc = document.getElementById("newShippingDesc").value.trim();
+    const price = Number(document.getElementById("newShippingPrice").value);
+
+    if (!name || price == null || document.getElementById("newShippingPrice").value === "") {
+      return showToast("error", "Name and price are required.");
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/shipping`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, desc, price })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast("success", "Shipping option added!");
+        addShippingForm.style.display = "none";
+        document.getElementById("newShippingName").value = "";
+        document.getElementById("newShippingDesc").value = "";
+        document.getElementById("newShippingPrice").value = "";
+        fetchShippingOptions();
+      }
+    } catch (err) {
+      console.error("Add shipping error:", err);
+    }
+  });
 });

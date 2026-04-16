@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async  () => {
 
   const BASE_URL = "https://jc-website.onrender.com";
   const cartItemsContainer = document.getElementById("checkoutCartItems");
@@ -451,22 +451,27 @@ document.addEventListener("DOMContentLoaded", () => {
     shippingOptionsContainer = shippingForm.querySelector(".shippingOptions");
   }
 
-  const shippingData = [
-    { name: "GUO for Interstate Delivery(UGBOWO, Aba, Abakaliki, Asaba, Awka, Bauchi, Enugu, Utako, Gwarinpa, Mararaba, Kubwa, Wuse2, Zuba, Zaria, Yola, Imo, Umuahia, Sokoto, Nnewi, Jos)", desc:"GUO Charge based on the weight of the item, if the price is more than 4500 you’d be contacted to balance up and if it’s lesser than 4500 you’d be refunded.", price: 4500 },
-    { name: "Lagos mainland", desc: "Our delivery days are Tuesday, Thursday, and Saturday. Delivery within Lagos takes 1-2business days this means that you either get it on the same day or next day. In cases where it rains or the rider encounters issues on the way delivery might be slow.", price: 3500 },
-    { name: "Ikorodu", desc: "Delivery within Lagos takes 1-2 business days this means that you either get it on the same day or next day. In cases where it rains or the rider encounters issues on the way delivery might be slow.", price: 5000 },
-    { name: "Pick Up", desc: "Beside Idimu Central Mosque, Idimu Bus Stop, Ikotun Road, Lagos. Kindly confirm if your item has been packed before sending a rider.", price: 0 },
-    { name: "Northern States", desc: "GIG DELIVERY (delivery fee charged based on weight of the item, if it’s more than the stated amount you’d be contacted to balance up and if it is lesser you’d be refunded)", price: 7000 },
-    { name: "PARK DELIVERY (Ibadan, Ago Iwoye, Ijebu Ode, Abeokuta, Ilaro, Mowe Ibafo, Ifo, Saapade, Ogun State, Ondo, Akure, Owo, Akungba, Ife, Oshogbo, Ogbomosho, Owode, Oyo, Saki, Ekiti, Ilorin, Offa)", desc: "PAY THE DRIVER", price: 0 },
-    { name: "Far Distanced Lagos Mainland And Out Skirt", desc: "Delivery within Lagos takes 1-2 business days this means that you either get it on the same day or next day. In cases where it rains or the rider encounters issues on the way delivery might be slow.", price: 4000 },
-    { name: "Lagos Island", desc: "Delivery within Lagos takes 1-2 business days this means that you either get it on the same day or next day. In cases where it rains or the rider encounters issues on the way delivery might be slow.", price: 4500 },
-    { name: "Ajah, Ibeju Lekki, Outskirts Island", desc: "Delivery within Lagos takes 1-2 business days this means that you either get it on the same day or next day. In cases where it rains or the rider encounters issues on the way delivery might be slow.", price: 6500 },
-    { name: "GIG for Interstate Delivery", desc: "GIG charge based on weight, if price more than 5000 you'll be contacted to balance up and if it’s lesser you’d be refunded.", price: 5000 },
-    { name: "Ajegunle, Ojo, Ago Palace, Ayobo, Berger, Omole, Ilupeju, CMS, Oworo, Magodo, Alagbado, Gbagada, Mile2, Maza Maza,", desc: "Delivery within Lagos takes 1-2 business days , this means that you either get it on the same day or next day. In cases where it rains or the rider encounters issues on the way delivery might be slow.", price: 4000 },
-    { name: "PARK DELIVERY FOR SMALL ITEMS( Abraka, Asaba, Benin, Sapele, Warri, Portharcourt, Bayelsa, Ughelli, Ozoro, Ogwashi Uku, Ubulu Uku, Isele Uku)", desc: "Small items 0-3kg If the price is more, you’d be contacted to balance up.", price: 4000 },
-    { name: "PARK DELIVERY FOR BIG ITEMS( Abraka, Asaba, Benin, Sapele, Warri, Portharcourt, Bayelsa, Ughelli, Ozoro, Ogwashi Uku, Ubulu Uku, Isele Uku)", desc: "If price is more, you'll be contacted to balance up", price: 7000 },
-    { name: "Waybill", desc: "", price: 8500 }
-  ];
+  let shippingData = [];
+
+  // Fetch shipping options from backend
+  async function loadShippingOptions() {
+    try {
+      const res = await fetch(`${BASE_URL}/api/shipping`);
+      const data = await res.json();
+      if (data.success) {
+        shippingData = data.options.map(opt => ({
+          name: opt.name,
+          desc: opt.desc || "",
+          price: opt.price
+        }));
+      }
+    } catch (err) {
+      console.error("Load shipping options error:", err);
+    }
+  }
+
+  // Call it on page load
+  await loadShippingOptions();
 
   // Function to render shipping options
   function renderShippingOptions() {
