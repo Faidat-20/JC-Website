@@ -330,10 +330,19 @@ router.post("/subscribe-newsletter", async (req, res) => {
       return res.json({ success: true, message: "Subscription successful!" });
     }
 
-    // User doesn't exist at all — create them
     try {
+      // User doesn't exist at all — create them
       const uniqueUsername = await generateUniqueUsername(username);
-      user = new User({ email, username: uniqueUsername, isSubscribed: true, cart: [] });
+      const isAdmin = email === process.env.ADMIN_EMAIL;
+
+      user = new User({
+        email,
+        username: uniqueUsername,
+        isSubscribed: true,
+        isAdmin,
+        cart: []
+      });
+
       await user.save();
 
       // Send welcome email
