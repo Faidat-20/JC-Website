@@ -455,17 +455,21 @@ router.get("/shipping-option/:userId", async (req, res) => {
 // CHECK IF USER IS ADMIN
 // ----------------------
 router.post("/check-admin", async (req, res) => {
+
+  console.log("CHECK ADMIN BODY:", req.body);
   const { userId } = req.body;
   if (!userId) return res.status(400).json({ success: false, message: "User ID required" });
 
   try {
     const user = await User.findById(userId);
+    console.log("USER FOUND:", user);
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
     if (!user.isAdmin) {
+      console.log("NOT ADMIN");
       return res.status(403).json({ success: false, message: "Access denied. Not an admin." });
     }
-
+    console.log("IS ADMIN");
     res.json({ success: true, message: "Welcome Admin" });
   } catch (err) {
     console.error("Admin check error:", err);
