@@ -2,9 +2,15 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const { sendWelcomeEmail } = require("../utils/mailer");
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 // ─────────────────────────────────────────
 // SANITIZATION HELPERS
 // ─────────────────────────────────────────
@@ -138,12 +144,13 @@ router.post("/request-otp", async (req, res) => {
     user.otpExpiry = otpExpiry;
     await user.save();
     
-    await resend.emails.send({
-      from: "JC Cosmetics <onboarding@resend.dev>",
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
       to: email,
       subject: "Your OTP Code",
-      text: `Your OTP is ${otp}. It expires in 5 minutes.`
+      text: `Your OTP is ${otp}. Expires in 5 minutes.`
     });
+
     res.json({ success: true, message: "OTP sent successfully." });
   } catch (err) {
     console.error(err);
