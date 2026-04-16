@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 require("dotenv").config();
-console.log("MONGO_URI:", process.env.MONGO_URI);
 const app = express();
 // ← ADD THIS AT THE TOP
 const { startAutoDeliverJob } = require("./utils/autoDeliver");

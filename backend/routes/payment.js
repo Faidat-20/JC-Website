@@ -63,8 +63,6 @@ router.post("/", async (req, res) => {
 // ─────────────────────────────────────────
 router.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
 
-  console.log("Webhook received:", req.headers["x-paystack-signature"] ? "has signature" : "NO SIGNATURE");
-  console.log("Webhook event:", req.body?.toString()?.substring(0, 100));
   // 1. Verify signature
   const secret = process.env.PAYSTACK_SECRET_KEY;
   const hash = crypto
@@ -108,9 +106,6 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         order.paymentStatus = "refunded";
         order.order_refunded_at = new Date();
         await order.save();
-
-        console.log(`Order ${order.trackingId} refund completed ✅`);
-
         // Send refund processed email to customer
         await sendRefundProcessedEmail(order);
 
@@ -140,8 +135,6 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         paystackReference: event.data.reference
       });
       const savedOrder = await newOrder.save();
-
-      console.log(`Order ${savedOrder.trackingId} created and marked as PAID ✅`);
 
       // 5. Delete the pending order
       await PendingOrder.findByIdAndDelete(pendingOrderId);

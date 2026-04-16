@@ -94,7 +94,6 @@ async function sendOrderConfirmationEmail(order) {
   };
 
   await transporter.sendMail(mailOptions);
-  console.log(`Customer confirmation email sent to ${order.deliveryDetails.email} ✅`);
 }
 
 // ─────────────────────────────────────────
@@ -165,7 +164,6 @@ async function sendOwnerNotificationEmail(order) {
   };
 
   await transporter.sendMail(mailOptions);
-  console.log(`Owner notification email sent ✅`);
 }
 
 // ─────────────────────────────────────────
@@ -212,7 +210,6 @@ async function sendShippedNotificationEmail(order) {
   };
 
   await transporter.sendMail(mailOptions);
-  console.log(`Shipped notification email sent to ${order.deliveryDetails.email} ✅`);
 }
 // ─────────────────────────────────────────
 // SEND CANCELLATION + REFUND EMAIL TO CUSTOMER
@@ -264,7 +261,6 @@ async function sendCancellationEmail(order) {
   };
 
   await transporter.sendMail(mailOptions);
-  console.log(`Cancellation email sent to ${order.deliveryDetails.email} ✅`);
 }
 
 // ─────────────────────────────────────────
@@ -303,7 +299,6 @@ async function sendRefundProcessedEmail(order) {
   };
 
   await transporter.sendMail(mailOptions);
-  console.log(`Refund processed email sent to ${order.deliveryDetails.email} ✅`);
 }
 
 // ─────────────────────────────────────────
@@ -345,7 +340,6 @@ async function sendDeliveredEmail(order) {
   };
 
   await transporter.sendMail(mailOptions);
-  console.log(`Delivered email sent to ${order.deliveryDetails.email} ✅`);
 }
 
 // ─────────────────────────────────────────
@@ -386,7 +380,6 @@ async function sendWelcomeEmail(email, username) {
   };
 
   await transporter.sendMail(mailOptions);
-  console.log(`Welcome email sent to ${email} ✅`);
 }
 
 module.exports = { 

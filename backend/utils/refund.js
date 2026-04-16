@@ -15,8 +15,6 @@ async function initiatePaystackRefund(paystackReference, amount) {
         }
       }
     );
-
-    console.log(`Refund initiated for ${paystackReference} ✅`);
     return { success: true, data: response.data };
   } catch (err) {
     console.error("Refund error:", err.response?.data || err.message);
