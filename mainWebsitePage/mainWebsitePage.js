@@ -637,6 +637,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const email = data.email;
 
             logoutBtn.style.display = "none";
+            if (loginBtn) loginBtn.style.display = "none";
 
             const existing = document.getElementById("userAvatarWrapper");
             if (existing) existing.remove();
