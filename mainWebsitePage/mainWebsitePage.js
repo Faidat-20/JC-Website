@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       showSpinner();
       setTimeout(() => {
-        window.location.href = "mainWebsitePage.html";
+        window.location.href = "index.html";
       }, 600);
     });
   }
@@ -724,6 +724,15 @@ document.addEventListener("DOMContentLoaded", () => {
           setLoading(false);
           showToast("info", data.message);
           if (data.message === "Subscription successful!") newsletterInput.disabled = true;
+          if (
+            data.message === "Subscription successful!" ||
+            data.message === "You are already subscribed! Login."
+          ) {
+            setTimeout(() => {
+              overlay.classList.remove("show");
+              enableScroll();
+            }, 2000);
+          }
         }else {
           setLoading(false);
           showToast("error", data.message || "Subscription failed.");
@@ -787,11 +796,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const twentyFourHours = 24 * 60 * 60 * 1000;
 
     if (!lastShown || now - lastShown > twentyFourHours) {
+    setTimeout(() => {
+      overlay.classList.add("show");
+      disableScroll();
+      localStorage.setItem("newsletterLastShown", now);
       setTimeout(() => {
-        overlay.classList.add("show");
-        disableScroll();
-        localStorage.setItem("newsletterLastShown", now);
-      }, 1000); // 1-second delay after page load
-    }
+        if (overlay.classList.contains("show")) {
+          overlay.classList.remove("show");
+          enableScroll();
+        }
+      }, 5000);
+    }, 1000);
+  }
   }
 });
