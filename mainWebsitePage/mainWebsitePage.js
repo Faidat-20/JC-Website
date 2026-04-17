@@ -12,6 +12,10 @@ function hideSpinner() {
   document.getElementById("pageSpinner").classList.remove("active");
 }
 
+window.addEventListener("pageshow", (e) => {
+  hideSpinner();
+});
+
 // INJECT TOAST CONTAINER
 const toastContainer = document.createElement("div");
 toastContainer.className = "toastContainer";
