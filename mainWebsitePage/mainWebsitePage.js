@@ -517,6 +517,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // CHECKOUT BUTTON NAVIGATION
   // -----------------------------
   if (checkoutBtn) {
+    if (checkoutBtn) {
+      checkoutBtn.disabled = false;
+      checkoutBtn.innerHTML = "Checkout";
+    }
     checkoutBtn.addEventListener("click", () => {
       if (cart.length === 0) return;
       localStorage.setItem("cart", JSON.stringify(cart));
