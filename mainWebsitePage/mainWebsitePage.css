@@ -94,13 +94,6 @@ body{
 .login:hover{
     color: var(--navColor);
 }
-#logoutBtn {
-  cursor: pointer;
-  font-size: 15px;
-}
-#logoutBtn:hover {
-  color: var(--navColor);
-}
 
 #cart{
     cursor: pointer;
@@ -1303,15 +1296,17 @@ a:hover {
 
 @media (max-width: 480px) {
   .userAvatar {
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     font-size: 13px;
+    gap:200px
   }
 
   .userDropdown {
     right: -10px;
     min-width: 180px;
   }
+
 }
 
 @media (max-width: 768px) {
@@ -1351,10 +1346,6 @@ a:hover {
       font-size: clamp(30px, 8vw, 50px);
       letter-spacing: 4px;
   }
-
-  #loggedInUser {
-    font-size: 7px !important;
-  }
   
   /* Login page */
   .loginSection {
@@ -1367,10 +1358,18 @@ a:hover {
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
     .productList {
         grid-template-columns: repeat(2, 1fr);
     }
+
+  .greeting{
+    min-height: 20vh;
+  }
+  .greetingMessage::before {
+    font-size: clamp(40px, 8vw, 60px);
+    letter-spacing: 4px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1471,34 +1470,23 @@ a:hover {
     height: 30px;
     font-size: 15px;
   }
-}
-@media (max-width: 344px) {
-  .searchInput{
-    font-size: 7.5px;
-  }
-}
- 
+} 
 /* ── Navbar: very small screens (≤ 400px) ── */
 @media (max-width: 400px) {
- #loggedInUser {
-    font-size: 7px !important;
-  }
   .search {
     width: 160px;
     padding: 8px 10px;
     font-size: 10px;
   }
   .searchInput{
-    font-size: 9px;
-    font-weight: 500;
+    font-size: 12px;
+
   }
   .businessName{
-    font-size: 7px;
-    white-space: wrap;
+    font-size: 9px;
   }
  
-  .login,
-  #logoutBtn {
+  .login{
     font-size: 10px;
   }
   .navRight {
