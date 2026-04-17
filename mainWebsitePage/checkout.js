@@ -533,6 +533,25 @@ document.addEventListener("DOMContentLoaded", async  () => {
     const shippingDisplayText = document.getElementById("shippingDisplayText");
     const shippingChangeTag = document.getElementById("shippingChangeTag");
 
+    const savedShipping = JSON.parse(localStorage.getItem("selectedShipping"));
+
+    if (savedShipping) {
+      const matchedOption = shippingData.find(opt => opt.name === savedShipping.name);
+
+      shippingSectionBtn.style.display = "none";
+
+      shippingDisplayText.innerHTML = `
+        <div class="shippingDisplayWrapper">
+          <p class="shippingDisplayName">${savedShipping.name}</p>
+          <p class="shippingDisplayDesc">${matchedOption?.desc || ""}</p>
+        </div>
+      `;
+
+      shippingChangeTag.style.display = "inline";
+      shippingSelected = true;
+
+      updateTotals();
+    }
     function handleShippingSelection(selectedOption) {
       shippingSectionBtn.style.display = "none";
       shippingDisplayText.innerHTML = `
@@ -606,30 +625,6 @@ document.addEventListener("DOMContentLoaded", async  () => {
     });
   }
 
-  // Save selected shipping
-  if (shippingForm) {
-    shippingForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const selected = shippingForm.querySelector("input[name='shipping']:checked");
-      if (!selected) return showToast("error", "Please select a shipping option!");
-
-      // Save to localStorage
-      const shippingChoice = {
-        name: selected.dataset.name,
-        price: Number(selected.value)
-      };
-      localStorage.setItem("selectedShipping", JSON.stringify(shippingChoice));
-
-      // Update the button text to show selected option
-      shippingSectionBtn.textContent = `${shippingChoice.name} - ₦${shippingChoice.price.toLocaleString()}`;
-
-      shippingPanel.classList.remove("active");
-      enableScroll();
-
-      // Update total
-      updateTotals();
-    });
-  }
   // Sync checkout cart when main page updates localStorage
   window.addEventListener("storage", (event) => {
     if (event.key === "cart") {

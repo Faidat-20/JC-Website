@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const footerTrack = document.getElementById("footerTrack");
 
   if (userId) {
-    if (logoutBtn) logoutBtn.style.display = "inline-block";
+    if (logoutBtn) logoutBtn.style.display = "none";
     if (loginBtn) loginBtn.style.display = "none";
     if (footerTrack) footerTrack.style.display = "block";
   } else {
@@ -631,7 +631,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
           if (navRight && logoutBtn) {
             const fullUsername = data.username && data.username.trim() ? data.username : "User";
-            const firstName = fullUsername.split(" ")[0];
+            const rawFirst = fullUsername.split(" ")[0];
+            const firstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
             const firstLetter = firstName.charAt(0).toUpperCase();
             const email = data.email;
 
