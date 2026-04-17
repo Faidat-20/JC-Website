@@ -537,6 +537,9 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
         window.location.href = "checkout.html";
       }, 800);
+      window.addEventListener("pageshow", (e) => {
+        checkoutBtn.disabled = false;
+      });
     });
   }
   function showEmptyCart() {
