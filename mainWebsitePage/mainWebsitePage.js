@@ -630,32 +630,85 @@ document.addEventListener("DOMContentLoaded", () => {
           const logoutBtn = document.getElementById("logoutBtn");
 
           if (navRight && logoutBtn) {
-            const username = data.username && data.username.trim() ? data.username : "User";
+            const fullUsername = data.username && data.username.trim() ? data.username : "User";
+            const firstName = fullUsername.split(" ")[0];
+            const firstLetter = firstName.charAt(0).toUpperCase();
             const email = data.email;
 
-            const userDiv = document.createElement("div");
-            userDiv.id = "loggedInUser";
-            userDiv.style.display = "flex";
-            userDiv.style.flexDirection = "column";
-            userDiv.style.alignItems = "flex-end";
-            userDiv.style.marginRight = "10px";
-            userDiv.style.fontSize = "0.7rem";
-            userDiv.style.color = "#333";
+            logoutBtn.style.display = "none";
 
-            const nameEl = document.createElement("span");
-            nameEl.textContent = `Hello, ${username}`;
-            nameEl.style.fontWeight = "bold";
+            const existing = document.getElementById("userAvatarWrapper");
+            if (existing) existing.remove();
 
-            const emailEl = document.createElement("span");
-            emailEl.textContent = email;
-            emailEl.style.fontSize = "0.5rem";
-            emailEl.style.color = "#666";
+            // Build avatar + dropdown
+            const avatarWrapper = document.createElement("div");
+            avatarWrapper.id = "userAvatarWrapper";
+            avatarWrapper.className = "userAvatar";
+            avatarWrapper.setAttribute("title", `Hello, ${firstName}`);
+            avatarWrapper.innerHTML = firstLetter;
 
-            userDiv.appendChild(nameEl);
-            userDiv.appendChild(emailEl);
+            const dropdown = document.createElement("div");
+            dropdown.className = "userDropdown";
+            dropdown.innerHTML = `
+              <div class="userDropdownHeader">
+                <div class="dropdownName">Hello, ${firstName} 👋</div>
+                <div class="dropdownEmail">${email}</div>
+              </div>
+              <a href="track-order.html" class="userDropdownItem" id="dropdownTrackOrder">
+                <i class="fa-solid fa-box"></i> Track Order
+              </a>
+              <div class="userDropdownDivider"></div>
+              <button class="userDropdownItem logout" id="dropdownLogout">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+              </button>
+            `;
 
-            navRight.insertBefore(userDiv, logoutBtn);
-            logoutBtn.style.display = "block";
+            avatarWrapper.appendChild(dropdown);
+            // Insert avatar before cart
+            const cartWrapper = navRight.querySelector(".cartWrapper");
+            navRight.insertBefore(avatarWrapper, cartWrapper);
+
+            // Toggle dropdown on avatar click
+            avatarWrapper.addEventListener("click", (e) => {
+              e.stopPropagation();
+              dropdown.classList.toggle("open");
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener("click", () => {
+              dropdown.classList.remove("open");
+            });
+
+            // Track order link
+            dropdown.querySelector("#dropdownTrackOrder").addEventListener("click", (e) => {
+              e.preventDefault();
+              dropdown.classList.remove("open");
+              showSpinner();
+              setTimeout(() => {
+                window.location.href = "track-order.html";
+              }, 600);
+            });
+
+            // Logout from dropdown
+            dropdown.querySelector("#dropdownLogout").addEventListener("click", async () => {
+              const confirmSwitch = confirm("Do you want to log out?");
+              if (!confirmSwitch) return;
+              showSpinner();
+              try {
+                await fetch(`${BASE_URL}/api/auth/logout`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" }
+                });
+                sessionStorage.removeItem("userId");
+                localStorage.removeItem("cart");
+                localStorage.removeItem("currentUser");
+                window.location.href = "login.html";
+              } catch (err) {
+                console.error("Logout error:", err);
+                setTimeout(() => hideSpinner(), 400);
+                showToast("error", "Failed to log out.");
+              }
+            });
           }
         }
       } catch (err) {
