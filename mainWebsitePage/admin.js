@@ -577,14 +577,45 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // Image preview for add form
+  const newImageFiles = []; // stores File objects
+
   document.getElementById("newProductImageFile").addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const preview = document.getElementById("newProductImagePreview");
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = "block";
-  });
 
+    newImageFiles.push(file);
+    e.target.value = ""; // reset input so same file can be re-added if needed
+
+    const strip = document.getElementById("newImagePreviewStrip");
+    const index = newImageFiles.length - 1;
+
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "position:relative; width:64px; height:64px;";
+
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    img.style.cssText = "width:64px; height:64px; object-fit:cover; border-radius:6px; border:1px solid #eee;";
+
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "✕";
+    removeBtn.type = "button";
+    removeBtn.style.cssText = "position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; background:#e74c3c; color:white; border:none; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;";
+    removeBtn.addEventListener("click", () => {
+      newImageFiles.splice(newImageFiles.indexOf(file), 1);
+      wrap.remove();
+    });
+
+    if (index === 0) {
+      const badge = document.createElement("span");
+      badge.textContent = "Main";
+      badge.style.cssText = "position:absolute; bottom:2px; left:2px; background:hsl(357,45%,69%); color:white; font-size:9px; padding:1px 4px; border-radius:3px;";
+      wrap.appendChild(badge);
+    }
+
+    wrap.appendChild(img);
+    wrap.appendChild(removeBtn);
+    strip.appendChild(wrap);
+  });
   // VARIANTS
   const hasVariantsCheckbox = document.getElementById("hasVariants");
   const variantsSection = document.getElementById("variantsSection");
@@ -631,10 +662,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const description = document.getElementById("newProductDescription").value.trim();
 
     if (!name || !price || !page) return alert("Please fill in all fields.");
-    if (!fileInput.files[0]) return alert("Please select an image.");
+    if (newImageFiles.length === 0) return alert("Please add at least one image.");
     if (hasVariants && variants.length === 0) return alert("Please add at least one variant.");
 
-    const imageUrls = await uploadMultipleImages(fileInput.files, "uploadStatus");
+    const imageUrls = await uploadMultipleImages(newImageFiles, "uploadStatus");
     if (!imageUrls || imageUrls.length === 0) return alert("Image upload failed. Please try again.");
 
     try {
@@ -659,7 +690,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         addProductForm.style.display = "none";
         document.getElementById("newProductName").value = "";
         document.getElementById("newProductImageFile").value = "";
-        document.getElementById("newProductImagePreview").style.display = "none";
+        document.getElementById("newImagePreviewStrip").innerHTML = "";
+        newImageFiles.length = 0;
         document.getElementById("newProductPrice").value = "";
         document.getElementById("uploadStatus").textContent = "";
         document.getElementById("hasVariants").checked = false;
@@ -712,6 +744,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       addEditVariantRow(v.label, v.price);
     });
 
+    // Reset edit image strip
+    document.getElementById("editImagePreviewStrip").innerHTML = "";
+    editImageFiles.length = 0;
+
     // Show modal
     editProductModal.style.display = "flex";
     document.body.style.overflow = "hidden";
@@ -756,12 +792,45 @@ document.addEventListener("DOMContentLoaded", async () => {
   editProductAddVariantBtn.addEventListener("click", () => addEditVariantRow());
 
   // Image preview
+  const editImageFiles = [];
+
   document.getElementById("editProductImageFile").addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    document.getElementById("editProductPreview").src = URL.createObjectURL(file);
-  });
 
+    editImageFiles.push(file);
+    e.target.value = "";
+
+    const strip = document.getElementById("editImagePreviewStrip");
+    const index = editImageFiles.length - 1;
+
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "position:relative; width:64px; height:64px;";
+
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    img.style.cssText = "width:64px; height:64px; object-fit:cover; border-radius:6px; border:1px solid #eee;";
+
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "✕";
+    removeBtn.type = "button";
+    removeBtn.style.cssText = "position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; background:#e74c3c; color:white; border:none; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;";
+    removeBtn.addEventListener("click", () => {
+      editImageFiles.splice(editImageFiles.indexOf(file), 1);
+      wrap.remove();
+    });
+
+    if (index === 0) {
+      const badge = document.createElement("span");
+      badge.textContent = "Main";
+      badge.style.cssText = "position:absolute; bottom:2px; left:2px; background:hsl(357,45%,69%); color:white; font-size:9px; padding:1px 4px; border-radius:3px;";
+      wrap.appendChild(badge);
+    }
+
+    wrap.appendChild(img);
+    wrap.appendChild(removeBtn);
+    strip.appendChild(wrap);
+  });
   // Save edit
   saveEditProductBtn.addEventListener("click", async () => {
     const productId = document.getElementById("editProductId").value;
@@ -788,8 +857,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     let image = document.getElementById("editProductImage").value;
     let images = [];
 
-    if (fileInput.files.length > 0) {
-      const uploaded = await uploadMultipleImages(fileInput.files, "editProductUploadStatus");
+    if (editImageFiles.length > 0) {
+      const uploaded = await uploadMultipleImages(editImageFiles, "editProductUploadStatus");
       if (!uploaded) return alert("Image upload failed. Please try again.");
       image = uploaded[0];
       images = uploaded;
@@ -889,7 +958,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function uploadMultipleImages(files, statusElId) {
-    console.log("Files being sent:", Array.from(files).map(f => f.name));
     const statusEl = document.getElementById(statusElId);
     if (statusEl) statusEl.textContent = "Uploading images...";
 
