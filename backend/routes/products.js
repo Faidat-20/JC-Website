@@ -154,7 +154,8 @@ router.post("/add", async (req, res) => {
       hasVariants: hasVariants || false,
       variantType: hasVariants ? variantType : null,
       variants: hasVariants ? variants : [],
-      description: description || ""
+      description: description || "",
+      images: req.body.images || []
     });
     await product.save();
 
@@ -179,6 +180,7 @@ router.put("/:productId", async (req, res) => {
     if (image) product.image = image;
     if (price) product.price = price;
     if (page) product.page = page;
+    if (Array.isArray(req.body.images)) product.images = req.body.images;
     if (typeof inStock === "boolean") product.inStock = inStock;
     if (typeof hasVariants === "boolean") {
       product.hasVariants = hasVariants;
@@ -227,6 +229,22 @@ router.put("/:productId/stock", async (req, res) => {
   } catch (err) {
     console.error("Toggle stock error:", err);
     res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ----------------------
+// UPLOAD MULTIPLE IMAGES
+// ----------------------
+router.post("/upload-images", upload.array("images", 10), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ success: false, message: "No images uploaded" });
+    }
+    const imageUrls = req.files.map(file => file.path);
+    res.json({ success: true, imageUrls });
+  } catch (err) {
+    console.error("Multi-image upload error:", err);
+    res.status(500).json({ success: false, message: "Upload failed" });
   }
 });
 

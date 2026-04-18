@@ -62,7 +62,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     container.innerHTML = `
       <div class="productDetailTop">
-        <img src="${product.image}" alt="${product.name}" class="productDetailImage">
+        <div class="productImageGallery">
+          <div class="galleryMainWrap">
+            <button class="galleryArrow galleryArrowLeft" id="galleryPrev">&#8249;</button>
+            <img src="${product.image}" alt="${product.name}" class="productDetailImage" id="galleryMainImg">
+            <button class="galleryArrow galleryArrowRight" id="galleryNext">&#8250;</button>
+            <button class="galleryExpandBtn" id="galleryExpandBtn" title="View fullscreen">
+              <i class="fa-solid fa-expand"></i>
+            </button>
+          </div>
+          <div class="galleryThumbnails" id="galleryThumbnails">
+            ${(product.images && product.images.length > 0 ? product.images : [product.image]).map((img, i) => `
+              <img src="${img}" alt="Image ${i + 1}" class="galleryThumb ${i === 0 ? 'active' : ''}" data-index="${i}">
+            `).join("")}
+          </div>
+        </div>
         <div class="productDetailInfo">
           <h1 class="productDetailName">${product.name}</h1>
           <p class="productDetailPrice" id="detailPrice">₦${currentPrice.toLocaleString()}</p>
@@ -136,6 +150,110 @@ document.addEventListener("DOMContentLoaded", async () => {
     qtyDisplay = document.getElementById("qtyDisplay");
     detailAddBtn = document.getElementById("detailAddBtn");
 
+    // ─────────────────────────────────────────
+    // IMAGE GALLERY
+    // ─────────────────────────────────────────
+    const galleryImages = product.images && product.images.length > 0
+      ? product.images
+      : [product.image];
+
+    let currentImageIndex = 0;
+
+    const mainImg = document.getElementById("galleryMainImg");
+    const thumbs = document.querySelectorAll(".galleryThumb");
+    const prevBtn = document.getElementById("galleryPrev");
+    const nextBtn = document.getElementById("galleryNext");
+    const expandBtn = document.getElementById("galleryExpandBtn");
+
+    function setActiveImage(index) {
+      currentImageIndex = index;
+      mainImg.src = galleryImages[index];
+      thumbs.forEach((t, i) => t.classList.toggle("active", i === index));
+      prevBtn.style.opacity = galleryImages.length <= 1 ? "0" : "1";
+      nextBtn.style.opacity = galleryImages.length <= 1 ? "0" : "1";
+    }
+
+    thumbs.forEach(thumb => {
+      thumb.addEventListener("click", () => {
+        setActiveImage(parseInt(thumb.dataset.index));
+      });
+    });
+
+    prevBtn.addEventListener("click", () => {
+      const newIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+      setActiveImage(newIndex);
+    });
+
+    nextBtn.addEventListener("click", () => {
+      const newIndex = (currentImageIndex + 1) % galleryImages.length;
+      setActiveImage(newIndex);
+    });
+
+    // Hide arrows if only one image
+    if (galleryImages.length <= 1) {
+      prevBtn.style.opacity = "0";
+      nextBtn.style.opacity = "0";
+      prevBtn.style.pointerEvents = "none";
+      nextBtn.style.pointerEvents = "none";
+    }
+
+    // Fullscreen lightbox
+    expandBtn.addEventListener("click", () => {
+      const lightbox = document.createElement("div");
+      lightbox.id = "galleryLightbox";
+      lightbox.style.cssText = `
+        position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+        z-index: 99999; display: flex; align-items: center;
+        justify-content: center; cursor: zoom-out;
+      `;
+      lightbox.innerHTML = `
+        <button style="position:absolute; top:20px; right:24px; background:none; border:none;
+          color:white; font-size:32px; cursor:pointer; z-index:10;">✕</button>
+        <button id="lbPrev" style="position:absolute; left:20px; background:rgba(255,255,255,0.1);
+          border:none; color:white; font-size:40px; cursor:pointer; padding:10px 16px;
+          border-radius:50%; z-index:10;">&#8249;</button>
+        <img src="${galleryImages[currentImageIndex]}" id="lbImg"
+          style="max-width:90vw; max-height:90vh; object-fit:contain; border-radius:8px;">
+        <button id="lbNext" style="position:absolute; right:20px; background:rgba(255,255,255,0.1);
+          border:none; color:white; font-size:40px; cursor:pointer; padding:10px 16px;
+          border-radius:50%; z-index:10;">&#8250;</button>
+      `;
+
+      document.body.appendChild(lightbox);
+      document.body.style.overflow = "hidden";
+
+      let lbIndex = currentImageIndex;
+      const lbImg = lightbox.querySelector("#lbImg");
+      const lbPrev = lightbox.querySelector("#lbPrev");
+      const lbNext = lightbox.querySelector("#lbNext");
+
+      if (galleryImages.length <= 1) {
+        lbPrev.style.display = "none";
+        lbNext.style.display = "none";
+      }
+
+      lbPrev.addEventListener("click", (e) => {
+        e.stopPropagation();
+        lbIndex = (lbIndex - 1 + galleryImages.length) % galleryImages.length;
+        lbImg.src = galleryImages[lbIndex];
+      });
+
+      lbNext.addEventListener("click", (e) => {
+        e.stopPropagation();
+        lbIndex = (lbIndex + 1) % galleryImages.length;
+        lbImg.src = galleryImages[lbIndex];
+      });
+
+      const closeLightbox = () => {
+        lightbox.remove();
+        document.body.style.overflow = "auto";
+      };
+
+      lightbox.addEventListener("click", (e) => {
+        if (e.target === lightbox || e.target.tagName === "IMG") closeLightbox();
+      });
+      lightbox.querySelector("button").addEventListener("click", closeLightbox);
+    });
     // ─────────────────────────────────────────
     // RESET ADD TO CART BUTTON
     // ─────────────────────────────────────────

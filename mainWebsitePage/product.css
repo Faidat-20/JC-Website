@@ -331,3 +331,122 @@
   color: #555;
   line-height: 1.7;
 }
+/* ── IMAGE GALLERY ── */
+.productImageGallery {
+  display: flex;
+  flex-direction: column;
+}
+
+.galleryMainWrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.galleryMainWrap .productDetailImage {
+  width: 100%;
+  height: 360px;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.2s ease;
+}
+
+.galleryArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 22px;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: background 0.2s, opacity 0.2s;
+  line-height: 1;
+}
+
+.galleryArrow:hover {
+  background: white;
+}
+
+.galleryArrowLeft { left: 10px; }
+.galleryArrowRight { right: 10px; }
+
+.galleryExpandBtn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  font-size: 13px;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  transition: background 0.2s;
+}
+
+.galleryExpandBtn:hover {
+  background: white;
+}
+
+.galleryThumbnails {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  background: #f9f9f9;
+  border-top: 1px solid #eee;
+}
+
+.galleryThumbnails::-webkit-scrollbar {
+  height: 3px;
+}
+
+.galleryThumbnails::-webkit-scrollbar-thumb {
+  background: hsl(357, 45%, 69%);
+  border-radius: 3px;
+}
+
+.galleryThumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  flex-shrink: 0;
+  transition: border-color 0.2s;
+  opacity: 0.7;
+}
+
+.galleryThumb.active {
+  border-color: hsl(357, 45%, 69%);
+  opacity: 1;
+}
+
+.galleryThumb:hover {
+  opacity: 1;
+}
+
+@media (max-width: 600px) {
+  .galleryMainWrap .productDetailImage {
+    height: 260px;
+  }
+
+  .galleryArrow {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+  }
+}

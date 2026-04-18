@@ -634,8 +634,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!fileInput.files[0]) return alert("Please select an image.");
     if (hasVariants && variants.length === 0) return alert("Please add at least one variant.");
 
-    const imageUrl = await uploadImage(fileInput.files[0], "uploadStatus");
-    if (!imageUrl) return alert("Image upload failed. Please try again.");
+    const imageUrls = await uploadMultipleImages(fileInput.files, "uploadStatus");
+    if (!imageUrls || imageUrls.length === 0) return alert("Image upload failed. Please try again.");
 
     try {
       const res = await fetch(`${BASE_URL}/api/products/add`, {
@@ -643,7 +643,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
-          image: imageUrl,
+          image: imageUrls[0],
+          images: imageUrls,
           price,
           page,
           hasVariants,
@@ -785,10 +786,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (hasVariants && variants.length === 0) return alert("Please add at least one variant.");
 
     let image = document.getElementById("editProductImage").value;
-    if (fileInput.files[0]) {
-      const uploaded = await uploadImage(fileInput.files[0], "editProductUploadStatus");
+    let images = [];
+
+    if (fileInput.files.length > 0) {
+      const uploaded = await uploadMultipleImages(fileInput.files, "editProductUploadStatus");
       if (!uploaded) return alert("Image upload failed. Please try again.");
-      image = uploaded;
+      image = uploaded[0];
+      images = uploaded;
     }
 
     try {
@@ -796,11 +800,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name, image, price,
+          name, image, images, price,
           hasVariants,
           variantType: hasVariants ? variantType : null,
           variants: hasVariants ? variants : [],
-          description 
+          description
         })
       });
       const data = await res.json();
@@ -884,6 +888,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  async function uploadMultipleImages(files, statusElId) {
+    const statusEl = document.getElementById(statusElId);
+    if (statusEl) statusEl.textContent = "Uploading images...";
+
+    const formData = new FormData();
+    Array.from(files).forEach(file => formData.append("images", file));
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/products/upload-images`, {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (statusEl) statusEl.textContent = `${data.imageUrls.length} image(s) uploaded ✅`;
+        return data.imageUrls;
+      } else {
+        if (statusEl) statusEl.textContent = "Upload failed";
+        return null;
+      }
+    } catch (err) {
+      console.error("Multi-upload error:", err);
+      if (statusEl) statusEl.textContent = "Upload failed";
+      return null;
+    }
+  }
   // Upload image to Cloudinary
   async function uploadImage(file, statusElId) {
     const statusEl = document.getElementById(statusElId);

@@ -6,14 +6,19 @@ const ProductSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+
   image: {
     type: String,
     required: true
   },
+
+  images: [{ type: String }],
+
   price: {
     type: Number,
     required: true
   },
+
   page: {
     type: String
   },
@@ -50,5 +55,4 @@ const ProductSchema = new mongoose.Schema({
     default: 0
   }
 }, { timestamps: true });
-
 module.exports = mongoose.model("Product", ProductSchema);
