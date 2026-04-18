@@ -605,7 +605,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       wrap.remove();
     });
 
-    if (index === 0) {
+    const isFirstOverall = strip.children.length === 0;
+
+    if (isFirstOverall) {
       const badge = document.createElement("span");
       badge.textContent = "Main";
       badge.style.cssText = "position:absolute; bottom:2px; left:2px; background:hsl(357,45%,69%); color:white; font-size:9px; padding:1px 4px; border-radius:3px;";
@@ -744,9 +746,41 @@ document.addEventListener("DOMContentLoaded", async () => {
       addEditVariantRow(v.label, v.price);
     });
 
-    // Reset edit image strip
+    // Reset edit image strip and load existing images
     document.getElementById("editImagePreviewStrip").innerHTML = "";
     editImageFiles.length = 0;
+
+    const strip = document.getElementById("editImagePreviewStrip");
+    const existingImages = product.images && product.images.length > 0
+      ? product.images
+      : [product.image];
+
+    existingImages.forEach((url, i) => {
+      const wrap = document.createElement("div");
+      wrap.style.cssText = "position:relative; width:64px; height:64px;";
+      wrap.dataset.existingUrl = url;
+
+      const img = document.createElement("img");
+      img.src = url;
+      img.style.cssText = "width:64px; height:64px; object-fit:cover; border-radius:6px; border:1px solid #eee;";
+
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "✕";
+      removeBtn.type = "button";
+      removeBtn.style.cssText = "position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; background:#e74c3c; color:white; border:none; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;";
+      removeBtn.addEventListener("click", () => wrap.remove());
+
+      if (i === 0) {
+        const badge = document.createElement("span");
+        badge.textContent = "Main";
+        badge.style.cssText = "position:absolute; bottom:2px; left:2px; background:hsl(357,45%,69%); color:white; font-size:9px; padding:1px 4px; border-radius:3px;";
+        wrap.appendChild(badge);
+      }
+
+      wrap.appendChild(img);
+      wrap.appendChild(removeBtn);
+      strip.appendChild(wrap);
+    });
 
     // Show modal
     editProductModal.style.display = "flex";
@@ -820,7 +854,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       wrap.remove();
     });
 
-    if (index === 0) {
+    const isFirstOverall = strip.children.length === 0;
+
+    if (isFirstOverall) {
       const badge = document.createElement("span");
       badge.textContent = "Main";
       badge.style.cssText = "position:absolute; bottom:2px; left:2px; background:hsl(357,45%,69%); color:white; font-size:9px; padding:1px 4px; border-radius:3px;";
@@ -854,15 +890,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (hasVariants && variants.length === 0) return alert("Please add at least one variant.");
 
-    let image = document.getElementById("editProductImage").value;
-    let images = [];
+    // Collect existing image URLs still in the strip
+    const strip = document.getElementById("editImagePreviewStrip");
+    const existingUrls = Array.from(strip.querySelectorAll("[data-existing-url]"))
+      .map(el => el.dataset.existingUrl);
 
+    let uploadedUrls = [];
     if (editImageFiles.length > 0) {
       const uploaded = await uploadMultipleImages(editImageFiles, "editProductUploadStatus");
       if (!uploaded) return alert("Image upload failed. Please try again.");
-      image = uploaded[0];
-      images = uploaded;
+      uploadedUrls = uploaded;
     }
+
+    // Merge: existing (not removed) + newly uploaded
+    const allImages = [...existingUrls, ...uploadedUrls];
+    if (allImages.length === 0) return alert("Please add at least one image.");
+
+    const image = allImages[0];
+    const images = allImages;
 
     try {
       const res = await fetch(`${BASE_URL}/api/products/${productId}`, {
