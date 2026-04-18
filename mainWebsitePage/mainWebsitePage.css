@@ -1298,6 +1298,306 @@ a:hover {
   color: #c0392b;
 }
 
+/* ─── SHARED SECTION STYLES ─── */
+.sectionTag {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--navColor);
+  margin-bottom: 10px;
+}
+
+.sectionTitle {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 40px;
+  line-height: 1.2;
+}
+
+/* ─── WHY CHOOSE US ─── */
+.whySection {
+  background: var(--primaryColor);
+  padding: 80px 20px;
+}
+
+.whySectionInner {
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.whyGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.whyCard {
+  background: var(--secondaryColor);
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border: 1px solid transparent;
+}
+
+.whyCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+  border-color: var(--pageColor);
+  background: white;
+}
+
+.whyIcon {
+  font-size: 36px;
+  margin-bottom: 16px;
+}
+
+.whyCard h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.whyCard p {
+  font-size: 13px;
+  color: #777;
+  line-height: 1.6;
+}
+
+/* ─── ABOUT US ─── */
+.aboutSection {
+  background: var(--pageColor);
+  padding: 80px 20px;
+}
+
+.aboutInner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 60px;
+  flex-wrap: wrap;
+}
+
+.aboutText {
+  flex: 1;
+  min-width: 280px;
+}
+
+.aboutBody {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+.aboutMission {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px 0;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  border-left: 4px solid var(--navColor);
+}
+
+.missionItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.missionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--navColor);
+}
+
+.missionText {
+  font-size: 13px;
+  color: #444;
+  line-height: 1.5;
+}
+
+.aboutTagline {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--navColor);
+  margin-top: 20px;
+  font-style: italic;
+}
+
+.aboutImageWrap {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aboutImageRing {
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 6px solid white;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+}
+
+.aboutImageRing img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.aboutBadge {
+  position: absolute;
+  bottom: 10px;
+  right: -10px;
+  background: var(--navColor);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ─── TESTIMONIALS ─── */
+.testimonialsSection {
+  background: var(--primaryColor);
+  padding: 80px 20px;
+}
+
+.testimonialsInner {
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.testimonialsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.testimonialCard {
+  background: var(--secondaryColor);
+  border-radius: 16px;
+  padding: 28px 24px;
+  text-align: left;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.testimonialCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+  background: white;
+}
+
+.testimonialStars {
+  color: var(--navColor);
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+
+.testimonialText {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.7;
+  font-style: italic;
+  flex: 1;
+}
+
+.testimonialAuthor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.testimonialAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--navColor);
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.testimonialAuthor span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .whySection,
+  .aboutSection,
+  .testimonialsSection {
+    padding: 50px 16px;
+  }
+
+  .aboutInner {
+    flex-direction: column;
+    gap: 40px;
+    text-align: center;
+  }
+
+  .aboutMission {
+    text-align: left;
+  }
+
+  .aboutImageRing {
+    width: 200px;
+    height: 200px;
+  }
+
+  .whyGrid,
+  .testimonialsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .whyCard,
+  .testimonialCard {
+    padding: 20px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .whyGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .testimonialsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionTitle {
+    font-size: 22px;
+    margin-bottom: 24px;
+  }
+}
+
 @media (max-width: 480px) {
   .userAvatar {
     width: 25px;
