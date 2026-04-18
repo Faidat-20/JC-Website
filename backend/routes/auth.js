@@ -295,6 +295,58 @@ router.post("/subscribe-newsletter", async (req, res) => {
       return res.status(400).json({ success: false, message: "Please enter a valid email address." });
     }
 
+    // ✅ Check if email domain actually exists
+    if (email) {
+      const domain = email.split("@")[1].toLowerCase();
+
+      // Do a strict DNS check AND blocklist combined
+      const strictBlocklist = [
+        "email.com", "test.com", "example.com", "fake.com", "nomail.com",
+        "mailtest.com", "noemail.com", "notreal.com", "invalid.com", "none.com",
+        "temp.com", "dummy.com", "abc.com", "xyz.com", "123.com",
+        "mail.com",
+        "emailtest.com", "testmail.com", "fakemail.com", "trashmail.com",
+        "guerrillamail.com", "mailinator.com", "throwam.com", "tempmail.com",
+        "yopmail.com", "sharklasers.com", "guerrillamailblock.com",
+        "grr.la", "guerrillamail.info", "spam4.me", "dispostable.com"
+      ];
+
+      if (strictBlocklist.includes(domain)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Please use a real email address (e.g. Gmail, Yahoo, Outlook)." 
+        });
+      }
+
+      // DNS check
+      try {
+        const dns = require("dns").promises;
+        let domainValid = false;
+
+        try {
+          const mxRecords = await dns.resolveMx(domain);
+          // Must have at least one real MX record with a proper exchange
+          domainValid = mxRecords.length > 0 && mxRecords.some(r => r.exchange && r.exchange.length > 3);
+        } catch {
+          try {
+            await dns.resolve4(domain);
+            domainValid = true;
+          } catch {
+            domainValid = false;
+          }
+        }
+
+        if (!domainValid) {
+          return res.status(400).json({ 
+            success: false, 
+            message: "This email address doesn't seem to exist. Please use a real email." 
+          });
+        }
+      } catch (err) {
+        console.error("DNS check error:", err.message);
+      }
+    }
+
     let user;
 
     // Find user by userId first
