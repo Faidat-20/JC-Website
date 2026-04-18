@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const product = data.product;
-    document.title = `${product.name} — Jikes Cosmetics`;
+    document.title = `${product.name} | Jikes Cosmetics`;
 
     const ratingsRes = await fetch(`${BASE_URL}/api/ratings/${product._id}`);
     const ratingsData = await ratingsRes.json();
