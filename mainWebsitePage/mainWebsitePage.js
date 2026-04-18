@@ -540,22 +540,67 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   function showEmptyCart() {
-    cartItemsContainer.innerHTML = "";
+    cartItemsContainer.innerHTML = `
+      <div style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        text-align: center;
+        gap: 12px;
+      ">
+        <div style="font-size: 48px;">🛍️</div>
+        <p style="font-size: 15px; font-weight: 600; color: #333; margin: 0;">
+          Your cart is empty
+        </p>
+        <p style="font-size: 13px; color: #999; margin: 0;">
+          Looks like you haven't added anything yet!
+        </p>
+        <button id="shopNowBtn" style="
+          margin-top: 8px;
+          padding: 10px 24px;
+          background: hsl(357, 45%, 69%);
+          color: white;
+          border: none;
+          border-radius: 20px;
+          font-size: 13px;
+          font-weight: bold;
+          cursor: pointer;
+          box-shadow: 0 3px 0 hsl(357, 43%, 63%);
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+        ">Shop Now</button>
+      </div>
+    `;
+
+    const shopNowBtn = document.getElementById("shopNowBtn");
+    if (shopNowBtn) {
+      shopNowBtn.addEventListener("mouseenter", () => {
+        shopNowBtn.style.transform = "translateY(-2px)";
+        shopNowBtn.style.boxShadow = "0 5px 0 hsl(357, 43%, 63%)";
+        shopNowBtn.style.background = "hsl(357, 45%, 62%)";
+      });
+      shopNowBtn.addEventListener("mouseleave", () => {
+        shopNowBtn.style.transform = "translateY(0)";
+        shopNowBtn.style.boxShadow = "0 3px 0 hsl(357, 43%, 63%)";
+        shopNowBtn.style.background = "hsl(357, 45%, 69%)";
+      });
+      shopNowBtn.addEventListener("click", () => {
+        closeCartOverlay();
+        showSpinner();
+        setTimeout(() => {
+          window.location.href = "mainWebsitePage.html";
+        }, 600);
+      });
+    }
+
     cartItemsContainer.classList.add("empty");
-
-
     updateCartItemText();
     cartSubtotalDisplay.textContent = 0;
     cartCount.textContent = 0;
-
-    // CHECKOUT DISABLED
     checkoutBtn.disabled = true;
     checkoutBtn.classList.add("disabled");
-
-    // PREVENTS EMPTY CART CLEARING
     clearCartBtn.style.display = "none";
-
-    // CENTER FOOTER CONTENT WHEN CART IS EMPTY
     document.querySelector(".cartFooter").classList.add("empty");
   }
 
