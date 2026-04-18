@@ -187,12 +187,19 @@ document.addEventListener("DOMContentLoaded", () => {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      flex-wrap: wrap;
+      gap: 6px;
       margin-top: 8px;
+      text-align: center;
+      padding: 0 8px;
     `;
 
     const resendLabel = document.createElement("span");
-    resendLabel.style.cssText = "font-size: 0.85rem; color: #666;";
+    resendLabel.style.cssText = `
+      font-size: 0.85rem;
+      color: #666;
+      white-space: nowrap;
+    `;
     resendLabel.textContent = "Didn't receive the code?";
 
     const resendBtn = document.createElement("button");
@@ -205,6 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
       font-weight: bold;
       color: hsl(357, 45%, 69%);
       text-decoration: underline;
+      white-space: nowrap;
     `;
 
     const timerSpan = document.createElement("span");
