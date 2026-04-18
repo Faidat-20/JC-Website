@@ -267,6 +267,112 @@ h1 {
   background: #fff5f5;
 }
 
+/* ─── YOU MIGHT ALSO LIKE ─── */
+.youMayLikeSection {
+  max-width: 900px;
+  margin: 0 auto 60px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.youMayLikeTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 24px;
+  position: relative;
+  display: inline-block;
+}
+
+.youMayLikeTitle::after {
+  content: "";
+  display: block;
+  width: 50%;
+  height: 3px;
+  background: hsl(357, 45%, 69%);
+  border-radius: 2px;
+  margin: 8px auto 0;
+}
+
+.youMayLikeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.youMayLikeCard {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.youMayLikeCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.youMayLikeCard img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.youMayLikeName {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  margin: 0;
+}
+
+.youMayLikePrice {
+  font-size: 12px;
+  color: #888;
+  margin: 0;
+}
+
+.youMayLikeBtn {
+  margin-top: 4px;
+  padding: 8px 16px;
+  background: hsl(357, 45%, 69%);
+  color: white;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.youMayLikeBtn:hover {
+  background: hsl(357, 45%, 62%);
+  transform: translateY(-1px);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .youMayLikeGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .youMayLikeGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .youMayLikeCard {
+    padding: 12px;
+  }
+}
+
 /* ─── RESPONSIVE ─── */
 @media (max-width: 480px) {
   .success-topbar .nav-links {

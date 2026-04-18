@@ -111,4 +111,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Order success page error:", err);
   }
 
+  // ─── YOU MIGHT ALSO LIKE ───
+  try {
+    const productsRes = await fetch(`${BASE_URL}/api/products`);
+    const productsData = await productsRes.json();
+
+    if (productsData.success && productsData.products.length > 0) {
+      // Shuffle and pick 4 random products
+      const shuffled = productsData.products
+        .filter(p => p.inStock !== false)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 4);
+
+      const grid = document.getElementById("youMayLikeGrid");
+      if (grid) {
+        shuffled.forEach(product => {
+          const card = document.createElement("div");
+          card.className = "youMayLikeCard";
+          card.innerHTML = `
+            <img src="${product.image}" alt="${product.name}">
+            <p class="youMayLikeName">${product.name}</p>
+            <p class="youMayLikePrice">₦${product.price.toLocaleString()}</p>
+            <a href="product.html?id=${product._id}" class="youMayLikeBtn">View Product</a>
+          `;
+          grid.appendChild(card);
+        });
+      }
+    }
+  } catch (err) {
+    console.error("You might also like error:", err);
+  }
 });
