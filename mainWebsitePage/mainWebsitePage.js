@@ -613,11 +613,13 @@ document.addEventListener("DOMContentLoaded", () => {
             for (const guestItem of guestCart) {
               const existing = backendCart.find(i => i.name === guestItem.name);
               if (existing) {
-                existing.quantity += guestItem.quantity;
+                // ✅ guest quantity wins — reflects what they actively chose this session
+                existing.quantity = guestItem.quantity;
+                await updateCartBackend(userId, guestItem.name, guestItem.image, guestItem.price, "update", guestItem.quantity);
               } else {
                 backendCart.push(guestItem);
+                await updateCartBackend(userId, guestItem.name, guestItem.image, guestItem.price, "add", guestItem.quantity);
               }
-              await updateCartBackend(userId, guestItem.name, guestItem.image, guestItem.price, "add", guestItem.quantity);
             }
             cart = backendCart;
             renderCart();
