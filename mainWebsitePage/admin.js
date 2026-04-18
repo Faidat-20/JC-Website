@@ -889,6 +889,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function uploadMultipleImages(files, statusElId) {
+    console.log("Files being sent:", Array.from(files).map(f => f.name));
     const statusEl = document.getElementById(statusElId);
     if (statusEl) statusEl.textContent = "Uploading images...";
 

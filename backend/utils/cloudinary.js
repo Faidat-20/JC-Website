@@ -10,10 +10,12 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: {
-    folder: "jikes-cosmetics",
-    allowed_formats: ["jpg", "jpeg", "png", "webp"],
-    transformation: [{ width: 800, height: 800, crop: "limit" }]
+  params: async (req, file) => {
+    return {
+      folder: "jikes-cosmetics",
+      allowed_formats: ["jpg", "jpeg", "png", "webp"],
+      transformation: [{ width: 800, height: 800, crop: "limit" }]
+    };
   }
 });
 

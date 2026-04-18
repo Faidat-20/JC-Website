@@ -237,6 +237,9 @@ router.put("/:productId/stock", async (req, res) => {
 // ----------------------
 router.post("/upload-images", upload.array("images", 10), async (req, res) => {
   try {
+
+    console.log("Files received:", req.files?.length);
+    console.log("Files:", req.files?.map(f => f.originalname));
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ success: false, message: "No images uploaded" });
     }
